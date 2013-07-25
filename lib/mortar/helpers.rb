@@ -540,5 +540,6 @@ module Mortar
       create_display_method("exists", "1;34")
       create_display_method("identical", "1;34")
       create_display_method("conflict", "1;31")
+      create_display_method("remove", "1;35")
   end
 end

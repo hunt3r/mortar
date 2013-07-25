@@ -18,6 +18,7 @@ require 'spec_helper'
 require 'fakefs/spec_helpers'
 require 'mortar/command/local'
 require 'launchy'
+require 'fileutils'
 
 module Mortar::Command
   describe Local do
@@ -102,6 +103,33 @@ STDERR
         end
       end
     # run
+    end
+
+    context("characterize") do
+      # TODO - oleiman: some tests for characterize should go here
+
+      it "should clean up after itself" do
+        @tmpdir = Dir.mktmpdir
+        Dir.chdir(@tmpdir)
+
+        File.open("test.params", 'w') do |file|
+          file.write(<<PARAMS
+LOADER=org.apache.pig.piggybank.storage.JsonLoader()
+INPUT_SRC=s3n://twitter-gardenhose-mortar/example
+OUTPUT_PATH=twitter_char
+INFER_TYPES=true
+PARAMS
+          )
+        end
+        stderr, stdout = execute("generate:project Test")
+        stderr, stdout = execute("local:characterize -f test.params --project_root Test")
+        File.exists?("Test/pigscripts/characterize.pig").should be_false
+        File.exists?("Test/macros/characterize_macro.pig").should be_false
+        File.exists?("Test/udfs/jython/top_5_tuple.py").should be_false
+        File.exists?("Test/controlscripts/lib/characterize_control.py").should be_false
+        File.delete("test.params")           
+      end
+
     end
 
     context("configure") do
