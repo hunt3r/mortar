@@ -26,6 +26,8 @@ class Mortar::Local::Python
   @command = nil
 
 
+  @candidate_pythons = nil
+
   # Execute either an installation of python or an inspection
   # of the local system to see if a usable python is available
   def check_or_install
@@ -36,6 +38,17 @@ class Mortar::Local::Python
       # Otherwise we check that the system supplied python will be sufficient
       check_system_python
     end
+  end
+
+  def check_virtualenv
+    # Assumes you've already called check_or_install(), in which case
+    # we can skip osx as its installation includeds virtualenv
+    if osx?
+      return true
+    else
+      return check_pythons_for_virtenv
+    end
+
   end
 
   def should_do_update?
@@ -76,21 +89,31 @@ class Mortar::Local::Python
     return (osx? and (not (File.exists?(python_directory))))
   end
 
+  def candidates
+    @candidate_pythons.dup
+  end
 
   # Checks if there is a usable versionpython already installed
   def check_system_python
-    py_cmd = path_to_local_python()
-    if not py_cmd
-      false
-    else
-      @command = py_cmd
-      true
-    end
+    @candidate_pythons = lookup_local_pythons
+    return 0 != @candidate_pythons.length
+  end
+
+  # Inspects the list of found python installations and
+  # checks if they have virtualenv installed. The first
+  # one found will be used.
+  def check_pythons_for_virtenv
+    @candidate_pythons.each{ |py|
+      if has_virtualenv_installed(py)
+        @command = py
+        true
+      end
+    }
   end
 
   # Checks if the specified python command has
   # virtualenv installed
-  def check_virtualenv_installed(python)
+  def has_virtualenv_installed(python)
     `#{python} -m virtualenv --help`
     if (0 != $?.to_i)
       false
@@ -99,18 +122,16 @@ class Mortar::Local::Python
     end
   end
 
-  def path_to_local_python
+  def lookup_local_pythons
     # Check several python commands in decending level of desirability
+    found_bins = []
     [ "python#{desired_python_minor_version}", "python" ].each{ |cmd|
       path_to_python = `which #{cmd}`.to_s.strip
       if path_to_python != ''
-        # todo: check for a minimum version (in the case of 'python')
-        if check_virtualenv_installed(path_to_python)
-          return path_to_python
-        end
+        found_bins << path_to_python
       end
     }
-    return nil
+    return found_bins
   end
 
 

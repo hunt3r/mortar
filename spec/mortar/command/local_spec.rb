@@ -142,8 +142,7 @@ STDERR
         end
         any_instance_of(Mortar::Local::Python) do |j|
           mock(j).check_or_install.returns(true)
-        end
-        any_instance_of(Mortar::Local::Python) do |j|
+          mock(j).check_virtualenv.returns(true)
           mock(j).setup_project_python_environment.returns(true)
         end
         any_instance_of(Mortar::Local::Jython) do |j|
