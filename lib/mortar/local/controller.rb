@@ -33,9 +33,14 @@ Linux systems please consult the documentation on your relevant package manager.
 EOF
 
   NO_PYTHON_ERROR_MESSAGE = <<EOF
-A suitable python installation with virtualenv could not be located.  Please ensure
-you have python 2.6+ installed on your local system.  If you need to obtain a copy
-of virtualenv it can be located here:
+A suitable python installation could not be located.  Please ensure you have python 2.6+
+installed on your local system.
+EOF
+
+  NO_VIRTENV_ERROR_MESSAGE = <<EOF
+The following python executables were found: %s
+Unfortunately none of these appear to have virtualenv installed.  You may obtain a
+copy of virtualenv here
 https://pypi.python.org/pypi/virtualenv
 EOF
 
@@ -84,6 +89,10 @@ EOF
     py = Mortar::Local::Python.new()
     unless py.check_or_install
       error(NO_PYTHON_ERROR_MESSAGE)
+    end
+
+    unless py.check_virtualenv
+      error(NO_VIRTENV_ERROR_MESSAGE % [py.candidates.join(",")])
     end
 
     unless py.setup_project_python_environment
