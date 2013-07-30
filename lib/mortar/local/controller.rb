@@ -38,9 +38,8 @@ installed on your local system.
 EOF
 
   NO_VIRTENV_ERROR_MESSAGE = <<EOF
-The following python executables were found: %s
-Unfortunately none of these appear to have virtualenv installed.  You may obtain a
-copy of virtualenv here
+A suitable Python installation was found, but it is required that virtualenv be installed
+as well.  You can install it with pip, or download it directly from:
 https://pypi.python.org/pypi/virtualenv
 EOF
 
@@ -92,7 +91,7 @@ EOF
     end
 
     unless py.check_virtualenv
-      error(NO_VIRTENV_ERROR_MESSAGE % [py.candidates.join(",")])
+      error(NO_VIRTENV_ERROR_MESSAGE)
     end
 
     unless py.setup_project_python_environment
