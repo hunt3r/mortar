@@ -23,7 +23,8 @@ class Mortar::Local::Pig
   include Mortar::Local::InstallUtil
 
   PIG_LOG_FORMAT = "humanreadable"
-  PIG_TAR_DEFAULT_URL = "https://s3.amazonaws.com/mhc-software-mirror/cli/pig.tgz"
+  PIG_TGZ_NAME = "pig.tgz"
+  PIG_TGZ_DEFAULT_URL = "s3resource/pig"
 
   # Tempfile objects have a hook to delete the file when the object is
   # destroyed by the garbage collector.  In practice this means that a
@@ -77,11 +78,8 @@ class Mortar::Local::Pig
   end
 
   def pig_archive_url
-    ENV.fetch('PIG_DISTRO_URL', PIG_TAR_DEFAULT_URL)
-  end
-
-  def pig_archive_file
-    File.basename(pig_archive_url)
+    default_url = host + "/" + PIG_TGZ_DEFAULT_URL
+    ENV.fetch('PIG_DISTRO_URL', default_url)
   end
 
   # Determines if a pig install needs to occur, true if no pig install present
@@ -96,7 +94,6 @@ class Mortar::Local::Pig
   end
 
   def install_or_update()
-    call_install = false
     if should_do_pig_install?
       action "Installing pig to #{local_install_directory_name}" do
         install()
@@ -111,8 +108,8 @@ class Mortar::Local::Pig
   # Installs pig for this project if it is not already present
   def install
     FileUtils.mkdir_p(local_install_directory)
-    download_file(pig_archive_url, local_install_directory)
-    local_tgz = File.join(local_install_directory, pig_archive_file)
+    local_tgz = File.join(local_install_directory, PIG_TGZ_NAME)
+    download_file(pig_archive_url, local_tgz)
     extract_tgz(local_tgz, local_install_directory)
 
     # This has been seening coming out of the tgz w/o +x so we do

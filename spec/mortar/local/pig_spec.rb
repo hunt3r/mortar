@@ -34,8 +34,8 @@ module Mortar::Local
         # chmods bin/pig, removes tgz, and notes the installation
         FakeFS do
           pig = Mortar::Local::Pig.new
-          local_pig_archive = File.join(pig.local_install_directory, pig.pig_archive_file)
-          mock(pig).download_file(pig.pig_archive_url, pig.local_install_directory) do
+          local_pig_archive = File.join(pig.local_install_directory, Mortar::Local::Pig::PIG_TGZ_NAME)
+          mock(pig).download_file(pig.pig_archive_url, local_pig_archive) do
             # Simulate the tgz file being downloaded, this should be deleted
             # before the method finishes executing
             FileUtils.touch(local_pig_archive)

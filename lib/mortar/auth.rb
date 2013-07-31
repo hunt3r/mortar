@@ -67,14 +67,6 @@ class Mortar::Auth
         end
       end
     end
-    
-    def default_host
-      "mortardata.com"
-    end
-    
-    def host
-      ENV['MORTAR_HOST'] || default_host
-    end
   
     def reauthorize
       @credentials = ask_for_and_save_credentials
