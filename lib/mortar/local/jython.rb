@@ -54,7 +54,7 @@ class Mortar::Local::Jython
   end
 
   def should_update
-    return is_newer_version('jython', JYTHON_JAR_DIR + JYTHON_JAR_NAME)
+    return is_newer_version('jython', jython_jar_url)
   end
 
   def update
