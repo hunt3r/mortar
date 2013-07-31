@@ -21,7 +21,7 @@ class Mortar::Local::Jython
 
   JYTHON_VERSION = '2.5.2'
   JYTHON_JAR_NAME = 'jython_installer-' + JYTHON_VERSION + '.jar'
-  JYTHON_JAR_DEFAULT_URL = "s3resource/jython"
+  JYTHON_JAR_DEFAULT_URL_PATH = "resource/jython"
 
   def install_or_update
     if should_install
@@ -63,7 +63,7 @@ class Mortar::Local::Jython
   end
 
   def jython_jar_url
-    default_url = host + "/" + JYTHON_JAR_DEFAULT_URL
+    default_url = host + "/" + JYTHON_JAR_DEFAULT_URL_PATH
     ENV.fetch('JYTHON_JAR_URL', default_url)
   end
 end

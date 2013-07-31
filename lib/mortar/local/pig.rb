@@ -24,7 +24,7 @@ class Mortar::Local::Pig
 
   PIG_LOG_FORMAT = "humanreadable"
   PIG_TGZ_NAME = "pig.tgz"
-  PIG_TGZ_DEFAULT_URL = "s3resource/pig"
+  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig"
 
   # Tempfile objects have a hook to delete the file when the object is
   # destroyed by the garbage collector.  In practice this means that a
@@ -78,7 +78,7 @@ class Mortar::Local::Pig
   end
 
   def pig_archive_url
-    default_url = host + "/" + PIG_TGZ_DEFAULT_URL
+    default_url = host + "/" + PIG_TGZ_DEFAULT_URL_PATH
     ENV.fetch('PIG_DISTRO_URL', default_url)
   end
 

@@ -132,10 +132,15 @@ module Mortar
       # support automatically following redirects.  Adds parameter that
       # checks an environment variable to identify the test making this call
       # (if being run by a test).
-      def make_call(url, call_func, times=0)
-        if times >= 5
+      def make_call(url, call_func, redirect_times=0, errors=0)
+        if redirect_times >= 5
           raise RuntimeError, "Too many redirects.  Last url: #{url}"
         end
+
+        if errors >= 5
+          raise RuntimeError, "Server Error at #{url}"
+        end
+
         
         query = {}
         if test_name
@@ -157,11 +162,18 @@ module Mortar
           raise RuntimeError, "Unknown call type: #{call_func}"
         end
         case response.status
-        when 300..399 then 
-          make_call(response.headers['Location'], call_func, times+1)
+        when 300..303 then 
+          make_call(response.headers['Location'], call_func, redirect_times+1, errors)
+        when 500..599 then
+          sleep(make_call_sleep_seconds)
+          make_call(url, call_func, redirect_times, errors+1)
         else
           response
         end
+      end
+
+      def make_call_sleep_seconds
+        2
       end
 
       def osx?

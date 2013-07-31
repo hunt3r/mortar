@@ -20,7 +20,7 @@ class Mortar::Local::Python
   include Mortar::Local::InstallUtil
 
   PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
-  PYTHON_OSX_TGZ_DEFAULT_URL = "s3resource/python_osx"
+  PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
 
   # Path to the python binary that should be used
   # for running UDFs
@@ -158,7 +158,7 @@ class Mortar::Local::Python
   end
 
   def python_archive_url
-    default_url = host + "/" + PYTHON_OSX_TGZ_DEFAULT_URL
+    default_url = host + "/" + PYTHON_OSX_TGZ_DEFAULT_URL_PATH
     return ENV.fetch('PYTHON_DISTRO_URL', default_url)
   end
 

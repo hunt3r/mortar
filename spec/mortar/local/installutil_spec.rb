@@ -162,6 +162,18 @@ module Mortar::Local
         
         lambda { @installutil.get_resource("http://foo/bar") }.should raise_error(RuntimeError, /Too many redirects/)
       end
+
+      it "too many errors" do
+        response = Excon::Response.new(:status => 500)
+        mock(@installutil).make_call_sleep_seconds().times(5).returns(0)
+        mock(Excon).get("http://foo/bar", 
+                        :headers => {'User-Agent' => Mortar::USER_AGENT},
+                        :query => {}
+                       ).times(5).returns(response)
+        
+        lambda { @installutil.get_resource("http://foo/bar") }.should raise_error(RuntimeError, /Server Error/)
+      end
+
     end
 
     context "head_resource" do
