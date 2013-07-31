@@ -38,6 +38,18 @@ module Mortar
       RUBY_PLATFORM =~ /-darwin\d/
     end
 
+    def default_host
+      "mortardata.com"
+    end
+    
+    def host
+      ENV['MORTAR_HOST'] || default_host
+    end
+
+    def test_name
+      ENV['MORTAR_TEST_NAME']
+    end
+
     def write_to_file(str_data, path, mkdir_p=true)
       if mkdir_p
         FileUtils.mkdir_p File.dirname(path)

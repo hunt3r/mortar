@@ -106,7 +106,11 @@ module Mortar::Local
 
       it "returns an epoch" do
         excon_response = Excon::Response.new(:headers => {"Last-Modified" => "Mon, 11 Mar 2013 15:03:55 GMT"})
-        mock(Excon).head("http://foo/bar").returns(excon_response)
+        mock(Excon).head("http://foo/bar", 
+                         :headers => {"User-Agent"=>Mortar::USER_AGENT},
+                         :query => {}
+                        ).returns(excon_response)
+        
         actual_epoch = @installutil.url_date("http://foo/bar")
         expect(actual_epoch).to eq(1363014235)
       end
@@ -121,6 +125,70 @@ module Mortar::Local
       end
 
     end
+
+    context "download_file" do
+
+      it "follows redirect" do
+        excon_first_response = Excon::Response.new(:headers => {"Location" => "http://foo/bar2"}, :status => 302)
+        mock(Excon).get("http://foo/bar", 
+                        :headers => {'User-Agent' => Mortar::USER_AGENT},
+                        :query => {}
+                        ).returns(excon_first_response)
+        
+        excon_second_response = Excon::Response.new(:status => 200, :body => "content")
+        mock(Excon).get("http://foo/bar2", 
+                        :headers => {'User-Agent' => Mortar::USER_AGENT},
+                        :query => {}
+                        ).returns(excon_second_response)
+        
+        local_install_directory = @installutil.local_install_directory
+        expected_file_path = File.join(local_install_directory, 'bar2')
+        FakeFS do
+          FileUtils.mkdir_p(local_install_directory)
+          @installutil.download_file('http://foo/bar', expected_file_path)
+          expect(File.exists?(expected_file_path)).to be_true
+        end
+      end
+
+    end
+
+    context "get_resource" do
+      it "too many redirects" do
+        response = Excon::Response.new(:headers => {"Location" => "http://foo/bar"}, :status => 302)
+        mock(Excon).get("http://foo/bar", 
+                        :headers => {'User-Agent' => Mortar::USER_AGENT},
+                        :query => {}
+                       ).times(5).returns(response)
+        
+        lambda { @installutil.get_resource("http://foo/bar") }.should raise_error(RuntimeError, /Too many redirects/)
+      end
+
+      it "too many errors" do
+        response = Excon::Response.new(:status => 500)
+        mock(@installutil).make_call_sleep_seconds().times(5).returns(0)
+        mock(Excon).get("http://foo/bar", 
+                        :headers => {'User-Agent' => Mortar::USER_AGENT},
+                        :query => {}
+                       ).times(5).returns(response)
+        
+        lambda { @installutil.get_resource("http://foo/bar") }.should raise_error(RuntimeError, /Server Error/)
+      end
+
+    end
+
+    context "head_resource" do
+      it "too many redirects" do
+        ENV['MORTAR_TEST_NAME'] = "Unit Testor"
+        response = Excon::Response.new(:headers => {"Location" => "http://foo/bar"}, :status => 302)
+        mock(Excon).head("http://foo/bar", 
+                         :headers => {'User-Agent' => Mortar::USER_AGENT},
+                         :query => { :test_name => "Unit Testor" }
+                        ).times(5).returns(response)
+        
+        lambda { @installutil.head_resource("http://foo/bar") }.should raise_error(RuntimeError, /Too many redirects/)
+      end
+    end
+
 
   end
 end

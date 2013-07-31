@@ -19,7 +19,8 @@ require "mortar/local/installutil"
 class Mortar::Local::Python
   include Mortar::Local::InstallUtil
 
-  PYTHON_DEFAULT_TGZ_URL = "https://s3.amazonaws.com/mhc-software-mirror/cli/mortar-python-osx.tgz"
+  PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
+  PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
 
   # Path to the python binary that should be used
   # for running UDFs
@@ -73,13 +74,14 @@ class Mortar::Local::Python
 
   def install_osx
     FileUtils.mkdir_p(local_install_directory)
-    download_file(python_archive_url, local_install_directory)
-    extract_tgz(local_install_directory + "/" + python_archive_file, local_install_directory)
+    python_tgz_path = File.join(local_install_directory, PYTHON_OSX_TGZ_NAME)
+    download_file(python_archive_url, python_tgz_path)
+    extract_tgz(python_tgz_path, local_install_directory)
 
     # This has been seening coming out of the tgz w/o +x so we do
     # here to be sure it has the necessary permissions
     FileUtils.chmod(0755, @command)
-    File.delete(local_install_directory + "/" + python_archive_file)
+    File.delete(python_tgz_path)
     note_install("python")
   end
 
@@ -156,11 +158,8 @@ class Mortar::Local::Python
   end
 
   def python_archive_url
-    return ENV.fetch('PYTHON_DISTRO_URL', PYTHON_DEFAULT_TGZ_URL)
-  end
-
-  def python_archive_file
-    File.basename(python_archive_url)
+    default_url = host + "/" + PYTHON_OSX_TGZ_DEFAULT_URL_PATH
+    return ENV.fetch('PYTHON_DISTRO_URL', default_url)
   end
 
   # Creates a virtualenv in a well known location and installs any packages

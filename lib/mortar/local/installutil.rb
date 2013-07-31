@@ -107,13 +107,73 @@ module Mortar
         end
       end
 
-      # Downloads the file at a specified url into the supplied director
-      def download_file(url, dest_dir)
-        dest_file_path = dest_dir + "/" + File.basename(url)
+      # Downloads the file at a specified url into the supplied directory
+      def download_file(url, dest_file_path)
+        response = get_resource(url)
+        
         File.open(dest_file_path, "wb") do |dest_file|
-          contents = Excon.get(url).body
-          dest_file.write(contents)
+          dest_file.write(response.body)
         end
+      
+      end
+
+      # Perform a get request to a url and follow redirects if necessary.
+      def get_resource(url)
+        make_call(url, 'get')
+      end
+
+      # Perform a head request to a url and follow redirects if necessary.
+      def head_resource(url)
+        make_call(url, 'head')
+      end
+
+      # Make a request to a mortar resource url.  Check response for a 
+      # redirect and if necessary call the new url.  Excon doesn't currently 
+      # support automatically following redirects.  Adds parameter that
+      # checks an environment variable to identify the test making this call
+      # (if being run by a test).
+      def make_call(url, call_func, redirect_times=0, errors=0)
+        if redirect_times >= 5
+          raise RuntimeError, "Too many redirects.  Last url: #{url}"
+        end
+
+        if errors >= 5
+          raise RuntimeError, "Server Error at #{url}"
+        end
+
+        
+        query = {}
+        if test_name
+          query[:test_name] = test_name
+        end
+
+        headers = {'User-Agent' => Mortar::USER_AGENT}
+        if call_func == 'head'
+          response = Excon.head( url, 
+                                :headers => headers,
+                                :query => query
+                               )
+        elsif call_func == 'get'
+          response = Excon.get( url, 
+                                :headers => headers,
+                                :query => query
+                              )
+        else
+          raise RuntimeError, "Unknown call type: #{call_func}"
+        end
+        case response.status
+        when 300..303 then 
+          make_call(response.headers['Location'], call_func, redirect_times+1, errors)
+        when 500..599 then
+          sleep(make_call_sleep_seconds)
+          make_call(url, call_func, redirect_times, errors+1)
+        else
+          response
+        end
+      end
+
+      def make_call_sleep_seconds
+        2
       end
 
       def osx?
@@ -126,7 +186,7 @@ module Mortar
       end
 
       def url_date(url)
-        result = Excon.head(url)
+        result = head_resource(url)
         http_date_to_epoch(result.get_header('Last-Modified'))
       end
 

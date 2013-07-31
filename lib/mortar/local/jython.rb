@@ -21,7 +21,7 @@ class Mortar::Local::Jython
 
   JYTHON_VERSION = '2.5.2'
   JYTHON_JAR_NAME = 'jython_installer-' + JYTHON_VERSION + '.jar'
-  JYTHON_JAR_DIR = "http://s3.amazonaws.com/hawk-dev-software-mirror/jython/jython-2.5.2/"
+  JYTHON_JAR_DEFAULT_URL_PATH = "resource/jython"
 
   def install_or_update
     if should_install
@@ -40,24 +40,30 @@ class Mortar::Local::Jython
   end
 
   def install
-    unless File.exists?(local_install_directory + '/' + JYTHON_JAR_NAME)
-        download_file(JYTHON_JAR_DIR + JYTHON_JAR_NAME, local_install_directory)
+    jython_file = File.join(local_install_directory, JYTHON_JAR_NAME)
+    unless File.exists?(jython_file)
+        download_file(jython_jar_url, jython_file)
     end
 
     `$JAVA_HOME/bin/java -jar #{local_install_directory + '/' + JYTHON_JAR_NAME} -s -d #{jython_directory}`
     FileUtils.mkdir_p jython_cache_directory
     FileUtils.chmod_R 0777, jython_cache_directory
 
-    FileUtils.rm(local_install_directory + '/' + JYTHON_JAR_NAME)
+    FileUtils.rm(jython_file)
     note_install('jython')
   end
 
   def should_update
-    return is_newer_version('jython', JYTHON_JAR_DIR + JYTHON_JAR_NAME)
+    return is_newer_version('jython', jython_jar_url)
   end
 
   def update
     FileUtils.rm_r(jython_directory)
     install
+  end
+
+  def jython_jar_url
+    default_url = host + "/" + JYTHON_JAR_DEFAULT_URL_PATH
+    ENV.fetch('JYTHON_JAR_URL', default_url)
   end
 end
