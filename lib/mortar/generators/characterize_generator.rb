@@ -23,22 +23,22 @@ module Mortar
       def generate_characterize
         begin
           inside "pigscripts" do
-            copy_file "characterize.pig", "characterize.pig"
+            copy_file_char "characterize.pig", "characterize.pig"
           end
 
           inside "controlscripts" do
             inside "lib" do
-              copy_file "characterize_control.py", "characterize_control.py"
+              copy_file_char "characterize_control.py", "characterize_control.py"
             end
           end
 
           inside "macros" do
-            copy_file "characterize_macro.pig", "characterize_macro.pig"
+            copy_file_char "characterize_macro.pig", "characterize_macro.pig"
           end
 
           inside "udfs" do
             inside "jython" do
-              copy_file "top_5_tuple.py", "top_5_tuple.py"
+              copy_file_char "top_5_tuple.py", "top_5_tuple.py"
             end
           end
 
@@ -88,7 +88,7 @@ module Mortar
         end
       end
           
-      def copy_file(src_file, dest_file, options={ :recursive => false })
+      def copy_file_char(src_file, dest_file, options={ :recursive => false })
         src_path = File.join(@src_path, @rel_path, src_file)
         dest_path = File.join(@dest_path, @rel_path, dest_file)
         msg = File.join(@rel_path, dest_file)[1..-1]
