@@ -130,14 +130,11 @@ STDOUT
 \e[1;32m      create\e[0m  .gitignore
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig
-\e[1;32m      create\e[0m  pigscripts/characterize.pig
 \e[1;32m      create\e[0m  controlscripts
 \e[1;32m      create\e[0m  controlscripts/lib
 \e[1;32m      create\e[0m  controlscripts/lib/__init__.py
-\e[1;32m      create\e[0m  controlscripts/lib/characterize_control.py
 \e[1;32m      create\e[0m  macros
 \e[1;32m      create\e[0m  macros/.gitkeep
-\e[1;32m      create\e[0m  macros/characterize_macro.pig
 \e[1;32m      create\e[0m  fixtures
 \e[1;32m      create\e[0m  fixtures/.gitkeep
 \e[1;32m      create\e[0m  udfs
@@ -145,7 +142,6 @@ STDOUT
 \e[1;32m      create\e[0m  udfs/python/some_new_project.py
 \e[1;32m      create\e[0m  udfs/jython
 \e[1;32m      create\e[0m  udfs/jython/.gitkeep
-\e[1;32m      create\e[0m  udfs/jython/top_5_tuple.py
 \e[1;32m      create\e[0m  udfs/java
 \e[1;32m      create\e[0m  udfs/java/.gitkeep
 \e[1;32m      create\e[0m  vendor
