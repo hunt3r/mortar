@@ -9,13 +9,9 @@ if __name__ == "__main__":
     output_path  = params["OUTPUT_PATH"]
     infer_types  = params["INFER_TYPES"]
 
-    #since the ouput path is generated dynamically, we check for directory
-    # collision in the control script (once the pig parameters are bound)
     if os.path.exists("../%s" % output_path):
-        sys.stderr.write(
-            "ERROR: Output directory file: %s already exists...Aborting run!\n" % output_path
-        )
-    else: 
+        sys.stderr.write("ERROR: Output directory file: %s exists...Aborting!\n" % output_path)
+    else:
         Pig.compileFromFile("../pigscripts/characterize.pig").bind({
             "LOADER"      : loader,
             "INPUT_SRC"   : input_source,

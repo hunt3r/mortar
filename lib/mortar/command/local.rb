@@ -108,6 +108,8 @@ class Mortar::Command::Local < Mortar::Command::Base
     gen.generate_characterize
 
     controlscript_name = "controlscripts/lib/characterize_control.py"
+    gen = Mortar::Generators::CharacterizeGenerator.new
+    gen.generate_characterize
     script = validate_script!(controlscript_name)
     ctrl = Mortar::Local::Controller.new
     ctrl.run(script, pig_parameters)

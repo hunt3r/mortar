@@ -84,7 +84,6 @@ module Mortar
         msg = File.join(@rel_path, target_file)[1..-1]
 
         if File.exists?(target_path)
-          display_remove(msg)
           FileUtils.rm(target_path)
         end
       end
@@ -94,11 +93,8 @@ module Mortar
         dest_path = File.join(@dest_path, @rel_path, dest_file)
         msg = File.join(@rel_path, dest_file)[1..-1]
 
-        if File.exists?(dest_path) and 
+        unless File.exists?(dest_path) and 
             FileUtils.compare_file(src_path, dest_path)
-          display_identical(msg)
-        else
-          display_create(msg)  
           FileUtils.mkdir_p(File.dirname(dest_path)) if options[:recursive]
           FileUtils.cp(src_path, dest_path)
         end
