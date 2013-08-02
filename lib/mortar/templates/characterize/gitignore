@@ -1,0 +1,8 @@
+Gemfile.lock
+*.pyc
+*.class
+*.log
+tmp
+.mortar-local
+logs
+illustrate-output
