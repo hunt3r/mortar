@@ -72,7 +72,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl.run(script, pig_parameters)
   end
 
-  # local:characterize 
+  # local:characterize -f PARAMFILE
   #
   # Characterize will inspect your input data, inferring a schema and 
   #    generating keys, if needed. It will output CSV containing various
@@ -81,7 +81,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -f, --param-file PARAMFILE # Load pig parameter values from a file
   #
   # Load some data and emit statistics.
-  # PARAMFILE:
+  # PARAMFILE (Required):
   #   LOADER=<full class path of loader function>
   #   INPUT_SRC=<Location of the input data>
   #   OUTPUT_PATH=<Relative path from project root for output>
@@ -95,6 +95,10 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   def characterize
     validate_arguments!
+
+    unless options[:param_file]
+      error("Usage: mortar local:characterize -f PARAMFILE.\nMust specify parameter file. For detailed help run:\n\n   mortar local:characterize -h")
+    end
 
     #cd into the project root
     project_root = options[:project_root] ||= Dir.getwd
