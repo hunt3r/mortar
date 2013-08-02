@@ -111,12 +111,13 @@ class Mortar::Local::Python
         true
       end
     }
+    false
   end
 
   # Checks if the specified python command has
   # virtualenv installed
   def has_virtualenv_installed(python)
-    `#{python} -m virtualenv --help`
+    `#{python} -m virtualenv --help 2>&1`
     if (0 != $?.to_i)
       false
     else
