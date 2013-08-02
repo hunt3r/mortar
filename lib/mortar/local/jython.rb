@@ -63,7 +63,8 @@ class Mortar::Local::Jython
   end
 
   def jython_jar_url
-    default_url = host + "/" + JYTHON_JAR_DEFAULT_URL_PATH
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + JYTHON_JAR_DEFAULT_URL_PATH
     ENV.fetch('JYTHON_JAR_URL', default_url)
   end
 end

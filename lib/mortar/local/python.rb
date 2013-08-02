@@ -158,7 +158,8 @@ class Mortar::Local::Python
   end
 
   def python_archive_url
-    default_url = host + "/" + PYTHON_OSX_TGZ_DEFAULT_URL_PATH
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + PYTHON_OSX_TGZ_DEFAULT_URL_PATH
     return ENV.fetch('PYTHON_DISTRO_URL', default_url)
   end
 

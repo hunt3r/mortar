@@ -39,7 +39,7 @@ module Mortar
     end
 
     def default_host
-      "https://api.mortardata.com"
+      "mortardata.com"
     end
     
     def host

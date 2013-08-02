@@ -78,7 +78,8 @@ class Mortar::Local::Pig
   end
 
   def pig_archive_url
-    default_url = host + "/" + PIG_TGZ_DEFAULT_URL_PATH
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + PIG_TGZ_DEFAULT_URL_PATH
     ENV.fetch('PIG_DISTRO_URL', default_url)
   end
 
