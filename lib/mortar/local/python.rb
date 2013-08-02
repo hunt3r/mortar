@@ -108,10 +108,10 @@ class Mortar::Local::Python
     @candidate_pythons.each{ |py|
       if has_virtualenv_installed(py)
         @command = py
-        true
+        return true
       end
     }
-    false
+    return false
   end
 
   # Checks if the specified python command has

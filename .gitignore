@@ -15,3 +15,7 @@ tmp
 Gemfile.lock
 tags
 *~
+
+.mortar-local
+logs
+illustrate-output
