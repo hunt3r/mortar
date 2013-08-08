@@ -1,4 +1,7 @@
+require 'excon'
+
 require "mortar/command/base"
+require "mortar/helpers"
 
 module Mortar::Command
 
@@ -43,6 +46,7 @@ module Mortar::Command
 
       action("Installing #{plugin.name}") do
         begin
+          record_usage("plugin_install", plugin.name)
           plugin.install
           Mortar::Plugin.load_plugin(plugin.name)
         rescue StandardError => e
@@ -66,6 +70,7 @@ module Mortar::Command
 
       action("Uninstalling #{plugin.name}") do
         begin
+          record_usage("plugin_uninstall", plugin.name)
           plugin.uninstall
         rescue Mortar::Plugin::ErrorPluginNotFound => e
           error e.message
@@ -96,6 +101,7 @@ module Mortar::Command
       plugins.each do |plugin|
         action("Updating #{plugin}") do
           begin
+            record_usage("plugin_update", plugin)
             Mortar::Plugin.new(plugin).update
           rescue Mortar::Plugin::ErrorUpdatingSymlinkPlugin
             status "skipped symlink"
@@ -105,6 +111,23 @@ module Mortar::Command
           end
         end
       end
+    end
+
+
+    private
+
+    def record_usage(usage_type, plugin_name)
+      full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+      url = full_host + "/usage/#{usage_type}"
+
+      headers = {'User-Agent' => Mortar::USER_AGENT}
+      query = {'plugin_name' => plugin_name}
+      begin
+        response = Excon.get(url, :headers => headers, :query => query)
+      rescue
+        #Don't block plugin if usage fails
+      end
+
     end
 
   end
