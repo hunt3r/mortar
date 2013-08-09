@@ -305,6 +305,8 @@ class Mortar::Local::Pig
     opts['python.home'] = jython_directory
     opts['python.path'] = "#{local_install_directory}/../controlscripts/lib:#{local_install_directory}/../vendor/controlscripts/lib"
     opts['python.cachedir'] = jython_cache_directory
+    opts['java.security.krb5.realm'] = ''
+    opts['java.security.krb5.kdc'] = ''
     return opts
   end
 
