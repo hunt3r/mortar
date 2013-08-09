@@ -33,10 +33,11 @@ module Mortar
     end
     
     def self.without_bundler_env 
+      original_env = ENV.to_hash
+      
       # Raises error on failure
       Mortar::Plugin.ensure_bundler_installed
 
-      original_env = ENV.to_hash
       ENV.delete("BUNDLE_GEMFILE")
       ENV.delete("BUNDLE_PATH")
       ENV.delete("BUNDLE_BIN_PATH")

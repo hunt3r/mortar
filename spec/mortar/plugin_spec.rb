@@ -145,12 +145,13 @@ EOS
         end
 
         it "should clean plugin if bundler isn't installed" do
-          mock(Plugin).ensure_bundler_installed { raise "Bundler not installed! Whoops!" }
+          class BundlerNotInstalledError < StandardError; end
+          mock(Plugin).ensure_bundler_installed { raise BundlerNotInstalledError }
           plugin_folder = "/tmp/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           File.open(plugin_folder + '/Gemfile', 'w') { |f| f.write "# dummy content" }
           `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
-          lambda { Plugin.new(plugin_folder).install }.should raise_error StandardError 
+          lambda { Plugin.new(plugin_folder).install }.should raise_error BundlerNotInstalledError 
           File.exist?("#{@sandbox}/mortar_plugin").should be_false
         end
       end
