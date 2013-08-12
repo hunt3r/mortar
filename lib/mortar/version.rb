@@ -16,5 +16,5 @@
 
 module Mortar
   # see http://semver.org/
-  VERSION = "0.9.9"
+  VERSION = "0.9.10"
 end
