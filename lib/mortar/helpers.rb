@@ -421,8 +421,8 @@ module Mortar
       def display_with_indent(indent, msg="", new_line=true)
         display("#{"".ljust(indent)}#{msg.to_s}", new_line)
       end
-      
-      max_key_length = hash.keys.map {|key| key.to_s.length}.max + 2
+
+      max_key_length = (hash.keys.map {|key| key.to_s.length}.max || 0) + 2
       keys ||= hash.keys.sort {|x,y| x.to_s <=> y.to_s}
       keys.each do |key|
         case value = hash[key]
