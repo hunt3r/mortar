@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com--><!-- Last Published: Wed Aug 14 2013 22:04:13 GMT+0000 (UTC) -->
+<html data-wf-site="520be83320244a8707000147">
+  <head>
+    <meta charset="utf-8">
+    <title>Mortar Framework</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/webflow.css">
+    <link rel="stylesheet" type="text/css" href="css/mortarframework.webflow.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"></script>
+    <script>
+      WebFont.load({
+        google: {
+          families: ["Montserrat:400,700","Bitter:400,700"]
+        }
+      });
+    </script>
+    <link rel="icon" type="image/x-icon" href="https://y7v4p6k4.ssl.hwcdn.net/placeholder/favicon.ico">
+    <link rel="apple-touch-icon" href="https://y7v4p6k4.ssl.hwcdn.net/51d1bb05fc804b2621000001/51e06f0756878bb26a000008_webclip-slate.png">
+    <script type="text/javascript" src="js/webflow.js" defer></script>
+  </head><body>
+  <header class="section">
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-6 subfooter-left">
+          <img class="logo-in-header" src="images/mortar_logo_M_50x50.png" alt="mortar_logo_M_50x50.png">
+          <div class="app-name">Mortar Framework</div>
+        </div>
+        <div class="w-col w-col-6 nav-column"><a class="nav-link" href="http://github.com/mortardata/mortar" target="_self">View On GitHub</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="section hero">
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-6">
+          <img src="images/pig.png" alt="pig.png">
+        </div>
+        <div class="w-col w-col-6 call-to-action">
+          <h1 class="hero-header">Build Powerful Pig Projects</h1>
+          <p class="hero-subtitle">A open source framework for building, organizing, testing, and deploying projects that use Apache Pig. Think "Rails for Pig".
+            <br>
+          </p>
+          <div class="w-container">
+            <div class="w-row">
+              <div class="w-col w-col-4"><a class="button" href="http://help.mortardata.com/reference/mortar_project_reference/install_mortar_development_framework" target="_blank">Install It<br></a>
+              </div>
+              <div class="w-col w-col-8">
+                <p class="doc-explanation">(Bear with us... we're in the process of moving documentation out of help.mortardata.com.)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="w-clearfix section white-bg" id="page-nav-organize">
+    <div class="w-container">
+      <div class="w-row organize-row">
+        <div class="w-col w-col-6">
+          <h2>Organize</h2>
+          <p>The framework provides a standard place for your control scripts, Pig code, UDFs, tests, and libraries. That means people new to your project will be able to understand it quickly. It means it is easier to build reusable code.</p>
+        </div>
+        <div class="w-col w-col-6 center">
+          <h2>Quick Start</h2>
+          <p>After you install the framework, it will install and sandbox all dependencies, including Hadoop and Pig, directly on your workstation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section grey-bg" id="page-nav-display">
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-4"></div>
+        <div class="w-col w-col-4">
+          <div class="w-embed w-video" style="padding-top: 56.27659574468085%;">
+            <iframe src="https://player.vimeo.com/video/71818563" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe>
+          </div>
+        </div>
+        <div class="w-col w-col-4"></div>
+      </div>
+    </div>
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-6 center">
+          <h2>Plugins</h2>
+          <p>Mortar supports a plugin architecture so you can override or add any functionality you need, without forking the project. Plugins are also great for functionality that is needed by some, but not most, of the community.
+            <br>
+            <br>An example of a plugin is Watchtower, which is not part of the core project because it has additional dependencies.</p>
+        </div>
+        <div class="w-col w-col-6">
+          <h2>Speed Dev</h2>
+          <p>Watchtower is a Mortar plugin that literally watches your Mortar project. It displays the effect of your code, step by step in your browser. As you edit your project (Pig, UDF or local data), Watchtower immediately updates your browser with
+            changes.
+            <br>
+          </p>
+          <p>Even if you don't install Watchtower, you can use Illustrate for the same purpose, it just doesn't provide live feedback.
+            <br>
+            <br>Finally, Mortar has begun adding utilities that help you quickly explore new datasets. "Characterize" will recursively traverse a dataset, finding fields, guessing types, counting, keeping common values, calculating deciles and more.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section" id="page-nav-share">
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-6">
+          <h2>Develop Locally,<br>Execute Remotely</h2>
+          <p>You can run everything right on your workstation, but when you're ready to run on a real Hadoop cluster, execution and deploy is easy. The framework knows how to ship all your code to your cluster for execution.
+            <br>
+            <br>Today, the only remote execution target the framework understands is mortardata.com's platform-as-a-service. Help us make the framework universal. Give us a pull request!</p>
+        </div>
+        <div class="w-col w-col-6 center">
+          <h2>Contributing to Mortar</h2>
+          <p>The Mortar Framework is an open source volunteer project initially spun out of mortardata.com. We encourage you to learn about the project and contribute your expertise.
+            <br>
+          </p><a class="link-contributing" href="https://github.com/bower/bower/blob/master/CONTRIBUTING.md">Guidelines for contributing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section purple">
+    <div class="w-container">
+      <div class="w-row">
+        <div class="w-col w-col-8">
+          <h2 class="price-text">Getting Started</h2>
+          <p>After you install the framework, there are some pretty nice tutorials over at the mortardata.com site. Bear with us while we migrate documentation and extract references to the mortardata.com platform-as-a-service.
+            <br>
+          </p><a class="link-contributing" href="http://help.mortardata.com/tutorials/mortar_projects/mortar_project_overview" target="_blank">Getting started tutorials<br></a>
+        </div>
+        <div class="w-col w-col-4"><a class="button getting-started-button" href="http://apple.com" target="_blank">Install It<br></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
