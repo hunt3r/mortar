@@ -220,7 +220,7 @@ class Mortar::Local::Pig
       cmd += " #{pig_alias} "
     end
 
-    cmd += "'"
+    cmd += " -json '"
 
     result = run_pig_command(cmd, [], false)
     if result
