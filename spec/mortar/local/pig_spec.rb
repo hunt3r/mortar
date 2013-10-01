@@ -41,10 +41,10 @@ module Mortar::Local
             FileUtils.touch(local_pig_archive)
           end
           mock(pig).extract_tgz(local_pig_archive, pig.local_install_directory)
-          mock(pig).note_install("pig")
+          mock(pig).note_install("pig-0.9.0")
           begin
             previous_stdout, $stdout = $stdout, StringIO.new
-            pig.install
+            pig.install_pig
           ensure
             $stdout = previous_stdout
           end
@@ -60,18 +60,25 @@ module Mortar::Local
         pig = Mortar::Local::Pig.new
         mock(pig).should_do_pig_install?.returns(false)
         mock(pig).should_do_pig_update?.returns(false)
+        mock(pig).should_do_lib_install?.returns(false)
+        mock(pig).should_do_lib_update?.returns(false)
         FakeFS do
           FileUtils.mkdir_p(File.dirname(pig.local_install_directory))
           FileUtils.rm_rf(pig.local_install_directory, :force => true)
           pig.install_or_update
-          expect(File.exists?(pig.local_install_directory)).to be_false
+          expect(File.exists?(pig.pig_directory)).to be_false
+          expect(File.exists?(pig.lib_directory)).to be_false
+
         end
       end
 
       it "does install if none has been done before" do
         pig = Mortar::Local::Pig.new
         mock(pig).should_do_pig_install?.returns(true)
-        mock(pig).install
+        mock(pig).should_do_lib_install?.returns(true)
+
+        mock(pig).install_pig
+        mock(pig).install_lib
         capture_stdout do
           pig.install_or_update
         end
@@ -81,7 +88,10 @@ module Mortar::Local
         pig = Mortar::Local::Pig.new
         mock(pig).should_do_pig_install?.returns(false)
         mock(pig).should_do_pig_update?.returns(true)
-        mock(pig).install
+        mock(pig).should_do_lib_install?.returns(false)
+        mock(pig).should_do_lib_update?.returns(true)
+        mock(pig).install_pig
+        mock(pig).install_lib
         capture_stdout do
           pig.install_or_update
         end
