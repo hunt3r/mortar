@@ -23,8 +23,10 @@ class Mortar::Local::Pig
   include Mortar::Local::InstallUtil
 
   PIG_LOG_FORMAT = "humanreadable"
-  PIG_TGZ_NAME = "pig.tgz"
+  PIG_TGZ_NAME = "pig-0.9.0.tar.gz"
   PIG_TGZ_DEFAULT_URL_PATH = "resource/pig"
+  LIB_TGZ_NAME = "lib-common.tar.gz"
+  PIG_COMMON_LIB_URL_PATH = "resource/lib_common"
 
   # Tempfile objects have a hook to delete the file when the object is
   # destroyed by the garbage collector.  In practice this means that a
@@ -74,7 +76,11 @@ class Mortar::Local::Pig
   end
 
   def pig_directory
-    return File.join(local_install_directory, "pig")
+    return File.join(local_install_directory, "pig-0.9.0")
+  end
+
+  def lib_directory
+    return File.join(local_install_directory, "lib-common")
   end
 
   def pig_archive_url
@@ -83,31 +89,55 @@ class Mortar::Local::Pig
     ENV.fetch('PIG_DISTRO_URL', default_url)
   end
 
+  def lib_archive_url
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + PIG_COMMON_LIB_URL_PATH
+    ENV.fetch('COMMON_LIB_DISTRO_URL', default_url)
+  end
+
   # Determines if a pig install needs to occur, true if no pig install present
   def should_do_pig_install?
     not (File.exists?(pig_directory))
   end
 
+  def should_do_lib_install?
+    not (File.exists?(lib_directory))
+  end
+
   # Determines if a pig install needs to occur, true if server side
   # pig tgz is newer than date of the existing install
   def should_do_pig_update?
-    return is_newer_version('pig', pig_archive_url)
+    return is_newer_version('pig-0.9.0', pig_archive_url)
+  end
+
+  def should_do_lib_update?
+    return is_newer_version('lib-common', lib_archive_url)
   end
 
   def install_or_update()
     if should_do_pig_install?
       action "Installing pig to #{local_install_directory_name}" do
-        install()
+        install_pig()
       end
     elsif should_do_pig_update?
       action "Updating to latest pig in #{local_install_directory_name}" do
-        install()
+        install_pig()
+      end
+    end
+
+    if should_do_lib_install?
+      action "Installing pig dependencies to #{local_install_directory_name}" do
+        install_lib()
+      end
+    elsif should_do_lib_update?
+      action "Updating to latest pig dependencies in #{local_install_directory_name}" do
+        install_lib()
       end
     end
   end
 
   # Installs pig for this project if it is not already present
-  def install
+  def install_pig
     FileUtils.mkdir_p(local_install_directory)
     local_tgz = File.join(local_install_directory, PIG_TGZ_NAME)
     download_file(pig_archive_url, local_tgz)
@@ -118,7 +148,17 @@ class Mortar::Local::Pig
     FileUtils.chmod(0755, command)
 
     File.delete(local_tgz)
-    note_install("pig")
+    note_install("pig-0.9.0")
+  end
+
+  def install_lib
+    FileUtils.mkdir_p(local_install_directory)
+    local_tgz = File.join(local_install_directory, LIB_TGZ_NAME)
+    download_file(lib_archive_url, local_tgz)
+    extract_tgz(local_tgz, local_install_directory)
+
+    File.delete(local_tgz)
+    note_install("lib-common")
   end
 
   def validate_script(pig_script, pig_parameters)
@@ -280,8 +320,8 @@ class Mortar::Local::Pig
     template_params = {}
     template_params['pig_params_file'] = make_pig_param_file(pig_parameters)
     template_params['pig_home'] = pig_directory
-    template_params['pig_classpath'] = "#{pig_directory}/lib-pig/*:#{jython_directory}/jython.jar"
-    template_params['classpath'] = "#{pig_directory}/lib/*:#{jython_directory}/jython.jar:#{pig_directory}/conf/jets3t.properties"
+    template_params['pig_classpath'] = "#{pig_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
+    template_params['classpath'] = "#{pig_directory}/lib-local/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
     template_params['project_home'] = File.expand_path("..", local_install_directory)
     template_params['local_install_dir'] = local_install_directory
     template_params['pig_sub_command'] = cmd
