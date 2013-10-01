@@ -216,11 +216,11 @@ class Mortar::Local::Pig
       cmd += " -skipPruning "
     end
 
+    cmd += " -json '"
+
     if pig_alias
       cmd += " #{pig_alias} "
     end
-
-    cmd += " -json '"
 
     result = run_pig_command(cmd, [], false)
     if result
