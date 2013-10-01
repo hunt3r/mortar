@@ -24,7 +24,7 @@ class Mortar::Local::Pig
 
   PIG_LOG_FORMAT = "humanreadable"
   PIG_TGZ_NAME = "pig-0.9.0.tar.gz"
-  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig"
+  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig_0_9_0"
   LIB_TGZ_NAME = "lib-common.tar.gz"
   PIG_COMMON_LIB_URL_PATH = "resource/lib_common"
 
