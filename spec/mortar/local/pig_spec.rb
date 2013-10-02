@@ -41,7 +41,7 @@ module Mortar::Local
             FileUtils.touch(local_pig_archive)
           end
           mock(pig).extract_tgz(local_pig_archive, pig.local_install_directory)
-          mock(pig).note_install("pig-0.9.0")
+          mock(pig).note_install("pig-0.9")
           begin
             previous_stdout, $stdout = $stdout, StringIO.new
             pig.install_pig

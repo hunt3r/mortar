@@ -23,8 +23,8 @@ class Mortar::Local::Pig
   include Mortar::Local::InstallUtil
 
   PIG_LOG_FORMAT = "humanreadable"
-  PIG_TGZ_NAME = "pig-0.9.0.tar.gz"
-  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig_0_9_0"
+  PIG_TGZ_NAME = "pig-0.9.tar.gz"
+  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig_0_9"
   LIB_TGZ_NAME = "lib-common.tar.gz"
   PIG_COMMON_LIB_URL_PATH = "resource/lib_common"
 
@@ -76,7 +76,7 @@ class Mortar::Local::Pig
   end
 
   def pig_directory
-    return File.join(local_install_directory, "pig-0.9.0")
+    return File.join(local_install_directory, "pig-0.9")
   end
 
   def lib_directory
@@ -148,7 +148,7 @@ class Mortar::Local::Pig
     FileUtils.chmod(0755, command)
 
     File.delete(local_tgz)
-    note_install("pig-0.9.0")
+    note_install("pig-0.9")
   end
 
   def install_lib
