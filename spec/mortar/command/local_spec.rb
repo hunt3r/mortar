@@ -152,7 +152,8 @@ PARAMS
           stub(j).check_install.returns(true)
         end
         any_instance_of(Mortar::Local::Pig) do |j|
-          stub(j).install.returns(true)
+          stub(j).install_pig.returns(true)
+          stub(j).install_lib.returns(true)
         end
         any_instance_of(Mortar::Local::Python) do |j|
           stub(j).check_or_install.returns(false)
@@ -166,7 +167,8 @@ PARAMS
           mock(j).check_install.returns(true)
         end
         any_instance_of(Mortar::Local::Pig) do |j|
-          mock(j).install.returns(true)
+          mock(j).install_pig.returns(true)
+          stub(j).install_lib.returns(true)
         end
         any_instance_of(Mortar::Local::Python) do |j|
           mock(j).check_or_install.returns(true)
