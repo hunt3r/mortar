@@ -31,11 +31,13 @@ module Mortar::Command
       end
     end
 
-    # plugins:install git@github.com:user/repo.git
+    # plugins:install GIT_URL
     #
     # install a plugin
     #
-    #Example:
+    # -b, --branchname BRANCHNAME   # Install plugin from a specific branch.
+    #
+    # Examples:
     #
     # $ mortar plugins:install https://github.com/mortardata/watchtower.git
     # Installing watchtower... done
@@ -47,7 +49,11 @@ module Mortar::Command
       action("Installing #{plugin.name}") do
         begin
           record_usage("plugin_install", plugin.name)
-          plugin.install
+          if options[:branchname]
+            plugin.install(options[:branchname])
+          else
+            plugin.install
+          end
           Mortar::Plugin.load_plugin(plugin.name)
         rescue StandardError => e
           error e.message

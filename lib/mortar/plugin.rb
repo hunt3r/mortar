@@ -151,7 +151,7 @@ ERROR
       "#{self.class.directory}/#{name}"
     end
 
-    def install
+    def install(branch = nil)
       if File.directory?(path)
         uninstall
       end
@@ -164,6 +164,18 @@ ERROR
 Unable to install plugin #{name}.
 Please check the URL and try again.
 ERROR
+        end
+
+        if !!branch
+          Dir.chdir(name) do
+            git.git("checkout #{branch}", check_success=true, check_git_directory=true)
+            unless $?.success?
+              raise Mortar::Plugin::ErrorInstallingPlugin, <<-ERROR
+Unable to checkout branch #{branch} for plugin #{name}.
+Please check the URL and branch and try again.
+ERROR
+            end
+          end
         end
       end
       install_dependencies
