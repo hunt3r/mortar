@@ -28,6 +28,13 @@ class Mortar::Local::Pig
   LIB_TGZ_NAME = "lib-common.tar.gz"
   PIG_COMMON_LIB_URL_PATH = "resource/lib_common"
 
+
+  #This needs to be defined for watchtower.
+  DEFAULT_PIGOPTS_FILES = %w(
+      /lib-common/conf/pig-hawk-global.properties
+      /lib-common/conf/pig-cli-local-dev.properties
+  )
+
   # Tempfile objects have a hook to delete the file when the object is
   # destroyed by the garbage collector.  In practice this means that a
   # file we want sitting around could disappear out from under us. To
@@ -107,7 +114,7 @@ class Mortar::Local::Pig
   # Determines if a pig install needs to occur, true if server side
   # pig tgz is newer than date of the existing install
   def should_do_pig_update?
-    return is_newer_version('pig-0.9.0', pig_archive_url)
+    return is_newer_version('pig-0.9', pig_archive_url)
   end
 
   def should_do_lib_update?
@@ -315,13 +322,22 @@ class Mortar::Local::Pig
     File.expand_path("../../templates/script/runpig.sh", __FILE__)
   end
 
+  def template_params_classpath
+    "#{pig_directory}/*:#{pig_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
+  end
+
+  def log4j_conf
+   "#{lib_directory}/conf/log4j-cli-local-dev.properties"
+  end
+
   # Parameters necessary for rendering the bash script template
   def pig_command_script_template_parameters(cmd, pig_parameters)
     template_params = {}
     template_params['pig_params_file'] = make_pig_param_file(pig_parameters)
     template_params['pig_home'] = pig_directory
     template_params['pig_classpath'] = "#{pig_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
-    template_params['classpath'] = "#{pig_directory}/lib-local/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
+    template_params['classpath'] = template_params_classpath
+    template_params['log4j_conf'] = log4j_conf
     template_params['project_home'] = File.expand_path("..", local_install_directory)
     template_params['local_install_dir'] = local_install_directory
     template_params['pig_sub_command'] = cmd

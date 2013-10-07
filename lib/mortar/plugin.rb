@@ -151,19 +151,34 @@ ERROR
       "#{self.class.directory}/#{name}"
     end
 
-    def install
+    def install(branch = nil)
       if File.directory?(path)
         uninstall
       end
       FileUtils.mkdir_p(self.class.directory)
       Dir.chdir(self.class.directory) do
-        git.git("clone #{uri}", check_success=true, check_git_directory=false)
-        unless $?.success?
+        begin
+          git.git("clone #{uri}", check_success=true, check_git_directory=false)
+        rescue Mortar::Git::GitError
           FileUtils.rm_rf path
           raise Mortar::Plugin::ErrorInstallingPlugin, <<-ERROR
 Unable to install plugin #{name}.
 Please check the URL and try again.
 ERROR
+        end
+
+        if !!branch
+          Dir.chdir(name) do
+            begin
+              git.git("checkout #{branch}", check_success=true, check_git_directory=true)
+            rescue Mortar::Git::GitError
+              FileUtils.rm_rf path
+              raise Mortar::Plugin::ErrorInstallingPlugin, <<-ERROR
+Unable to checkout branch #{branch} for plugin #{name}.
+Please check the URL and branch and try again.
+ERROR
+            end
+          end
         end
       end
       install_dependencies
