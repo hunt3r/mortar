@@ -157,8 +157,9 @@ ERROR
       end
       FileUtils.mkdir_p(self.class.directory)
       Dir.chdir(self.class.directory) do
-        git.git("clone #{uri}", check_success=true, check_git_directory=false)
-        unless $?.success?
+        begin
+          git.git("clone #{uri}", check_success=true, check_git_directory=false)
+        rescue Mortar::Git::GitError
           FileUtils.rm_rf path
           raise Mortar::Plugin::ErrorInstallingPlugin, <<-ERROR
 Unable to install plugin #{name}.
@@ -168,8 +169,10 @@ ERROR
 
         if !!branch
           Dir.chdir(name) do
-            git.git("checkout #{branch}", check_success=true, check_git_directory=true)
-            unless $?.success?
+            begin
+              git.git("checkout #{branch}", check_success=true, check_git_directory=true)
+            rescue Mortar::Git::GitError
+              FileUtils.rm_rf path
               raise Mortar::Plugin::ErrorInstallingPlugin, <<-ERROR
 Unable to checkout branch #{branch} for plugin #{name}.
 Please check the URL and branch and try again.
