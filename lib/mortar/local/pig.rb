@@ -145,6 +145,11 @@ class Mortar::Local::Pig
 
   # Installs pig for this project if it is not already present
   def install_pig
+    #Delete the directory if it already exists to ensure cruft isn't left around.
+    if File.directory? pig_directory
+      FileUtils.rm_rf pig_directory
+    end
+
     FileUtils.mkdir_p(local_install_directory)
     local_tgz = File.join(local_install_directory, PIG_TGZ_NAME)
     download_file(pig_archive_url, local_tgz)
@@ -159,6 +164,11 @@ class Mortar::Local::Pig
   end
 
   def install_lib
+    #Delete the directory if it already exists to ensure cruft isn't left around.
+    if File.directory? lib_directory
+      FileUtils.rm_rf lib_directory
+    end
+
     FileUtils.mkdir_p(local_install_directory)
     local_tgz = File.join(local_install_directory, LIB_TGZ_NAME)
     download_file(lib_archive_url, local_tgz)
