@@ -323,7 +323,7 @@ class Mortar::Local::Pig
   end
 
   def template_params_classpath
-    "#{pig_directory}/*:#{pig_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
+    "#{pig_directory}/*:#{pig_directory}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
   end
 
   def log4j_conf
@@ -335,7 +335,7 @@ class Mortar::Local::Pig
     template_params = {}
     template_params['pig_params_file'] = make_pig_param_file(pig_parameters)
     template_params['pig_home'] = pig_directory
-    template_params['pig_classpath'] = "#{pig_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
+    template_params['pig_classpath'] = "#{pig_directory}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
     template_params['project_home'] = File.expand_path("..", local_install_directory)
