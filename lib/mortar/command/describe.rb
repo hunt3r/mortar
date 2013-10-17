@@ -28,6 +28,7 @@ class Mortar::Command::Describe < Mortar::Command::Base
   #
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   #
   # Examples:
   #     
@@ -51,7 +52,7 @@ class Mortar::Command::Describe < Mortar::Command::Base
     
     describe_id = nil
     action("Starting describe") do
-      describe_id = api.post_describe(project.name, pigscript.name, alias_name, git_ref, :parameters => pig_parameters).body["describe_id"]
+      describe_id = api.post_describe(project.name, pigscript.name, alias_name, git_ref, pig_version_str, :parameters => pig_parameters).body["describe_id"]
     end
         
     describe_result = nil

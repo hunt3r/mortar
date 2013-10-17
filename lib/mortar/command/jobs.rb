@@ -67,6 +67,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
   # -d, --donotnotify           # Don't send an email on job completion.  (Default: false--an email will be sent to you once the job completes)
   # -P, --project PROJECTNAME   # Use a project that is not checked out in the current directory.  Runs code from project's master branch in github rather than snapshotting local code.
   # -B, --branch BRANCHNAME     # Used with --project to specify a non-master branch
+  # -g, --pigversion PIG_VERSION # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   #
   #Examples:
   #
@@ -161,14 +162,14 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         elsif options[:permanentcluster]
           cluster_type = CLUSTER_TYPE__PERMANENT
         end
-        api.post_job_new_cluster(project_name, script_name, git_ref, cluster_size, 
+        api.post_job_new_cluster(project_name, script_name, git_ref, pig_version_str, cluster_size, 
           :parameters => pig_parameters,
           :cluster_type => cluster_type,
           :notify_on_job_finish => notify_on_job_finish,
           :is_control_script => is_control_script).body
       else
         cluster_id = options[:clusterid]
-        api.post_job_existing_cluster(project_name, script_name, git_ref, cluster_id,
+        api.post_job_existing_cluster(project_name, script_name, git_ref, pig_version_str, cluster_id,
           :parameters => pig_parameters,
           :notify_on_job_finish => notify_on_job_finish,
           :is_control_script => is_control_script).body
