@@ -182,7 +182,7 @@ protected
   end
 
   def self.replace_templates(help)
-    help.select do |line|
+    help.each do |line|
       line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12")
     end
   end

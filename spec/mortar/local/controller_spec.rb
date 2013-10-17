@@ -71,13 +71,13 @@ module Mortar::Local
       it "checks for aws keys, checks depenendency installation, runs script" do
         c = Mortar::Local::Controller.new
         mock(c).require_aws_keys
-        mock(c).install_and_configure
+        mock(c).install_and_configure("0.9")
         test_script = "foobar-script"
         the_parameters = []
         any_instance_of(Mortar::Local::Pig) do |p|
-          mock(p).run_script(test_script, the_parameters)
+          mock(p).run_script(test_script, "0.9", the_parameters)
         end
-        c.run(test_script, the_parameters)
+        c.run(test_script, "0.9", the_parameters)
       end
 
     end
@@ -86,15 +86,15 @@ module Mortar::Local
       it "checks for aws keys, checks depenendency installation, runs the illustrate process" do
         c = Mortar::Local::Controller.new
         mock(c).require_aws_keys
-        mock(c).install_and_configure
+        mock(c).install_and_configure("0.9")
         test_script = "foobar-script"
         script_alias = "some_alias"
         prune = false
         the_parameters = []
         any_instance_of(Mortar::Local::Pig) do |p|
-          mock(p).illustrate_alias(test_script, script_alias, prune, the_parameters)
+          mock(p).illustrate_alias(test_script, script_alias, prune, "0.9", the_parameters)
         end
-        c.illustrate(test_script, script_alias, the_parameters, prune)
+        c.illustrate(test_script, script_alias, "0.9", the_parameters, prune)
       end
     end
 
