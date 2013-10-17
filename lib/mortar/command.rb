@@ -127,6 +127,7 @@ module Mortar
     global_option :remote,  "--remote REMOTE"
     global_option :polling_interval, "--polling_interval SECONDS", "-p"
     global_option :no_browser, "--no_browser"
+    global_option :pigversion, "--pigversion PIG_VERSION", "-g"
 
     def self.prepare_run(cmd, args=[])
       command = parse(cmd)
@@ -176,6 +177,7 @@ module Mortar
             opts[global_option[:name]] = value
           end
         end
+
         command[:options].each do |name, option|
           parser.on("-#{option[:short]}", "--#{option[:long]}", option[:desc]) do |value|
             opt_name_sym = name.gsub("-", "_").to_sym

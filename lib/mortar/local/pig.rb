@@ -17,14 +17,13 @@
 require "erb"
 require 'tempfile'
 require "mortar/helpers"
+require "mortar/pigversion"
 require "mortar/local/installutil"
 
 class Mortar::Local::Pig
   include Mortar::Local::InstallUtil
 
   PIG_LOG_FORMAT = "humanreadable"
-  PIG_TGZ_NAME = "pig-0.9.tar.gz"
-  PIG_TGZ_DEFAULT_URL_PATH = "resource/pig_0_9"
   LIB_TGZ_NAME = "lib-common.tar.gz"
   PIG_COMMON_LIB_URL_PATH = "resource/lib_common"
 
@@ -78,21 +77,21 @@ class Mortar::Local::Pig
   }
   end
 
-  def command
-    return File.join(pig_directory, "bin", "pig")
+  def command(pig_version)
+    return File.join(pig_directory(pig_version), "bin", "pig")
   end
 
-  def pig_directory
-    return File.join(local_install_directory, "pig-0.9")
+  def pig_directory(pig_version)
+    return File.join(local_install_directory, pig_version.name)
   end
 
   def lib_directory
     return File.join(local_install_directory, "lib-common")
   end
 
-  def pig_archive_url
+  def pig_archive_url(pig_version)
     full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
-    default_url = full_host + "/" + PIG_TGZ_DEFAULT_URL_PATH
+    default_url = full_host + "/" + pig_version.tgz_default_url_path
     ENV.fetch('PIG_DISTRO_URL', default_url)
   end
 
@@ -103,8 +102,8 @@ class Mortar::Local::Pig
   end
 
   # Determines if a pig install needs to occur, true if no pig install present
-  def should_do_pig_install?
-    not (File.exists?(pig_directory))
+  def should_do_pig_install?(pig_version)
+    not (File.exists?(pig_directory(pig_version)))
   end
 
   def should_do_lib_install?
@@ -113,22 +112,22 @@ class Mortar::Local::Pig
 
   # Determines if a pig install needs to occur, true if server side
   # pig tgz is newer than date of the existing install
-  def should_do_pig_update?
-    return is_newer_version('pig-0.9', pig_archive_url)
+  def should_do_pig_update?(pig_version)
+    return is_newer_version(pig_version.name, pig_archive_url(pig_version))
   end
 
   def should_do_lib_update?
     return is_newer_version('lib-common', lib_archive_url)
   end
 
-  def install_or_update()
-    if should_do_pig_install?
-      action "Installing pig to #{local_install_directory_name}" do
-        install_pig()
+  def install_or_update(pig_version)
+    if should_do_pig_install?(pig_version)
+      action "Installing #{pig_version.name} to #{local_install_directory_name}" do
+        install_pig(pig_version)
       end
-    elsif should_do_pig_update?
-      action "Updating to latest pig in #{local_install_directory_name}" do
-        install_pig()
+    elsif should_do_pig_update?(pig_version)
+      action "Updating to latest #{pig_version.name} in #{local_install_directory_name}" do
+        install_pig(pig_version)
       end
     end
 
@@ -144,23 +143,23 @@ class Mortar::Local::Pig
   end
 
   # Installs pig for this project if it is not already present
-  def install_pig
+  def install_pig(pig_version)
     #Delete the directory if it already exists to ensure cruft isn't left around.
-    if File.directory? pig_directory
-      FileUtils.rm_rf pig_directory
+    if File.directory? pig_directory(pig_version)
+      FileUtils.rm_rf pig_directory(pig_version)
     end
 
     FileUtils.mkdir_p(local_install_directory)
-    local_tgz = File.join(local_install_directory, PIG_TGZ_NAME)
-    download_file(pig_archive_url, local_tgz)
+    local_tgz = File.join(local_install_directory, pig_version.tgz_name)
+    download_file(pig_archive_url(pig_version), local_tgz)
     extract_tgz(local_tgz, local_install_directory)
 
     # This has been seening coming out of the tgz w/o +x so we do
     # here to be sure it has the necessary permissions
-    FileUtils.chmod(0755, command)
+    FileUtils.chmod(0755, command(pig_version))
 
     File.delete(local_tgz)
-    note_install("pig-0.9")
+    note_install(pig_version.name)
   end
 
   def install_lib
@@ -178,14 +177,14 @@ class Mortar::Local::Pig
     note_install("lib-common")
   end
 
-  def validate_script(pig_script, pig_parameters)
-    run_pig_command(" -check #{pig_script.path}", pig_parameters)
+  def validate_script(pig_script, pig_version_str, pig_parameters)
+    run_pig_command(" -check #{pig_script.path}", pig_version_str, pig_parameters)
   end
 
 
   # run the pig script with user supplied pig parameters
-  def run_script(pig_script, pig_parameters)
-    run_pig_command(" -f #{pig_script.path}", pig_parameters, true)
+  def run_script(pig_script, pig_version_str, pig_parameters)
+    run_pig_command(" -f #{pig_script.path}", pig_version_str, pig_parameters, true)
   end
 
   # Create a temp file to be used for writing the illustrate
@@ -256,7 +255,7 @@ class Mortar::Local::Pig
     return params
   end
 
-  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_parameters)
+  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version_str, pig_parameters)
     cmd = "-e 'illustrate "
 
     # Parameters have to be entered with the illustrate command (as
@@ -279,7 +278,7 @@ class Mortar::Local::Pig
       cmd += " #{pig_alias} "
     end
 
-    result = run_pig_command(cmd, [], false)
+    result = run_pig_command(cmd, pig_version_str, [], false)
     if result
       show_illustrate_output(illustrate_outpath)
     end
@@ -288,12 +287,14 @@ class Mortar::Local::Pig
   # Run pig with the specified command ('command' is anything that
   # can be appended to the command line invocation of Pig that will
   # get it to do something interesting, such as '-f some-file.pig'
-  def run_pig_command(cmd, parameters = nil, jython_output = true)
+  def run_pig_command(cmd, pig_version_str, parameters = nil, jython_output = true)
+    pig_version = Mortar::PigVersion.from_string(pig_version_str)
+
     unset_hadoop_env_vars
     reset_local_logs
     # Generate the script for running the command, then
     # write it to a temp script which will be exectued
-    script_text = script_for_command(cmd, parameters)
+    script_text = script_for_command(cmd, pig_version, parameters)
     script = Tempfile.new("mortar-")
     script.write(script_text)
     script.close(false)
@@ -320,8 +321,8 @@ class Mortar::Local::Pig
 
   # Generates a bash script which sets up the necessary environment and
   # then runs the pig command
-  def script_for_command(cmd, parameters, jython_output = true)
-    template_params = pig_command_script_template_parameters(cmd, parameters)
+  def script_for_command(cmd, pig_version, parameters, jython_output = true)
+    template_params = pig_command_script_template_parameters(cmd, pig_version, parameters)
     template_params['pig_opts']['jython.output'] = jython_output
     erb = ERB.new(File.read(pig_command_script_template_path), 0, "%<>")
     erb.result(BindingClazz.new(template_params).get_binding)
@@ -332,8 +333,12 @@ class Mortar::Local::Pig
     File.expand_path("../../templates/script/runpig.sh", __FILE__)
   end
 
-  def template_params_classpath
-    "#{pig_directory}/*:#{pig_directory}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
+  def template_params_classpath(pig_version=nil)
+    # Need to support old watchtower plugins that don't set pig_version
+    if pig_version.nil?
+      pig_version = Mortar::PigVersion::Pig09.new
+    end
+    "#{pig_directory(pig_version)}/*:#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar:#{lib_directory}/conf/jets3t.properties"
   end
 
   def log4j_conf
@@ -341,11 +346,12 @@ class Mortar::Local::Pig
   end
 
   # Parameters necessary for rendering the bash script template
-  def pig_command_script_template_parameters(cmd, pig_parameters)
+  def pig_command_script_template_parameters(cmd, pig_version, pig_parameters)
     template_params = {}
     template_params['pig_params_file'] = make_pig_param_file(pig_parameters)
-    template_params['pig_home'] = pig_directory
-    template_params['pig_classpath'] = "#{pig_directory}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory}/lib-pig/*:#{pig_directory}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
+    template_params['pig_dir'] = pig_version.name
+    template_params['pig_home'] = pig_directory(pig_version)
+    template_params['pig_classpath'] = "#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
     template_params['project_home'] = File.expand_path("..", local_install_directory)

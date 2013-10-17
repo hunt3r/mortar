@@ -13,6 +13,7 @@
 #
 
 require "mortar/helpers"
+require "mortar/pigversion"
 require "mortar/local/pig"
 require "mortar/local/java"
 require "mortar/local/python"
@@ -76,14 +77,18 @@ EOF
 
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
-  def install_and_configure
+  def install_and_configure(pig_version_str=nil)
+    #To support old watchtower plugins we'll accept nil pig_version_str
+    if pig_version_str.nil?
+      pig_version_str = '0.9'
+    end
     java = Mortar::Local::Java.new()
     unless java.check_install
       error(NO_JAVA_ERROR_MESSAGE)
     end
 
     pig = Mortar::Local::Pig.new()
-    pig.install_or_update()
+    pig.install_or_update(Mortar::PigVersion.from_string(pig_version_str))
 
     py = Mortar::Local::Python.new()
     unless py.check_or_install
@@ -132,25 +137,25 @@ EOF
   end
 
   # Main entry point for user running a pig script
-  def run(pig_script, pig_parameters)
+  def run(pig_script, pig_version_str, pig_parameters)
     require_aws_keys
-    install_and_configure
+    install_and_configure(pig_version_str)
     pig = Mortar::Local::Pig.new()
-    pig.run_script(pig_script, pig_parameters)
+    pig.run_script(pig_script, pig_version_str, pig_parameters)
   end
 
   # Main entry point for illustrating a pig alias
-  def illustrate(pig_script, pig_alias, pig_parameters, skip_pruning)
+  def illustrate(pig_script, pig_alias, pig_version_str, pig_parameters, skip_pruning)
     require_aws_keys
-    install_and_configure
+    install_and_configure(pig_version_str)
     pig = Mortar::Local::Pig.new()
-    pig.illustrate_alias(pig_script, pig_alias, skip_pruning, pig_parameters)
+    pig.illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version_str, pig_parameters)
   end
 
-  def validate(pig_script, pig_parameters)
-    install_and_configure
+  def validate(pig_script, pig_version_str, pig_parameters)
+    install_and_configure(pig_version_str)
     pig = Mortar::Local::Pig.new()
-    pig.validate_script(pig_script, pig_parameters)
+    pig.validate_script(pig_script, pig_version_str, pig_parameters)
   end
 
 end
