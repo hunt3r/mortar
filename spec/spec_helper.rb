@@ -38,7 +38,11 @@ require "fakefs/safe"
 require 'tmpdir'
 
 def execute(command_line, project=nil, git=nil)
+  stderr, stdout, command = execute_and_return_command(command_line, project, git)  
+  [stderr, stdout]
+end
 
+def execute_and_return_command(command_line, project=nil, git=nil)
   args = command_line.split(" ")
   command = args.shift
 
@@ -69,6 +73,7 @@ def execute(command_line, project=nil, git=nil)
   $stderr = captured_stderr = StringIO.new
   $stdout = captured_stdout = StringIO.new
 
+
   begin
     object.send(method)
   rescue SystemExit
@@ -77,7 +82,7 @@ def execute(command_line, project=nil, git=nil)
     Mortar::Command.current_command = nil
   end
 
-  [captured_stderr.string, captured_stdout.string]
+  [captured_stderr.string, captured_stdout.string, object]
 end
 
 def any_instance_of(klass, &block)
