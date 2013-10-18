@@ -44,7 +44,7 @@ STDERR
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).illustrate(pigscript, "some_alias", "0.9", [], false).returns(nil)
+            mock(u).illustrate(pigscript, "some_alias", is_a(Mortar::PigVersion::Pig09), [], false).returns(nil)
           end
           stderr, stdout = execute("local:illustrate #{script_name} some_alias", p)
           stderr.should == ""
@@ -59,7 +59,7 @@ STDERR
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).illustrate(pigscript, nil, "0.12", [], false).returns(nil)
+            mock(u).illustrate(pigscript, nil, is_a(Mortar::PigVersion::Pig012), [], false).returns(nil)
           end
           stderr, stdout = execute("local:illustrate #{script_name} -g 0.12", p)
           stderr.should == ""
@@ -96,7 +96,7 @@ STDERR
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).run(pigscript, "0.9", []).returns(nil)
+            mock(u).run(pigscript, is_a(Mortar::PigVersion::Pig09), []).returns(nil)
           end
           stderr, stdout = execute("local:run pigscripts/#{script_name}.pig -g 0.9", p)
           stderr.should == ""
@@ -198,10 +198,10 @@ PARAMS
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure("0.9")
+            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09))
           end
           any_instance_of(Mortar::Local::Pig) do |u|
-            mock(u).run_pig_command(" -check #{pigscript.path}", "0.9", [])
+            mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [])
           end
           stderr, stdout = execute("local:validate #{script_name}", p)
           stderr.should == ""
@@ -216,10 +216,10 @@ PARAMS
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure("0.9")
+            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09))
           end
           any_instance_of(Mortar::Local::Pig) do |u|
-            mock(u).run_pig_command(" -check #{pigscript.path}", "0.9", [])
+            mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [])
           end
           stderr, stdout = execute("local:validate pigscripts/#{script_name}.pig", p)
           stderr.should == ""

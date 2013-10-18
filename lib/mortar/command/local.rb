@@ -41,7 +41,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.install_and_configure(pig_version_str)
+    ctrl.install_and_configure(pig_version)
   end
 
   # local:run SCRIPT
@@ -72,7 +72,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
     script = validate_script!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_version_str, pig_parameters)
+    ctrl.run(script, pig_version, pig_parameters)
   end
 
   # local:characterize -f PARAMFILE
@@ -120,7 +120,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     gen.generate_characterize
     script = validate_script!(controlscript_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_version_str, pig_parameters)
+    ctrl.run(script, pig_version, pig_parameters)
     gen.cleanup_characterize(project_root)
   end
 
@@ -161,7 +161,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript = validate_pigscript!(pigscript_name)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.illustrate(pigscript, alias_name, pig_version_str, pig_parameters, skip_pruning)
+    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning)
   end
 
 
@@ -194,7 +194,7 @@ class Mortar::Command::Local < Mortar::Command::Base
 
     script = validate_script!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.validate(script, pig_version_str, pig_parameters)
+    ctrl.validate(script, pig_version, pig_parameters)
   end
 
 end

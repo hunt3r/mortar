@@ -17,7 +17,6 @@
 require "erb"
 require 'tempfile'
 require "mortar/helpers"
-require "mortar/pigversion"
 require "mortar/local/installutil"
 
 class Mortar::Local::Pig
@@ -177,14 +176,14 @@ class Mortar::Local::Pig
     note_install("lib-common")
   end
 
-  def validate_script(pig_script, pig_version_str, pig_parameters)
-    run_pig_command(" -check #{pig_script.path}", pig_version_str, pig_parameters)
+  def validate_script(pig_script, pig_version, pig_parameters)
+    run_pig_command(" -check #{pig_script.path}", pig_version, pig_parameters)
   end
 
 
   # run the pig script with user supplied pig parameters
-  def run_script(pig_script, pig_version_str, pig_parameters)
-    run_pig_command(" -f #{pig_script.path}", pig_version_str, pig_parameters, true)
+  def run_script(pig_script, pig_version, pig_parameters)
+    run_pig_command(" -f #{pig_script.path}", pig_version, pig_parameters, true)
   end
 
   # Create a temp file to be used for writing the illustrate
@@ -255,7 +254,7 @@ class Mortar::Local::Pig
     return params
   end
 
-  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version_str, pig_parameters)
+  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version, pig_parameters)
     cmd = "-e 'illustrate "
 
     # Parameters have to be entered with the illustrate command (as
@@ -278,7 +277,7 @@ class Mortar::Local::Pig
       cmd += " #{pig_alias} "
     end
 
-    result = run_pig_command(cmd, pig_version_str, [], false)
+    result = run_pig_command(cmd, pig_version, [], false)
     if result
       show_illustrate_output(illustrate_outpath)
     end
@@ -287,9 +286,7 @@ class Mortar::Local::Pig
   # Run pig with the specified command ('command' is anything that
   # can be appended to the command line invocation of Pig that will
   # get it to do something interesting, such as '-f some-file.pig'
-  def run_pig_command(cmd, pig_version_str, parameters = nil, jython_output = true)
-    pig_version = Mortar::PigVersion.from_string(pig_version_str)
-
+  def run_pig_command(cmd, pig_version, parameters = nil, jython_output = true)
     unset_hadoop_env_vars
     reset_local_logs
     # Generate the script for running the command, then

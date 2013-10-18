@@ -52,7 +52,7 @@ class Mortar::Command::Describe < Mortar::Command::Base
     
     describe_id = nil
     action("Starting describe") do
-      describe_id = api.post_describe(project.name, pigscript.name, alias_name, git_ref, pig_version_str, :parameters => pig_parameters).body["describe_id"]
+      describe_id = api.post_describe(project.name, pigscript.name, alias_name, git_ref, pig_version.version, :parameters => pig_parameters).body["describe_id"]
     end
         
     describe_result = nil

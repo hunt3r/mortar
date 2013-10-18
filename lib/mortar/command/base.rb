@@ -20,6 +20,7 @@
 require "fileutils"
 require "mortar/auth"
 require "mortar/command"
+require "mortar/pigversion"
 require "mortar/project"
 require "mortar/git"
 
@@ -406,8 +407,9 @@ protected
     (options[:no_browser])
   end
 
-  def pig_version_str
-    options[:pigversion] || '0.9'
+  def pig_version
+    pig_version_str = options[:pigversion] || '0.9'
+    pig_version = Mortar::PigVersion.from_string(pig_version_str)
   end
 
   def sync_code_with_cloud

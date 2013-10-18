@@ -41,7 +41,11 @@ module Mortar
 			end
 
 			def name
-				"pig-0.9"
+				"pig-#{version}"
+			end
+
+			def version
+				"0.9"
 			end
 		end
 
@@ -55,7 +59,11 @@ module Mortar
 			end
 
 			def name
-				"pig-0.12"
+				"pig-#{version}"
+			end
+
+			def version
+				"0.12"
 			end
 		end
 

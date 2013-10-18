@@ -66,6 +66,29 @@ module Mortar::Local
 
     end
 
+    context("install_and_configure") do
+      it "supplied default pig version" do
+        ctrl = Mortar::Local::Controller.new
+
+        any_instance_of(Mortar::Local::Java) do |j|
+          mock(j).check_install.returns(true)
+        end
+        any_instance_of(Mortar::Local::Pig) do |p|
+          mock(p).install_or_update(is_a(Mortar::PigVersion::Pig09))
+        end
+        any_instance_of(Mortar::Local::Python) do |p|
+          mock(p).check_or_install.returns(true)
+          mock(p).check_virtualenv.returns(true)
+          mock(p).setup_project_python_environment.returns(true)
+        end
+        any_instance_of(Mortar::Local::Jython) do |j|
+          mock(j).install_or_update
+        end
+        mock(ctrl).ensure_local_install_dirs_in_gitignore
+        ctrl.install_and_configure
+      end
+    end
+
     context("run") do
 
       it "checks for aws keys, checks depenendency installation, runs script" do
