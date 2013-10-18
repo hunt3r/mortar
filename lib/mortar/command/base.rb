@@ -183,8 +183,13 @@ protected
   end
 
   def self.replace_templates(help)
-    help.each do |line|
-      line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12 (beta)")
+    #Leave --pigversion undocumented for now.
+    #help.each do |line|
+    #  #line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12 (beta)")
+    #
+    #end
+    help.reject! do |line|
+      line.include?("<PIG_VERSION_OPTIONS>")
     end
   end
 
