@@ -87,9 +87,12 @@ class Mortar::Command::Describe < Mortar::Command::Base
     when Mortar::API::Describe::STATUS_SUCCESS
       web_result_url = describe_result['web_result_url']
       display("Results available at #{web_result_url}")
-      action("Opening web browser to show results") do
-        require "launchy"
-        Launchy.open(web_result_url).join
+
+      unless no_browser?
+        action("Opening web browser to show results") do
+          require "launchy"
+          Launchy.open(web_result_url).join
+        end
       end
     else
       raise RuntimeError, "Unknown describe status: #{describe_result['status']} for describe_id: #{describe_id}"

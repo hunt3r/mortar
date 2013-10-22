@@ -86,5 +86,113 @@ other\tgit@github.com:other.git (push)
       end
     end
 
+    context "load_defaults" do
+      it "no errors with no .mortar-defaults file" do
+        with_git_initialized_project do |p|
+          b = Base.new
+          b.options.should == {}
+        end
+      end
+
+      it "loads default only params" do
+        with_git_initialized_project do |p|
+          text = """
+[DEFAULTS]
+pigversion=0.12
+
+[other]
+no_browser=True
+"""
+          write_file(File.join(p.root_path, ".mortar-defaults"), text)
+
+          b = Base.new
+          b.options.should == {:pigversion => "0.12"}
+        end
+      end
+
+      it "loads default only params with script" do
+        stub_core
+        git = Mortar::Git::Git.new
+
+        with_git_initialized_project do |p|
+          text = """
+[DEFAULTS]
+pigversion=0.12
+
+[other]
+no_browser=True
+"""
+          write_file(File.join(p.root_path, ".mortar-defaults"), text)
+
+          describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          describe_url = "https://api.mortardata.com/describe/#{describe_id}"
+
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
+          mock(Launchy).open(describe_url) {Thread.new {}}
+
+          write_file(File.join(p.pigscripts_path, "my_script.pig"))
+
+          stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
+          d.options.should == {:pigversion => "0.12", :polling_interval => "0.05"}
+        end
+      end
+
+      it "loads params for script" do
+        stub_core
+        git = Mortar::Git::Git.new
+
+        with_git_initialized_project do |p|
+          text = """
+[DEFAULTS]
+pigversion=0.12
+
+[my_script]
+no_browser=True
+"""
+          write_file(File.join(p.root_path, ".mortar-defaults"), text)
+
+          describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          describe_url = "https://api.mortardata.com/describe/#{describe_id}"
+
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
+          write_file(File.join(p.pigscripts_path, "my_script.pig"))
+
+          stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
+          d.options.should == {:pigversion => "0.12", :polling_interval => "0.05", :no_browser => "True"}
+        end
+      end
+
+      it "obeys proper overrides" do
+        stub_core
+        git = Mortar::Git::Git.new
+
+        with_git_initialized_project do |p|
+          text = """
+[DEFAULTS]
+clustersize=5
+no_browser=True
+
+[my_script]
+clustersize=10
+polling_interval=10
+"""
+          write_file(File.join(p.root_path, ".mortar-defaults"), text)
+
+          describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          describe_url = "https://api.mortardata.com/describe/#{describe_id}"
+
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
+          write_file(File.join(p.pigscripts_path, "my_script.pig"))
+
+          stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
+          d.options.should == {:polling_interval => "0.05", :no_browser => "True", :clustersize => "10"}
+        end
+      end
+
+    end
+
   end
 end
