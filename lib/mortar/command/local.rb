@@ -27,9 +27,11 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   # Install dependencies for running this mortar project locally - other mortar:local commands will also perform this step automatically.
   #
-  # --project-root PROJECTDIR  # The root directory of the project if not the CWD
+  # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
+  # --project-root PROJECTDIR     # The root directory of the project if not the CWD
   #
   def configure
+    validate_arguments!
 
     # cd into the project root
     project_root = options[:project_root] ||= Dir.getwd
@@ -39,7 +41,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.install_and_configure
+    ctrl.install_and_configure(pig_version)
   end
 
   # local:run SCRIPT
@@ -48,6 +50,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   # --project-root PROJECTDIR   # The root directory of the project if not the CWD
   #
   #Examples:
@@ -69,7 +72,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
     script = validate_script!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_parameters)
+    ctrl.run(script, pig_version, pig_parameters)
   end
 
   # local:characterize -f PARAMFILE
@@ -79,6 +82,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   #    statistics about your data (most common values, percent null, etc.)
   # 
   # -f, --param-file PARAMFILE # Load pig parameter values from a file
+  # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   #
   # Load some data and emit statistics.
   # PARAMFILE (Required):
@@ -116,7 +120,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     gen.generate_characterize
     script = validate_script!(controlscript_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_parameters)
+    ctrl.run(script, pig_version, pig_parameters)
     gen.cleanup_characterize(project_root)
   end
 
@@ -129,6 +133,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -s, --skippruning           # Don't try to reduce the illustrate results to the smallest size possible.
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   # --no_browser                # Don't open the illustrate results automatically in the browser.
   # --project-root PROJECTDIR   # The root directory of the project if not the CWD
   #
@@ -156,7 +161,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript = validate_pigscript!(pigscript_name)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.illustrate(pigscript, alias_name, pig_parameters, skip_pruning)
+    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning)
   end
 
 
@@ -166,6 +171,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   # --project-root PROJECTDIR   # The root directory of the project if not the CWD
   #
   #Examples:
@@ -188,7 +194,7 @@ class Mortar::Command::Local < Mortar::Command::Base
 
     script = validate_script!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.validate(script, pig_parameters)
+    ctrl.validate(script, pig_version, pig_parameters)
   end
 
 end

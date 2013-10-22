@@ -21,6 +21,7 @@ require "fileutils"
 require "parseconfig"
 require "mortar/auth"
 require "mortar/command"
+require "mortar/pigversion"
 require "mortar/project"
 require "mortar/git"
 
@@ -187,15 +188,28 @@ protected
     end
   end
 
+  def self.replace_templates(help)
+    #Leave --pigversion undocumented for now.
+    #help.each do |line|
+    #  #line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12 (beta)")
+    #
+    #end
+    help.reject! do |line|
+      line.include?("<PIG_VERSION_OPTIONS>")
+    end
+  end
+
   def self.method_added(method)
     return if self == Mortar::Command::Base
     return if private_method_defined?(method)
     return if protected_method_defined?(method)
 
     help = extract_help_from_caller(caller.first)
+    replace_templates(help)
+
     resolved_method = (method.to_s == "index") ? nil : method.to_s
     command = [ self.namespace, resolved_method ].compact.join(":")
-    banner = extract_banner(help) || command
+    banner = extract_banner(help) || command   
 
     Mortar::Command.register_command(
       :klass       => self,
@@ -422,6 +436,11 @@ protected
 
   def no_browser?
     (options[:no_browser])
+  end
+
+  def pig_version
+    pig_version_str = options[:pigversion] || '0.9'
+    pig_version = Mortar::PigVersion.from_string(pig_version_str)
   end
 
   def sync_code_with_cloud

@@ -34,17 +34,19 @@ module Mortar::Local
         # chmods bin/pig, removes tgz, and notes the installation
         FakeFS do
           pig = Mortar::Local::Pig.new
-          local_pig_archive = File.join(pig.local_install_directory, Mortar::Local::Pig::PIG_TGZ_NAME)
-          mock(pig).download_file(pig.pig_archive_url, local_pig_archive) do
+          pig09 = Mortar::PigVersion::Pig09.new
+          local_pig_archive = File.join(pig.local_install_directory, pig09.tgz_name)
+          mock(pig).download_file(pig.pig_archive_url(pig09), local_pig_archive) do
             # Simulate the tgz file being downloaded, this should be deleted
             # before the method finishes executing
             FileUtils.touch(local_pig_archive)
           end
           mock(pig).extract_tgz(local_pig_archive, pig.local_install_directory)
-          mock(pig).note_install("pig-0.9")
+          mock(pig).note_install(pig09.name)
+          mock(pig).command(pig09)
           begin
             previous_stdout, $stdout = $stdout, StringIO.new
-            pig.install_pig
+            pig.install_pig(pig09)
           ensure
             $stdout = previous_stdout
           end
@@ -58,15 +60,17 @@ module Mortar::Local
 
       it "does nothing if existing install and no update available" do
         pig = Mortar::Local::Pig.new
-        mock(pig).should_do_pig_install?.returns(false)
-        mock(pig).should_do_pig_update?.returns(false)
+        pig09 = Mortar::PigVersion::Pig09.new
+
+        mock(pig).should_do_pig_install?(pig09).returns(false)
+        mock(pig).should_do_pig_update?(pig09).returns(false)
         mock(pig).should_do_lib_install?.returns(false)
         mock(pig).should_do_lib_update?.returns(false)
         FakeFS do
           FileUtils.mkdir_p(File.dirname(pig.local_install_directory))
           FileUtils.rm_rf(pig.local_install_directory, :force => true)
-          pig.install_or_update
-          expect(File.exists?(pig.pig_directory)).to be_false
+          pig.install_or_update(pig09)
+          expect(File.exists?(pig.pig_directory(pig09))).to be_false
           expect(File.exists?(pig.lib_directory)).to be_false
 
         end
@@ -74,26 +78,30 @@ module Mortar::Local
 
       it "does install if none has been done before" do
         pig = Mortar::Local::Pig.new
-        mock(pig).should_do_pig_install?.returns(true)
+        pig09 = Mortar::PigVersion::Pig09.new
+
+        mock(pig).should_do_pig_install?(pig09).returns(true)
         mock(pig).should_do_lib_install?.returns(true)
 
-        mock(pig).install_pig
+        mock(pig).install_pig(pig09)
         mock(pig).install_lib
         capture_stdout do
-          pig.install_or_update
+          pig.install_or_update(pig09)
         end
       end
 
       it "does install if one was done before but there is an update" do
         pig = Mortar::Local::Pig.new
-        mock(pig).should_do_pig_install?.returns(false)
-        mock(pig).should_do_pig_update?.returns(true)
+        pig09 = Mortar::PigVersion::Pig09.new
+
+        mock(pig).should_do_pig_install?(pig09).returns(false)
+        mock(pig).should_do_pig_update?(pig09).returns(true)
         mock(pig).should_do_lib_install?.returns(false)
         mock(pig).should_do_lib_update?.returns(true)
-        mock(pig).install_pig
+        mock(pig).install_pig(pig09)
         mock(pig).install_lib
         capture_stdout do
-          pig.install_or_update
+          pig.install_or_update(pig09)
         end
       end
 
@@ -195,7 +203,7 @@ module Mortar::Local
         mock(pig).run_pig_command.with_any_args.returns(true)
         mock(pig).show_illustrate_output.with_any_args
         stub(pig).make_pig_param_file.returns('param.file')
-        pig.illustrate_alias(script, 'my_alias', false, [])
+        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
       end
 
       it "skips results if illustrate was unsuccessful" do
@@ -205,7 +213,7 @@ module Mortar::Local
         mock(pig).run_pig_command.with_any_args.returns(false)
         mock(pig).show_illustrate_output.with_any_args.never
         stub(pig).make_pig_param_file.returns('param.file')
-        pig.illustrate_alias(script, 'my_alias', false, [])
+        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
       end
 
       it "does not require login credentials for illustration" do
@@ -215,7 +223,7 @@ module Mortar::Local
         mock(Mortar::Auth).user_s3_safe(true).returns('notloggedin-user-org')
         mock(pig).run_pig_command.with_any_args.returns(true)
         mock(pig).show_illustrate_output.with_any_args
-        pig.illustrate_alias(script, 'my_alias', false, [])
+        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
       end
 
     end
@@ -233,6 +241,22 @@ module Mortar::Local
           expect(File.exists?(marker_file)).to be_false
         end
 
+      end
+    end
+
+    context "template_params_classpath" do
+      it "Uses default pig" do
+        pig = Mortar::Local::Pig.new
+        tpc = pig.template_params_classpath
+        expect(tpc.include?("pig-0.9")).to be_true
+        expect(tpc.include?("pig-0.12")).to be_false
+      end
+
+      it "Works with 0.12 pig" do
+        pig = Mortar::Local::Pig.new
+        tpc = pig.template_params_classpath(Mortar::PigVersion::Pig012.new)
+        expect(tpc.include?("pig-0.12")).to be_true
+        expect(tpc.include?("pig-0.9")).to be_false
       end
     end
 

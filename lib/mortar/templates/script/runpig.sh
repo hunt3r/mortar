@@ -15,7 +15,7 @@ cd <%= @project_home %>/pigscripts
 source <%= @local_install_dir %>/pythonenv/bin/activate
 
 # Run Pig
-<%= @local_install_dir %>/pig-0.9/bin/pig -exectype local \
+<%= @local_install_dir %>/<%= @pig_dir %>/bin/pig -exectype local \
     -log4jconf <%= @log4j_conf %> \
     -propertyFile <%= @local_install_dir %>/lib-common/conf/pig-hawk-global.properties \
     -propertyFile <%= @local_install_dir %>/lib-common/conf/pig-cli-local-dev.properties \

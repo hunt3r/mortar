@@ -29,6 +29,7 @@ class Mortar::Command::Illustrate < Mortar::Command::Base
   # -s, --skippruning          # Don't try to reduce the illustrate results to the smallest size possible.
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   # --no_browser                # Don't open the illustrate results automatically in the browser.
   #
   # Examples:
@@ -56,7 +57,7 @@ class Mortar::Command::Illustrate < Mortar::Command::Base
 
     illustrate_id = nil
     action("Starting illustrate") do
-      illustrate_id = api.post_illustrate(project.name, pigscript.name, alias_name, skip_pruning, git_ref, :parameters => pig_parameters).body["illustrate_id"]
+      illustrate_id = api.post_illustrate(project.name, pigscript.name, alias_name, skip_pruning, git_ref, :pig_version => pig_version.version, :parameters => pig_parameters).body["illustrate_id"]
     end
         
     illustrate_result = nil

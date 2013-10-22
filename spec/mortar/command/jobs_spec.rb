@@ -47,6 +47,7 @@ module Mortar::Command
           cluster_size = 5
 
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__SINGLE_JOB,
             :notify_on_job_finish => true,
@@ -79,7 +80,8 @@ STDOUT
           job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
           cluster_size = 5
 
-          mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size,
+          mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String),cluster_size,
+                                                      :pig_version => "0.9", 
                                                       :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]),
                                                       :cluster_type => Jobs::CLUSTER_TYPE__PERMANENT,
                                                       :notify_on_job_finish => true,
@@ -136,7 +138,8 @@ STDERR
           job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
           cluster_size = 5
 
-          mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+          mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String),cluster_size, 
+            :pig_version => "0.9", 
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
@@ -170,6 +173,7 @@ STDOUT
           cluster_id = "e2790e7e8c7d48e39157238d58191346"
 
           mock(Mortar::Auth.api).post_job_existing_cluster("myproject", "my_script", is_a(String), cluster_id,
+              :pig_version => "0.9", 
               :parameters => [],
               :notify_on_job_finish => false,
               :is_control_script=>true) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
@@ -202,6 +206,7 @@ STDOUT
           cluster_id = "e2790e7e8c7d48e39157238d58191346"
 
           mock(Mortar::Auth.api).post_job_existing_cluster("myproject", "my_script", is_a(String), cluster_id,
+              :pig_version => "0.9", 
               :parameters => [],
               :notify_on_job_finish => false,
               :is_control_script=>true) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
@@ -234,6 +239,7 @@ STDOUT
 
           mock(Mortar::Auth.api).get_clusters() {Excon::Response.new(:body => {'clusters' => []})}
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => [], 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
@@ -269,6 +275,7 @@ STDOUT
 
           mock(Mortar::Auth.api).get_clusters() {Excon::Response.new(:body => {'clusters' => []})}
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => [], 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
@@ -303,7 +310,7 @@ STDOUT
           job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
           cluster_id = "e2790e7e8c7d48e39157238d58191346"
 
-          mock(Mortar::Auth.api).post_job_existing_cluster("myproject", "my_script", is_a(String), cluster_id, :parameters => [], :notify_on_job_finish => false, :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+          mock(Mortar::Auth.api).post_job_existing_cluster("myproject", "my_script", is_a(String), cluster_id, :pig_version => "0.9", :parameters => [], :notify_on_job_finish => false, :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig --clusterid e2790e7e8c7d48e39157238d58191346 -d", p, @git)
@@ -356,6 +363,7 @@ STDOUT
               ]})
           }
           mock(Mortar::Auth.api).post_job_existing_cluster("myproject", "my_script", is_a(String), large_cluster_id, 
+            :pig_version => "0.9", 
             :parameters => [], 
             :notify_on_job_finish => true,
             :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
@@ -388,6 +396,7 @@ STDOUT
           cluster_size = 5
 
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => match_array([{"name" => "FIRST", "value" => "FOO"}, {"name" => "SECOND", "value" => "BAR"}, {"name" => "THIRD", "value" => "BEAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
@@ -413,6 +422,7 @@ PARAMS
           cluster_size = 5
 
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => match_array([{"name" => "FIRST", "value" => "FOO"}, {"name" => "SECOND", "value" => "BAR"}, {"name" => "THIRD", "value" => "BEAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
@@ -466,6 +476,7 @@ STDERR
           mock(@git).sync_embedded_project.with_any_args.times(1) { "somewhere_over_the_rainbow" }
 
           mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
+            :pig_version => "0.9", 
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
