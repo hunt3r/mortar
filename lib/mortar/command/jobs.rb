@@ -162,14 +162,16 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         elsif options[:permanentcluster]
           cluster_type = CLUSTER_TYPE__PERMANENT
         end
-        api.post_job_new_cluster(project_name, script_name, git_ref, pig_version.version, cluster_size, 
+        api.post_job_new_cluster(project_name, script_name, git_ref, cluster_size, 
+          :pig_version => pig_version.version, 
           :parameters => pig_parameters,
           :cluster_type => cluster_type,
           :notify_on_job_finish => notify_on_job_finish,
           :is_control_script => is_control_script).body
       else
         cluster_id = options[:clusterid]
-        api.post_job_existing_cluster(project_name, script_name, git_ref, pig_version.version, cluster_id,
+        api.post_job_existing_cluster(project_name, script_name, git_ref, cluster_id,
+          :pig_version => pig_version.version, 
           :parameters => pig_parameters,
           :notify_on_job_finish => notify_on_job_finish,
           :is_control_script => is_control_script).body

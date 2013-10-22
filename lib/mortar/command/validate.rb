@@ -47,7 +47,7 @@ class Mortar::Command::Validate < Mortar::Command::Base
     
     validate_id = nil
     action("Starting validate") do
-      validate_id = api.post_validate(project.name, pigscript.name, git_ref, pig_version.version, :parameters => pig_parameters).body["validate_id"]
+      validate_id = api.post_validate(project.name, pigscript.name, git_ref, :pig_version => pig_version, :pig_version => pig_version.version, :parameters => pig_parameters).body["validate_id"]
     end
         
     validate_result = nil
