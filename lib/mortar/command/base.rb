@@ -18,6 +18,7 @@
 #
 
 require "fileutils"
+require "parseconfig"
 require "mortar/auth"
 require "mortar/command"
 require "mortar/project"
@@ -36,6 +37,11 @@ class Mortar::Command::Base
   def initialize(args=[], options={})
     @args = args
     @options = options
+    #We never want to override the command line options so we store them.
+    @original_options = options.dup
+
+    #Initialize defaults from .mortar-defaults
+    load_defaults('DEFAULTS')
   end
 
   def project
@@ -324,6 +330,9 @@ protected
       error("Naming conflict.  #{script_name} refers to both a pigscript and a controlscript.  Please rename scripts to avoid conflicts.")
     end
 
+    #While validating we can load the defaults that are relevant to this script.
+    load_defaults(shortened_script_name)
+
     pigscript or controlscript
   end
   
@@ -333,6 +342,10 @@ protected
       available_scripts = project.pigscripts.none? ? "No pigscripts found" : "Available scripts:\n#{project.pigscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
       error("Unable to find pigscript #{pigscript_name}\n#{available_scripts}")
     end
+
+    #While validating we can load the defaults that are relevant to this script.
+    load_defaults(shortened_pigscript_name)
+
     pigscript
   end
 
@@ -343,6 +356,19 @@ protected
     end
     
     return missing_dir ? nil : [File.basename(Dir.getwd), nil]
+  end
+
+  def load_defaults(section_name)
+    if File.exists?('.mortar-defaults')
+      default_options = ParseConfig.new('.mortar-defaults')
+      if default_options.groups.include?(section_name)
+        default_options[section_name].each do |k, v|
+          unless @original_options.include? k.to_sym
+            @options[k.to_sym] = v
+          end
+        end
+      end
+    end
   end
 
   def extract_project_in_dir(project_name=nil)
