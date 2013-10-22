@@ -244,6 +244,22 @@ module Mortar::Local
       end
     end
 
+    context "template_params_classpath" do
+      it "Uses default pig" do
+        pig = Mortar::Local::Pig.new
+        tpc = pig.template_params_classpath
+        expect(tpc.include?("pig-0.9")).to be_true
+        expect(tpc.include?("pig-0.12")).to be_false
+      end
+
+      it "Works with 0.12 pig" do
+        pig = Mortar::Local::Pig.new
+        tpc = pig.template_params_classpath(Mortar::PigVersion::Pig012.new)
+        expect(tpc.include?("pig-0.12")).to be_true
+        expect(tpc.include?("pig-0.9")).to be_false
+      end
+    end
+
 
   end
 end
