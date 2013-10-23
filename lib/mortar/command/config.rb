@@ -19,13 +19,13 @@
 
 require "mortar/command/base"
 
-# manage project configuration variables
+# manage project config variables
 #
 class Mortar::Command::Config < Mortar::Command::Base
 
   # config
   #
-  # Display the configuration variables for a project.
+  # Display the config vars for a project.
   #
   # -s, --shell  # output config vars in shell format
   #
@@ -59,7 +59,7 @@ class Mortar::Command::Config < Mortar::Command::Base
   
   # config:get KEY
   #
-  # display a configuration value for a project
+  # display a config var for a project
   #
   #Examples:
   #
@@ -81,4 +81,44 @@ class Mortar::Command::Config < Mortar::Command::Base
     
     display(value.to_s)
   end
+  
+  # config:set KEY1=VALUE1 [KEY2=VALUE2 ...]
+  #
+  # Set one or more config vars
+  #
+  #Example:
+  #
+  # $ mortar config:set A=one
+  # Setting config vars... done.
+  # A: one
+  #
+  # $ mortar config:set A=one B=two
+  # Setting config vars... done.
+  # A: one
+  # B: two
+  #
+  def set
+    unless args.size > 0 and args.all? { |a| a.include?('=') }
+      error("Usage: mortar config:set KEY1=VALUE1 [KEY2=VALUE2 ...]\nMust specify KEY and VALUE to set.")
+    end
+
+    vars = args.inject({}) do |vars, arg|
+      key, value = arg.split('=', 2)
+      vars[key] = value
+      vars
+    end
+
+    project_name = options[:project] || project.name
+
+    action("Setting config vars for project #{project_name}") do
+      api.put_config_vars(project_name, vars)
+    end
+
+    vars.each {|key, value| vars[key] = value.to_s}
+    styled_hash(vars)
+  end
+  
+  alias_command "config:add", "config:set"
+  alias_command "config:put", "config:set"
+  
 end

@@ -142,5 +142,54 @@ STDERR
         end
       end
     end
+    
+    context("set") do
+      it "sets config vars" do
+        with_git_initialized_project do |p|
+          # stub api request
+          configs = {'A' => '1', 'B' => '2'}
+          mock(Mortar::Auth.api).put_config_vars("myproject", configs).returns(Excon::Response.new(:body => {}))
+          
+          stderr, stdout = execute("config:set A=1 B=2", p, @git)
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Setting config vars for project myproject... done
+A: 1
+B: 2
+STDOUT
+        end
+      end
+      
+      it "allows config vars with = in the value" do
+        with_git_initialized_project do |p|
+          # stub api request
+          configs = {'A' => 'b=c'}
+          mock(Mortar::Auth.api).put_config_vars("myproject", configs).returns(Excon::Response.new(:body => {}))
+          
+          stderr, stdout = execute("config:set A=b=c", p, @git)
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Setting config vars for project myproject... done
+A: b=c
+STDOUT
+        end
+      end
+      
+      
+      it "sets config vars without changing case" do
+        with_git_initialized_project do |p|
+          # stub api request
+          configs = {'a' => 'b'}
+          mock(Mortar::Auth.api).put_config_vars("myproject", configs).returns(Excon::Response.new(:body => {}))
+          
+          stderr, stdout = execute("config:set a=b", p, @git)
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Setting config vars for project myproject... done
+a: b
+STDOUT
+        end
+      end
+    end
   end
 end
