@@ -114,5 +114,33 @@ STDOUT
         end
       end
     end
+    
+    context("get") do
+      it "shows a single config for get" do
+        with_git_initialized_project do |p|
+          # stub api request
+          configs = {"foo" => "ABCDEFGHIJKLMNOP", "BAR" => "sheepdog"}
+          mock(Mortar::Auth.api).get_config_vars("myproject").returns(Excon::Response.new(:body => {"config" => configs}))
+       
+          stderr, stdout = execute("config:get BAR",  p, @git)
+          stdout.should == <<-STDOUT
+sheepdog
+STDOUT
+        end
+      end
+      
+      it "errors when a config is missing" do
+        with_git_initialized_project do |p|
+          # stub api request
+          configs = {"foo" => "ABCDEFGHIJKLMNOP", "BAR" => "sheepdog"}
+          mock(Mortar::Auth.api).get_config_vars("myproject").returns(Excon::Response.new(:body => {"config" => configs}))
+       
+          stderr, stdout = execute("config:get NOPE",  p, @git)
+          stderr.should == <<-STDERR
+ !    Config var NOPE is not defined for project myproject.
+STDERR
+        end
+      end
+    end
   end
 end

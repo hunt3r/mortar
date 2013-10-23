@@ -56,4 +56,29 @@ class Mortar::Command::Config < Mortar::Command::Base
       end
     end
   end
+  
+  # config:get KEY
+  #
+  # display a configuration value for a project
+  #
+  #Examples:
+  #
+  # $ mortar config:get MY_CONFIG_VAR
+  # one
+  #
+  def get
+    unless key = shift_argument
+      error("Usage: mortar config:get KEY\nMust specify KEY.")
+    end
+    validate_arguments!
+    project_name = options[:project] || project.name
+
+    vars = api.get_config_vars(project_name).body['config']
+    key_name, value = vars.detect {|k,v| k == key}
+    unless key_name
+      error("Config var #{key} is not defined for project #{project_name}.")
+    end
+    
+    display(value.to_s)
+  end
 end
