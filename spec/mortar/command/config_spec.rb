@@ -191,5 +191,47 @@ STDOUT
         end
       end
     end
+    
+    
+    context("unset") do
+      it "errors when no keys are provided" do
+        with_git_initialized_project do |p|
+          stderr, stdout = execute("config:unset", p, @git)
+          stderr.should == <<-STDERR
+ !    Usage: mortar config:unset KEY1 [KEY2 ...]
+ !    Must specify KEY to unset.
+STDERR
+          stdout.should == ""
+        end
+      end
+      
+      it "unsets one key" do
+        with_git_initialized_project do |p|
+          # stub api requests
+          mock(Mortar::Auth.api).delete_config_var("myproject", "A").returns(Excon::Response.new(:body => {}))
+          
+          stderr, stdout = execute("config:unset A", p, @git)
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Unsetting A for project myproject... done
+STDOUT
+        end
+      end
+      
+      it "unsets two keys" do
+        with_git_initialized_project do |p|
+          # stub api requests
+          mock(Mortar::Auth.api).delete_config_var("myproject", "A").returns(Excon::Response.new(:body => {}))
+          mock(Mortar::Auth.api).delete_config_var("myproject", "B").returns(Excon::Response.new(:body => {}))
+          
+          stderr, stdout = execute("config:unset A B", p, @git)
+          stderr.should == ""
+          stdout.should == <<-STDOUT
+Unsetting A for project myproject... done
+Unsetting B for project myproject... done
+STDOUT
+        end
+      end
+    end
   end
 end

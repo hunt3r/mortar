@@ -121,4 +121,29 @@ class Mortar::Command::Config < Mortar::Command::Base
   alias_command "config:add", "config:set"
   alias_command "config:put", "config:set"
   
+  # config:unset KEY1 [KEY2 ...]
+  #
+  # unset one or more config vars
+  #
+  # $ mortar config:unset A
+  # Unsetting A... done
+  #
+  # $ mortar config:unset A B
+  # Unsetting A... done
+  # Unsetting B... done
+  #
+  def unset
+    if args.empty?
+      error("Usage: mortar config:unset KEY1 [KEY2 ...]\nMust specify KEY to unset.")
+    end
+    project_name = options[:project] || project.name
+    args.each do |key|
+      action("Unsetting #{key} for project #{project_name}") do
+        api.delete_config_var(project_name, key)
+      end
+    end
+  end
+
+  alias_command "config:remove", "config:unset"
+
 end
