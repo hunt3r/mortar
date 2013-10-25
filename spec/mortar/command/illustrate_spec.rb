@@ -36,7 +36,9 @@ module Mortar::Command
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("illustrate pigscripts/my_script.pig my_alias", p, @git)
           stderr.should == <<-STDERR
- !    Unable to find git remote for project myproject
+ !    Unable to find git remote for project myproject.
+ !    
+ !    Do 'mortar projects -h' for help creating a new Mortar project or linking to an existing Mortar project.
 STDERR
         end
       end
