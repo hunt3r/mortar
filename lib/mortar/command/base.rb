@@ -320,7 +320,7 @@ protected
     end
     
     unless project.remote
-      error("Unable to find git remote for project #{project.name}")
+      error("Unable to find git remote for project #{project.name}.\n\nDo 'mortar projects -h' for help creating a new Mortar project or linking to an existing Mortar project.")
     end
   end
 
