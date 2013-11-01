@@ -33,6 +33,19 @@ module Mortar
         Plugin.list.should include 'plugin2'
       end
 
+      it "gives good error message when install fails" do
+        begin
+          Plugin.new("bad_plugin").install
+        rescue Mortar::Plugin::ErrorInstallingPlugin => e
+          e.message.should == <<-MESSAGE
+Unable to install plugin bad_plugin.
+
+Error executing 'git clone bad_plugin':
+fatal: repository 'bad_plugin' does not exist
+MESSAGE
+        end
+      end
+
       it "installs pulling from the plugin url" do
         plugin_folder = "/tmp/mortar_plugin"
         FileUtils.rm_rf(plugin_folder)
