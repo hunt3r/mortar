@@ -35,9 +35,9 @@ module Mortar
 
       it "gives good error message when install fails" do
         begin
-            Plugin.new("bad_plugin").install
+          Plugin.new("bad_plugin").install
         rescue Mortar::Plugin::ErrorInstallingPlugin => e
-                   e.message.should == <<-MESSAGE
+          e.message.should == <<-MESSAGE
 Unable to install plugin bad_plugin.
 
 Error executing 'git clone bad_plugin':
