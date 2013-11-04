@@ -188,7 +188,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       File.open(".mortar-project-remote", "w") do |f|
         f.puts project["git_url"]
       end
-      git.sync_embedded_project(project, embedded_project_user_branch)
+      git.sync_embedded_project(project, embedded_project_user_branch, git_organization)
     else
       git.remote_add("mortar", project["git_url"])
     end

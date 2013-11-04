@@ -319,11 +319,12 @@ STASH
           mock(@git).mortar_mirrors_dir.any_times { mirror_dir }
 
           mock(@git).git.with_any_args.any_times { true }
+          mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.times(1) { FileUtils.mkdir("#{mirror_dir}/#{p.name}") }
           mock(@git).push_with_retry.with_any_args.times(2) { true }
           mock(@git).is_clean_working_directory? { false }
 
-          @git.sync_embedded_project(p, "master")
+          @git.sync_embedded_project(p, "master", "mortarcode-dev")
 
           File.directory?(mirror_dir).should be_true
           FileUtils.rm_rf(mirror_dir)
@@ -340,11 +341,12 @@ STASH
           FileUtils.touch("#{p.root_path}/pigscripts/calydonian_boar.pig")
 
           mock(@git).git.with_any_args.any_times { true }
+          mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.never
           mock(@git).push_with_retry.with_any_args.times(1) { true }
           mock(@git).is_clean_working_directory? { false }
 
-          @git.sync_embedded_project(p, "bob-the-builder-base")
+          @git.sync_embedded_project(p, "bob-the-builder-base", "mortarcode-dev")
 
           File.exists?("#{project_mirror_dir}/pigscripts/calydonian_boar.pig").should be_true
           FileUtils.rm_rf(mirror_dir)
@@ -362,11 +364,12 @@ STASH
           FileUtils.touch("#{project_mirror_dir}/pigscripts/calydonian_boar.pig")
 
           mock(@git).git.with_any_args.any_times { true }
+          mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.never
           mock(@git).push_with_retry.with_any_args.times(1) { true }
           mock(@git).is_clean_working_directory? { false }
 
-          @git.sync_embedded_project(p, "bob-the-builder-base")
+          @git.sync_embedded_project(p, "bob-the-builder-base", "mortarcode-dev")
 
           File.exists?("#{project_mirror_dir}/pigscripts/calydonian_boar.pig").should be_false
           FileUtils.rm_rf(mirror_dir)

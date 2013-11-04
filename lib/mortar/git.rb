@@ -249,7 +249,7 @@ module Mortar
         "/tmp/mortar-git-mirrors"
       end
 
-      def sync_embedded_project(project, branch)
+      def sync_embedded_project(project, branch, git_organization)
         # the project is not a git repo, so we manage a mirror directory that is a git repo
         # branch is which branch to sync to. this will be master if the cloud repo
         # is being initialized, or a branch based on the user's name in any other circumstance
@@ -257,7 +257,7 @@ module Mortar
         project_dir = project.root_path
         mirror_dir = "#{mortar_mirrors_dir}/#{project.name}"
 
-        ensure_embedded_project_mirror_exists(mirror_dir)
+        ensure_embedded_project_mirror_exists(mirror_dir, git_organization)
         sync_embedded_project_with_mirror(mirror_dir, project_dir, branch)
         git_ref = sync_embedded_project_mirror_with_cloud(mirror_dir, branch)
 
@@ -265,7 +265,7 @@ module Mortar
         return git_ref
       end
 
-      def ensure_embedded_project_mirror_exists(mirror_dir)
+      def ensure_embedded_project_mirror_exists(mirror_dir, git_organization)
         # create and initialize mirror git repo if it doesn't already exist
         unless File.directory? mirror_dir
           unless File.directory? mortar_mirrors_dir
@@ -276,14 +276,19 @@ module Mortar
           remote_path = File.open(".mortar-project-remote").read.strip
           clone(remote_path, mirror_dir)
 
-          # make an initial commit to the specified branch
           Dir.chdir(mirror_dir)
+
+          # ensure that the mortar remote is defined
+          unless remotes(git_organization).include? "mortar"
+            git("remote add mortar #{remote_path}")  
+          end
+
+          # make an initial commit to the specified branch
           unless File.exists? ".gitkeep" # flag that signals that the repo has been initialized
                                          # initialization is not necessary if this is not the first user to use it 
             File.open(".gitkeep", "w").close()
             git("add .")
             git("commit -m \"Setting up embedded Mortar project\"")
-            git("remote add mortar #{remote_path}")
             push_with_retry("mortar", "master", "Setting up embedded Mortar project")
           end
         end
