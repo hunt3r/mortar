@@ -197,7 +197,12 @@ def with_blank_project(&block)
 end
 
 def with_git_initialized_project(&block)
-  # wrap block in a proc that does a commit
+  remote_prefix = "4dbbd83cae8d5bf8a4000000_"
+  with_git_initialized_project_with_remote_prefix(remote_prefix, &block)
+end
+
+def with_git_initialized_project_with_remote_prefix(remote_prefix, &block)
+    # wrap block in a proc that does a commit
   commit_proc = Proc.new do |project|
     git = Mortar::Git::Git.new
     git.create_mortar_project_manifest(project.root_path)
@@ -205,7 +210,7 @@ def with_git_initialized_project(&block)
     remote = "mortar"
     `git add .mortar-project-manifest`
     `git commit -a -m "First commit"`
-    `git remote add #{remote} git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{project.name}.git`
+    `git remote add #{remote} git@github.com:mortarcode-dev/#{remote_prefix}#{project.name}.git`
     project.remote = remote
     block.call(project)
   end
