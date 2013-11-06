@@ -294,20 +294,39 @@ module Mortar
         end
       end
 
-      def sync_embedded_project_with_mirror(mirror_dir, project_dir, branch)
+      def sync_embedded_project_with_mirror(mirror_dir, project_dir, local_branch)
         # pull from remote branch and overwrite everything, if it exists.
         # if it doesn't exist, create it.
         Dir.chdir(mirror_dir)
-        git("reset --hard HEAD")
+
+        # stash any local changes
+        # so we can change branches w/ impunity
+        stash_working_dir("cleaning out mirror working directory")
+
+        # fetch remotes
         git("fetch --all")
-        begin
-          git("checkout #{branch}")
-        rescue Exception => e
-          err_msg = e.to_s
-          if err_msg.include?("error: pathspec") and err_msg.include?("did not match any file(s) known to git")
-            git("checkout -b #{branch}")
+
+        remote_branch = "mortar/#{local_branch}"
+        if branches.include?(local_branch)
+          # if the local branch already exists, use that
+          git("checkout #{local_branch}")
+
+          # if a remote branch exists, hard reset the local branch to that
+          # to avoid push conflicts
+          if all_branches.include?("remotes/#{remote_branch}")
+            git("reset --hard #{remote_branch}")
+          end
+        else
+          # start a new local branch off of master
+          git("checkout master")
+
+          # if a remote branch exists, checkout the local to track the remote
+          if all_branches.include?("remotes/#{remote_branch}")
+            # track the remote branch
+            git("checkout -b #{local_branch} #{remote_branch}")
           else
-            raise e
+            # start a new branch, nothing to track
+            git("checkout -b #{local_branch}")
           end
         end
 
@@ -334,8 +353,9 @@ module Mortar
         snapshot_branch = "mortar-snapshot-#{Mortar::UUID.create_random.to_s}"
         git("checkout -b #{snapshot_branch}")
 
-        # push everything (use base branch updates and snapshot branch)
-        git_ref = push_with_retry("mortar", snapshot_branch, "Sending code snapshot to Mortar", true)
+        # push base branch and snapshot branch
+        push_with_retry("mortar", branch, "Sending code base branch to Mortar")
+        git_ref = push_with_retry("mortar", snapshot_branch, "Sending code snapshot to Mortar")
 
         git("checkout #{branch}")
         return git_ref
@@ -355,6 +375,13 @@ module Mortar
       
       def branches
         git("branch")
+      end
+      
+      #
+      # Includes remote tracking branches.
+      #
+      def all_branches
+        git("branch --all")
       end
       
       def current_branch

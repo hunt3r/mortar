@@ -316,14 +316,18 @@ STASH
       it "creates a mirror directory for the project when one does not already exist" do
         with_embedded_project do |p|
           mirror_dir = File.join(Dir.tmpdir, "mortar", "test-git-mirror")
+          FileUtils.rm_rf(mirror_dir)
           mock(@git).mortar_mirrors_dir.any_times { mirror_dir }
 
           mock(@git).git.with_any_args.any_times { true }
           mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.times(1) { FileUtils.mkdir("#{mirror_dir}/#{p.name}") }
-          mock(@git).push_with_retry.with_any_args.times(2) { true }
+          mock(@git).push_with_retry.with_any_args.times(3) { true }
           mock(@git).is_clean_working_directory? { false }
-
+          mock(@git).did_stash_changes?.with_any_args.any_times { false }
+          mock(@git).branches.any_times { "master" }
+          mock(@git).all_branches.any_times { "master\nremotes/mortar/master" }
+          
           @git.sync_embedded_project(p, "master", "mortarcode-dev")
 
           File.directory?(mirror_dir).should be_true
@@ -334,6 +338,7 @@ STASH
       it "syncs files to the project mirror" do
         with_embedded_project do |p|
           mirror_dir = File.join(Dir.tmpdir, "mortar", "test-git-mirror")
+          FileUtils.rm_rf(mirror_dir)
           mock(@git).mortar_mirrors_dir.any_times { mirror_dir }
 
           project_mirror_dir = File.join(mirror_dir, p.name)
@@ -343,8 +348,11 @@ STASH
           mock(@git).git.with_any_args.any_times { true }
           mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.never
-          mock(@git).push_with_retry.with_any_args.times(1) { true }
+          mock(@git).push_with_retry.with_any_args.times(2) { true }
           mock(@git).is_clean_working_directory? { false }
+          mock(@git).did_stash_changes?.with_any_args.any_times { true }
+          mock(@git).branches.any_times { "master" }
+          mock(@git).all_branches.any_times { "master\nremotes/mortar/master" }
 
           @git.sync_embedded_project(p, "bob-the-builder-base", "mortarcode-dev")
 
@@ -356,6 +364,7 @@ STASH
       it "syncs deleted files to the project mirror" do
         with_embedded_project do |p|
           mirror_dir = File.join(Dir.tmpdir, "mortar", "test-git-mirror")
+          FileUtils.rm_rf(mirror_dir)
           mock(@git).mortar_mirrors_dir.any_times { mirror_dir }
 
           project_mirror_dir = File.join(mirror_dir, p.name)
@@ -366,8 +375,11 @@ STASH
           mock(@git).git.with_any_args.any_times { true }
           mock(@git).remotes.with_any_args.any_times { {"origin"=> "git@github.com:mortarcode-dev/4dbbd83cae8d5bf8a4000000_#{p.name}.git"} }
           mock(@git).clone.with_any_args.never
-          mock(@git).push_with_retry.with_any_args.times(1) { true }
+          mock(@git).push_with_retry.with_any_args.times(2) { true }
           mock(@git).is_clean_working_directory? { false }
+          mock(@git).did_stash_changes?.with_any_args.any_times { true }
+          mock(@git).branches.any_times { "master" }
+          mock(@git).all_branches.any_times { "master\nremotes/mortar/master" }
 
           @git.sync_embedded_project(p, "bob-the-builder-base", "mortarcode-dev")
 
