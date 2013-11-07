@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency  "launchy",         "~> 2.1"
   gem.add_runtime_dependency  "parseconfig",     "~> 1.0.2"
 
-  gem.add_development_dependency 'excon', '~>0.15', '<0.17'
+  gem.add_development_dependency 'excon', '~>0.28'
   gem.add_development_dependency "fakefs", '~> 0.4.2'
   gem.add_development_dependency "gem-release"
   gem.add_development_dependency "rake"
