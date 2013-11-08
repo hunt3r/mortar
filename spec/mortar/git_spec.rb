@@ -228,7 +228,14 @@ STASH
       end
 
       it "finds new style project name remote" do
-        with_git_initialized_project_with_remote_prefix("") do |p|
+        with_git_initialized_project_with_remote_prefix("", "myproject") do |p|
+          remotes = @git.remotes("mortarcode-dev")
+          remotes["mortar"].should == p.name
+        end
+      end
+
+      it "finds new style project name remote with underscore" do
+        with_git_initialized_project_with_remote_prefix("", "my_project") do |p|
           remotes = @git.remotes("mortarcode-dev")
           remotes["mortar"].should == p.name
         end
