@@ -156,13 +156,17 @@ def with_no_git_directory(&block)
 end
 
 def with_blank_project(&block)
+  with_blank_project_with_name("myproject", &block)
+end
+
+def with_blank_project_with_name(name, &block)
   # setup a sandbox directory
   starting_dir = Dir.pwd
   sandbox = File.join(Dir.tmpdir, "mortar", Mortar::UUID.create_random.to_s)
   FileUtils.mkdir_p(sandbox)
   
   # setup project directory
-  project_name = "myproject"
+  project_name = name
   project_path = File.join(sandbox, project_name)
   FileUtils.mkdir_p(project_path)
   
@@ -201,7 +205,7 @@ def with_git_initialized_project(&block)
   with_git_initialized_project_with_remote_prefix(remote_prefix, &block)
 end
 
-def with_git_initialized_project_with_remote_prefix(remote_prefix, &block)
+def with_git_initialized_project_with_remote_prefix(remote_prefix, name="myproject", &block)
     # wrap block in a proc that does a commit
   commit_proc = Proc.new do |project|
     git = Mortar::Git::Git.new
@@ -215,7 +219,7 @@ def with_git_initialized_project_with_remote_prefix(remote_prefix, &block)
     block.call(project)
   end
   
-  with_blank_project(&commit_proc)
+  with_blank_project_with_name(name, &commit_proc)
 end
 
 def with_embedded_project(&block)

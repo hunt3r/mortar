@@ -452,7 +452,7 @@ module Mortar
         remotes = {}
         git("remote -v").split("\n").each do |remote|
           name, url, method = remote.split(/\s/)
-          if url =~ /^git@([\w\d\.]+):#{git_organization}\/[a-zA-Z0-9]+_([\w\d-]+)\.git$$/ ||
+          if url =~ /^git@([\w\d\.]+):#{git_organization}\/[a-f0-9]{24}+_([\w\d-]+)\.git$$/ ||
             url =~ /^git@([\w\d\.]+):#{git_organization}\/([\w\d-]+)\.git$$/
             remotes[name] = $2
           end
