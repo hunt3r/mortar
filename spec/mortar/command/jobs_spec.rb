@@ -51,7 +51,8 @@ module Mortar::Command
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__SINGLE_JOB,
             :notify_on_job_finish => true,
-            :is_control_script=> false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+            :is_control_script=> false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig -1 --clustersize 5 -p FIRST_PARAM=FOO -p SECOND_PARAM=BAR", p, @git)
@@ -85,7 +86,8 @@ STDOUT
                                                       :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]),
                                                       :cluster_type => Jobs::CLUSTER_TYPE__PERMANENT,
                                                       :notify_on_job_finish => true,
-                                                      :is_control_script=> false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+                                                      :is_control_script=> false,
+                                                      :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig -2 --clustersize 5 -p FIRST_PARAM=FOO -p SECOND_PARAM=BAR", p, @git)
@@ -143,10 +145,46 @@ STDERR
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig --clustersize 5 -p FIRST_PARAM=FOO -p SECOND_PARAM=BAR", p, @git)
+          stdout.should == <<-STDOUT
+Taking code snapshot... done
+Sending code snapshot to Mortar... done
+Requesting job execution... done
+job_id: c571a8c7f76a4fd4a67c103d753e2dd5
+
+Job status can be viewed on the web at:
+
+ http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5
+
+Or by running:
+
+  mortar jobs:status c571a8c7f76a4fd4a67c103d753e2dd5 --poll
+
+STDOUT
+        end
+      end
+
+      it "runs a job on a new spot instance cluster" do
+        with_git_initialized_project do |p|
+          # stub api requests
+          job_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
+          cluster_size = 5
+
+          mock(Mortar::Auth.api).post_job_new_cluster("myproject", "my_script", is_a(String),cluster_size, 
+            :pig_version => "0.9", 
+            :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
+            :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
+            :notify_on_job_finish => true,
+            :is_control_script=>false,
+            :use_spot_instances=>true) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+
+          write_file(File.join(p.pigscripts_path, "my_script.pig"))
+          stderr, stdout = execute("jobs:run pigscripts/my_script.pig --clustersize 5 -p FIRST_PARAM=FOO -p SECOND_PARAM=BAR --spot", p, @git)
           stdout.should == <<-STDOUT
 Taking code snapshot... done
 Sending code snapshot to Mortar... done
@@ -243,7 +281,8 @@ STDOUT
             :parameters => [], 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run my_script", p, @git)
@@ -279,7 +318,8 @@ STDOUT
             :parameters => [], 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig ", p, @git)
@@ -400,7 +440,8 @@ STDOUT
             :parameters => match_array([{"name" => "FIRST", "value" => "FOO"}, {"name" => "SECOND", "value" => "BAR"}, {"name" => "THIRD", "value" => "BEAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 
@@ -426,7 +467,8 @@ PARAMS
             :parameters => match_array([{"name" => "FIRST", "value" => "FOO"}, {"name" => "SECOND", "value" => "BAR"}, {"name" => "THIRD", "value" => "BEAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 
@@ -480,7 +522,8 @@ STDERR
             :parameters => match_array([{"name" => "FIRST_PARAM", "value" => "FOO"}, {"name" => "SECOND_PARAM", "value" => "BAR"}]), 
             :cluster_type => Jobs::CLUSTER_TYPE__PERSISTENT,
             :notify_on_job_finish => true,
-            :is_control_script=>false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
+            :is_control_script=>false,
+            :use_spot_instances => false) {Excon::Response.new(:body => {"job_id" => job_id, "web_job_url" => job_url})}
 
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
           stderr, stdout = execute("jobs:run pigscripts/my_script.pig --clustersize 5 -p FIRST_PARAM=FOO -p SECOND_PARAM=BAR", p, @git)

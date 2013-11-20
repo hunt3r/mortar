@@ -62,6 +62,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
   # -s, --clustersize NUMNODES  # Run job on a new cluster, with NUMNODES nodes (optional; must be >= 2 if provided)
   # -1, --singlejobcluster      # Stop the cluster after job completes.  (Default: false—-cluster can be used for other jobs, and will shut down after 1 hour of inactivity)
   # -2, --permanentcluster      # Don't automatically stop the cluster after it has been idle for an hour (Default: false--cluster will be shut down after 1 hour of inactivity)
+  # -3, --spot                  # Use spot instances for this cluster (Default: false, only applicable to new clusters)
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
   # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
   # -d, --donotnotify           # Don't send an email on job completion.  (Default: false--an email will be sent to you once the job completes)
@@ -162,12 +163,14 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         elsif options[:permanentcluster]
           cluster_type = CLUSTER_TYPE__PERMANENT
         end
+        use_spot_instances = options[:spot] || false
         api.post_job_new_cluster(project_name, script_name, git_ref, cluster_size, 
           :pig_version => pig_version.version, 
           :parameters => pig_parameters,
           :cluster_type => cluster_type,
           :notify_on_job_finish => notify_on_job_finish,
-          :is_control_script => is_control_script).body
+          :is_control_script => is_control_script,
+          :use_spot_instances => use_spot_instances).body
       else
         cluster_id = options[:clusterid]
         api.post_job_existing_cluster(project_name, script_name, git_ref, cluster_id,
