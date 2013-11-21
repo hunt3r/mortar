@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.files = %x{ git ls-files }.split("\n").select { |d| d =~ %r{^(License|README|bin/|data/|ext/|lib/|spec/|test/|css/|js/|flash/)} }
   
   gem.add_runtime_dependency  "rdoc", ">= 4.0.0"
-  gem.add_runtime_dependency  "mortar-api-ruby", "~> 0.7.2"
+  gem.add_runtime_dependency  "mortar-api-ruby", "~> 0.7.3"
   gem.add_runtime_dependency  "netrc",           "~> 0.7"
   gem.add_runtime_dependency  "launchy",         "~> 2.1"
   gem.add_runtime_dependency  "parseconfig",     "~> 1.0.2"
