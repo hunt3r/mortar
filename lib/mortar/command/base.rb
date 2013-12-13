@@ -133,10 +133,10 @@ class Mortar::Command::Base
     end
   end
 
-  def register_project(name)
+  def register_project(name, is_private)
     project_id = nil
     action("Sending request to register project: #{name}") do
-      project_id = api.post_project(name).body["project_id"]
+      project_id = api.post_project(name, is_private).body["project_id"]
     end
     
     project_result = nil

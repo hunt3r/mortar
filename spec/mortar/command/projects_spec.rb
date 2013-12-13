@@ -98,7 +98,7 @@ STDOUT
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
-        mock(Mortar::Auth.api).post_project("some_new_project") {Excon::Response.new(:body => {"project_id" => project_id})}
+        mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_ACTIVE,
                                                                                              "git_url" => project_git_url})).ordered
         mock(@git).remotes.with_any_args.returns({})
@@ -171,7 +171,7 @@ STDOUT
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
-        mock(Mortar::Auth.api).post_project("some_new_project") {Excon::Response.new(:body => {"project_id" => project_id})}
+        mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_ACTIVE,
                                                                                              "git_url" => project_git_url})).ordered
 
@@ -264,7 +264,7 @@ STDERR
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
-        mock(Mortar::Auth.api).post_project("some_new_project") {Excon::Response.new(:body => {"project_id" => project_id})}
+        mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_PENDING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_CREATING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_ACTIVE,
@@ -286,7 +286,7 @@ STDOUT
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
-        mock(Mortar::Auth.api).post_project("some_new_project") {Excon::Response.new(:body => {"project_id" => project_id})}
+        mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Pending", "status_code" => Mortar::API::Projects::STATUS_PENDING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Creating", "status_code" => Mortar::API::Projects::STATUS_CREATING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Active", "status_code" => Mortar::API::Projects::STATUS_ACTIVE,
@@ -308,7 +308,7 @@ STDOUT
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
-        mock(Mortar::Auth.api).post_project("some_new_project") {Excon::Response.new(:body => {"project_id" => project_id})}
+        mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Pending", "status_code" => Mortar::API::Projects::STATUS_PENDING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Creating", "status_code" => Mortar::API::Projects::STATUS_CREATING})).ordered
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status_description" => "Active", "status_code" => Mortar::API::Projects::STATUS_ACTIVE,
