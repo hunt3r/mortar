@@ -125,9 +125,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     validate_arguments!
 
     if options[:public]
-      puts
-      print 'Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)'
-      unless 'y' == ask[0].to_s.downcase
+      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
         error("Mortar project was not registered")
       end
       is_private = false
