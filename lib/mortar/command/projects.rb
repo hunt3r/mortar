@@ -80,7 +80,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
   # Used when you want to start a new Mortar project using Mortar generated code.
   #
   # --embedded    # Create a Mortar project that is not its own git repo. Your code will still be synced with a git repo in the cloud.
-  # --public      # Register a project as publically visible. This will not count against your number project limits, but will be publically on the internet.
+  # --public      # Register a public project, which can be viewed and forked by anyone.
   #
   def create
     name = shift_argument
@@ -115,7 +115,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
   # Used when you want to start a new Mortar project using your existing code in the current directory.
   #
   # --embedded    # Register code that is not its own git repo as a Mortar project. Your code will still be synced with a git repo in the cloud.
-  # --public      # Register a project as publically visible. This will not count against your number project limits, but will be publically on the internet.
+  # --public      # Register a public project, which can be viewed and forked by anyone.
   #
   def register
     name = shift_argument
