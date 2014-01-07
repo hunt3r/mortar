@@ -81,8 +81,7 @@ other\tgit@github.com:other.git (push)
     context "method_added" do
       it "replaces help templates" do
         lines = Base.replace_templates(["line", "start <PIG_VERSION_OPTIONS>"])
-        #lines.join("").should == 'linestart 0.9 (default) and 0.12 (beta)'
-        lines.join("").should == 'line'
+        lines.join("").should == 'linestart 0.9 (default) and 0.12 (beta)'
       end
     end
 
