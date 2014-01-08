@@ -60,7 +60,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
   #
   # -c, --clusterid CLUSTERID   # Run job on an existing cluster with ID of CLUSTERID (optional)
   # -s, --clustersize NUMNODES  # Run job on a new cluster, with NUMNODES nodes (optional; must be >= 2 if provided)
-  # -1, --singlejobcluster      # Stop the cluster after job completes.  (Default: false—-cluster can be used for other jobs, and will shut down after 1 hour of inactivity)
+  # -1, --singlejobcluster      # Stop the cluster after job completes.  (Default: false--cluster can be used for other jobs, and will shut down after 1 hour of inactivity)
   # -2, --permanentcluster      # Don't automatically stop the cluster after it has been idle for an hour (Default: false--cluster will be shut down after 1 hour of inactivity)
   # -3, --spot                  # Use spot instances for this cluster (Default: false, only applicable to new clusters)
   # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
