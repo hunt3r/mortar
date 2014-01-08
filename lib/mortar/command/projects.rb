@@ -80,6 +80,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
   # Used when you want to start a new Mortar project using Mortar generated code.
   #
   # --embedded    # Create a Mortar project that is not its own git repo. Your code will still be synced with a git repo in the cloud.
+  # --public      # Register a public project, which can be viewed and forked by anyone.
   #
   def create
     name = shift_argument
@@ -90,13 +91,20 @@ class Mortar::Command::Projects < Mortar::Command::Base
     Mortar::Command::run("generate:project", [name])
 
     FileUtils.cd(name)
+
+    args = [name,]
+    if options[:public]
+      args.push('--public')
+    end
+
     if options[:embedded]
-      Mortar::Command::run("projects:register", [name, "--embedded"])
+      args.push("--embedded")
+      Mortar::Command::run("projects:register", args)
     else
       git.git_init
       git.git("add .")
       git.git("commit -m \"Mortar project scaffolding\"")
-      Mortar::Command::run("projects:register", [name])
+      Mortar::Command::run("projects:register", args)
       display "NOTE: You'll need to change to the new directory to use your project:\n    cd #{name}\n\n"
     end
   end
@@ -107,6 +115,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
   # Used when you want to start a new Mortar project using your existing code in the current directory.
   #
   # --embedded    # Register code that is not its own git repo as a Mortar project. Your code will still be synced with a git repo in the cloud.
+  # --public      # Register a public project, which can be viewed and forked by anyone.
   #
   def register
     name = shift_argument
@@ -115,11 +124,20 @@ class Mortar::Command::Projects < Mortar::Command::Base
     end
     validate_arguments!
 
+    if options[:public]
+      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
+        error("Mortar project was not registered")
+      end
+      is_private = false
+    else
+      is_private = true
+    end
+
     if options[:embedded]
       validate_project_name(name)
       validate_project_structure()
 
-      register_project(name) do |project_result|
+      register_project(name, is_private) do |project_result|
         initialize_embedded_project(project_result)
       end
     else
@@ -142,7 +160,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
         end
       end
 
-      register_project(name) do |project_result|
+      register_project(name, is_private) do |project_result|
         git.remote_add("mortar", project_result['git_url'])
         git.push_master
         display "Your project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
