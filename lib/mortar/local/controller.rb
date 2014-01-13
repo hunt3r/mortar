@@ -13,6 +13,7 @@
 #
 
 require "mortar/helpers"
+require "mortar/auth"
 require "mortar/pigversion"
 require "mortar/local/pig"
 require "mortar/local/java"
@@ -69,9 +70,14 @@ EOF
   end
 
   # Exits with a helpful message if the user has not setup their aws keys
-  def require_aws_keys()
+  def require_aws_keys()    
     unless verify_aws_keys()
-      error(NO_AWS_KEYS_ERROR_MESSAGE)
+      user = Mortar::Auth.user
+      if !user.nil?
+        p user
+      else         
+        error(NO_AWS_KEYS_ERROR_MESSAGE)
+      end
     end
   end
 
