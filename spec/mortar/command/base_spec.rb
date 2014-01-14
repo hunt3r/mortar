@@ -100,7 +100,7 @@ other\tgit@github.com:other.git (push)
 pigversion=0.12
 
 [other]
-no_browser=True
+no_browser=true
 """
           write_file(File.join(p.root_path, ".mortar-defaults"), text)
 
@@ -119,7 +119,7 @@ no_browser=True
 pigversion=0.12
 
 [other]
-no_browser=True
+no_browser=true
 """
           write_file(File.join(p.root_path, ".mortar-defaults"), text)
 
@@ -147,7 +147,7 @@ no_browser=True
 pigversion=0.12
 
 [my_script]
-no_browser=True
+no_browser=true
 """
           write_file(File.join(p.root_path, ".mortar-defaults"), text)
 
@@ -159,7 +159,7 @@ no_browser=True
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 
           stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
-          d.options.should == {:pigversion => "0.12", :polling_interval => "0.05", :no_browser => "True"}
+          d.options.should == {:pigversion => "0.12", :polling_interval => "0.05", :no_browser => true}
         end
       end
 
@@ -171,7 +171,7 @@ no_browser=True
           text = """
 [DEFAULTS]
 clustersize=5
-no_browser=True
+no_browser=true
 
 [my_script]
 clustersize=10
@@ -187,7 +187,7 @@ polling_interval=10
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 
           stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
-          d.options.should == {:polling_interval => "0.05", :no_browser => "True", :clustersize => "10"}
+          d.options.should == {:polling_interval => "0.05", :no_browser => true, :clustersize => "10"}
         end
       end
 

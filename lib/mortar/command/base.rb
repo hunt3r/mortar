@@ -373,6 +373,12 @@ protected
       if default_options.groups.include?(section_name)
         default_options[section_name].each do |k, v|
           unless @original_options.include? k.to_sym
+            if v == 'true'
+              v = true
+            elsif v == 'false'
+              v = false
+            end
+                
             @options[k.to_sym] = v
           end
         end
