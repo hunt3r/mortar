@@ -72,14 +72,31 @@ EOF
   # Exits with a helpful message if the user has not setup their aws keys
   def require_aws_keys()    
     unless verify_aws_keys()
-      user = Mortar::Auth.user
-      if !user.nil?
-        p user
-      else         
-        error(NO_AWS_KEYS_ERROR_MESSAGE)
+      auth = Mortar::Auth
+      if !auth.has_credentials                      
+        auth.login
       end
+      if auth.has_credentials
+        fetch_aws_keys(auth)
+      else         
+        error(NO_AWS_KEYS_ERROR_MESSAGE)  
+      end
+      
     end
   end
+
+  # Fetches AWS Keys
+  def fetch_aws_keys(user)
+    base = Mortar::Command::Base.new
+    project = base.project
+    project_name = base.options[:project] || project.name
+    
+    return user.api.get_config_vars(project_name).body['config']
+  end
+
+  # Writes aws access and secret key to env
+  def write_aws_keys(aws_access_key, aws_secret_key)
+  end  
 
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine

@@ -18,6 +18,7 @@ require 'spec_helper'
 require 'fakefs/spec_helpers'
 require 'mortar/local/controller'
 require 'mortar/auth'
+require 'mortar/command/base'
 require 'launchy'
 
 module Mortar::Local
@@ -33,7 +34,8 @@ module Mortar::Local
         ENV.delete('AWS_ACCESS_KEY')
         ctrl = Mortar::Local::Controller.new
         previous_stderr, $stderr = $stderr, StringIO.new
-        stub(Mortar::Auth).user { nil }
+        stub(Mortar::Auth).has_credentials{ false }
+        stub(Mortar::Auth).login
         begin
           expect { ctrl.require_aws_keys }.to raise_error(SystemExit)
           $stderr.string.should eq(Mortar::Local::Controller::NO_AWS_KEYS_ERROR_MESSAGE.gsub(/^/, " !    "))
@@ -42,13 +44,17 @@ module Mortar::Local
         end
       end
 
-      it "fetches AWS key if not present" do        
+      it "calls fetch AWS key if not present" do        
         ENV.delete('AWS_ACCESS_KEY')
         ctrl = Mortar::Local::Controller.new
-        previous_stderr, $stderr = $stderr, StringIO.new
-        mock(Mortar::Auth).user { 'not nil' }
+        previous_stderr, $stderr = $stderr, StringIO.new        
+        stub(Mortar::Auth).login
+        stub(Mortar::Auth).has_credentials{true}
+        mock(ctrl).fetch_aws_keys(Mortar::Auth)
         ctrl.require_aws_keys      
       end    
+
+
   
       it "returns if they are present" do
         ctrl = Mortar::Local::Controller.new
