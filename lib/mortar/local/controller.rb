@@ -74,24 +74,66 @@ EOF
     unless verify_aws_keys()
       auth = Mortar::Auth
       if !auth.has_credentials                      
-        auth.login
+        ask_if_login(auth)
       end
       if auth.has_credentials
-        fetch_aws_keys(auth)
+        if ask_for_key_set_preference
+          vars = fetch_aws_keys(auth)
+          p vars
+          # vars.each {|key, value| vars[key] = value.to_s}
+          p vars.keys
+          set_aws_keys(vars["aws_access_key_id"], vars["aws_secret_access_key"])
+        else
+          set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
+        end
       else         
-        error(NO_AWS_KEYS_ERROR_MESSAGE)  
+        set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
       end
       
     end
   end
 
-  # Fetches AWS Keys
-  def fetch_aws_keys(user)
+  # Fetches AWS Keys based on auth
+  def fetch_aws_keys(auth)
     base = Mortar::Command::Base.new
     project = base.project
     project_name = base.options[:project] || project.name
     
-    return user.api.get_config_vars(project_name).body['config']
+    return auth.api.get_config_vars(project_name).body['config']
+  end
+
+  def set_aws_keys(aws_access_key, aws_secret_key)
+    ENV['AWS_ACCESS_KEY'] = aws_access_key
+    ENV['AWS_SECRET_KEY'] = aws_secret_key
+  end
+
+  #  Ask if user wants to login
+  #  logs in if does and returns true
+  #  returns false if doesnt
+  def ask_if_login(auth)
+    print "You are not logged in.  Would you like to login? [(y)es/(n)o]"
+    answer = ask
+    case answer
+      when 'y', 'yes'
+        auth.login
+        return true
+      else 
+        return false
+    end
+  end
+
+  #  Ask if user wants to sync their AWS keys or to
+  #  use XXXXXX
+  #  returns true to sync and false otherwise
+  def ask_for_key_set_preference
+    print "Would you like to synchronize your AWS keys with your mortar account? [(y)es/(n)o]"
+    answer = ask
+    case answer
+      when 'y', 'yes'
+        return true
+      else 
+        return false
+    end 
   end
 
   # Writes aws access and secret key to env
