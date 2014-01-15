@@ -69,8 +69,8 @@ EOF
     end
   end
 
-  # Exits with a helpful message if the user has not setup their aws keys
-  def require_aws_keys()    
+  # Asks to sync with AWS if user has not setup their aws keys
+  def require_aws_keys()        
     unless verify_aws_keys()
       auth = Mortar::Auth
       if !auth.has_credentials                      
@@ -79,9 +79,6 @@ EOF
       if auth.has_credentials
         if ask_for_key_set_preference
           vars = fetch_aws_keys(auth)
-          p vars
-          # vars.each {|key, value| vars[key] = value.to_s}
-          p vars.keys
           set_aws_keys(vars["aws_access_key_id"], vars["aws_secret_access_key"])
         else
           set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
@@ -102,14 +99,17 @@ EOF
     return auth.api.get_config_vars(project_name).body['config']
   end
 
-  def set_aws_keys(aws_access_key, aws_secret_key)
+  def set_aws_keys(aws_access_key, aws_secret_key)    
     ENV['AWS_ACCESS_KEY'] = aws_access_key
     ENV['AWS_SECRET_KEY'] = aws_secret_key
+        
+    print "AWS_ACCESS_KEY set to:" + ENV['AWS_ACCESS_KEY']
+    print "\nAWS_SECRET_KEY set to:" + ENV['AWS_SECRET_KEY']
   end
 
   #  Ask if user wants to login
-  #  logs in if does and returns true
-  #  returns false if doesnt
+  #  logs in if doas and returns true
+  #  returns falseaif doesnt
   def ask_if_login(auth)
     print "You are not logged in.  Would you like to login? [(y)es/(n)o]"
     answer = ask
@@ -136,9 +136,7 @@ EOF
     end 
   end
 
-  # Writes aws access and secret key to env
-  def write_aws_keys(aws_access_key, aws_secret_key)
-  end  
+  
 
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine

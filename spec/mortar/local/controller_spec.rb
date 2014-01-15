@@ -29,17 +29,7 @@ module Mortar::Local
       ENV['AWS_SECRET_KEY'] = "BAR"
     end
 
-    context("aws keys") do
-      
-      # it "calls fetch AWS key if not present" do        
-      #   ENV.delete('AWS_ACCESS_KEY')
-      #   ctrl = Mortar::Local::Controller.new
-      #   previous_stderr, $stderr = $stderr, StringIO.new        
-      #   stub(Mortar::Auth).login
-      #   stub(Mortar::Auth).has_credentials{true}
-      #   mock(ctrl).fetch_aws_keys(Mortar::Auth)
-      #   ctrl.require_aws_keys      
-      # end    
+    context("aws keys") do        
   
       it "returns if they are present" do
         ctrl = Mortar::Local::Controller.new
@@ -52,7 +42,7 @@ module Mortar::Local
         end
       end
 
-      it "sets keys to XXXXX if user does not login" do
+      it "sets keys to XXXXXXXXXXXX if user does not login" do
         ENV.delete('AWS_ACCESS_KEY')
         ctrl = Mortar::Local::Controller.new        
         stub(Mortar::Auth).has_credentials{false}
