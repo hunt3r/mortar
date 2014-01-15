@@ -78,7 +78,7 @@ EOF
       end
       if auth.has_credentials
         if ask_for_key_set_preference
-          vars = fetch_aws_keys(auth)
+          vars = fetch_aws_keys(auth, Mortar::Command::Base.new)
           set_aws_keys(vars["aws_access_key_id"], vars["aws_secret_access_key"])
         else
           set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
@@ -91,11 +91,9 @@ EOF
   end
 
   # Fetches AWS Keys based on auth
-  def fetch_aws_keys(auth)
-    base = Mortar::Command::Base.new
-    project = base.project
-    project_name = base.options[:project] || project.name
-    
+  def fetch_aws_keys(auth, base)    
+    project = base.project    
+    project_name = base.options[:project] || project.name    
     return auth.api.get_config_vars(project_name).body['config']
   end
 

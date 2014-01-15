@@ -20,11 +20,13 @@ require 'mortar/local/controller'
 require 'mortar/auth'
 require 'mortar/command/base'
 require 'launchy'
+require 'excon'
 
 module Mortar::Local
   describe Controller do
 
     before do
+      stub_core
       ENV['AWS_ACCESS_KEY'] = "foo"
       ENV['AWS_SECRET_KEY'] = "BAR"
     end
@@ -74,7 +76,8 @@ module Mortar::Local
         
         stub(Mortar::Auth).has_credentials{true}
         mock(ctrl).ask_for_key_set_preference{ true}
-        mock(ctrl).fetch_aws_keys(Mortar::Auth){ 
+        stub(Mortar::Command::Base).new {'base'}
+        mock(ctrl).fetch_aws_keys(Mortar::Auth, 'base'){ 
           {
             "aws_access_key_id"=>"key_id", 
             "aws_secret_access_key"=>"secret"
@@ -86,6 +89,23 @@ module Mortar::Local
           ENV['AWS_ACCESS_KEY'].should eq("key_id")
           ENV['AWS_SECRET_KEY'].should eq("secret")
         end
+      end
+      
+      it "fetches aws keys" do
+        ctrl = Mortar::Local::Controller.new
+        auth = Mortar::Auth        
+        
+
+        with_blank_project do
+          base = Mortar::Command::Base.new             
+          with_git_initialized_project do |p|
+            # stub api request
+            configs = {}
+            mock(Mortar::Auth.api).get_config_vars("myproject").returns(Excon::Response.new(:body => {"config" => configs}))
+            
+            ctrl.fetch_aws_keys(auth,base).should eq(configs)
+          end          
+        end        
       end
 
 
@@ -100,7 +120,7 @@ module Mortar::Local
         ensure
           $stderr = previous_stderr
         end
-      end
+      end      
 
     end
 
