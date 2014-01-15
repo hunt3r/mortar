@@ -189,13 +189,8 @@ protected
   end
 
   def self.replace_templates(help)
-    #Leave --pigversion undocumented for now.
-    #help.each do |line|
-    #  #line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12 (beta)")
-    #
-    #end
-    help.reject! do |line|
-      line.include?("<PIG_VERSION_OPTIONS>")
+    help.each do |line|
+      line.gsub!("<PIG_VERSION_OPTIONS>", "0.9 (default) and 0.12 (beta)")
     end
   end
 
@@ -378,6 +373,12 @@ protected
       if default_options.groups.include?(section_name)
         default_options[section_name].each do |k, v|
           unless @original_options.include? k.to_sym
+            if v == 'true'
+              v = true
+            elsif v == 'false'
+              v = false
+            end
+                
             @options[k.to_sym] = v
           end
         end
