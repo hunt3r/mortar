@@ -59,7 +59,7 @@ If your script does not need AWS S3 access, you can leave those values as XXXXXX
 EOF
 
   API_CONFIG_ERROR_MESSAGE = <<EOF
-There is currently an error with the Mortar API in syncing your AWS keys.  
+We were unable to sync your AWS keys from Mortar.  
 To continue, please specify your amazon AWS access key via environment variable AWS_ACCESS_KEY and your AWS secret key via environment variable AWS_SECRET_KEY, e.g.:
   
   export AWS_ACCESS_KEY="XXXXXXXXXXXX"
