@@ -46,12 +46,25 @@ https://pypi.python.org/pypi/virtualenv
 EOF
 
   NO_AWS_KEYS_ERROR_MESSAGE = <<EOF
-Please specify your amazon AWS access key via environment variable AWS_ACCESS_KEY
-and your AWS secret key via environment variable AWS_SECRET_KEY, e.g.:
+You have not set AWS access keys, which will often prevent you from accessing input data.  You can either:
 
-  export AWS_ACCESS_KEY="XXXXXXXXXXXX"
+- Login to your Mortar account to automatically sync your AWS keys from Mortar when running commands ("mortar login")
+
+-  *or*, set your AWS keys via environment variables:
+
+  export AWS_ACCESS_KEY="XXXXXXXXXXXX" 
   export AWS_SECRET_KEY="XXXXXXXXXXXX"
 
+If your script does not need AWS S3 access, you can leave those values as XXXXXXXXXXXX.
+EOF
+
+  API_CONFIG_ERROR_MESSAGE = <<EOF
+There is currently an error with the Mortar API in syncing your AWS keys.  
+To continue, please specify your amazon AWS access key via environment variable AWS_ACCESS_KEY and your AWS secret key via environment variable AWS_SECRET_KEY, e.g.:
+  
+  export AWS_ACCESS_KEY="XXXXXXXXXXXX"
+  export AWS_SECRET_KEY="XXXXXXXXXXXX"
+  
 If your script does not need AWS S3 access, you can set these variables to XXXXXXXXXXXX.
 EOF
 
@@ -74,19 +87,15 @@ EOF
     unless verify_aws_keys()
       auth = Mortar::Auth
       if !auth.has_credentials                      
-        ask_if_login(auth)
-      end
-      if auth.has_credentials
-        if ask_for_key_set_preference
-          vars = fetch_aws_keys(auth, Mortar::Command::Base.new)
-          set_aws_keys(vars["aws_access_key_id"], vars["aws_secret_access_key"])
+        error(NO_AWS_KEYS_ERROR_MESSAGE)
+      else
+        vars = fetch_aws_keys(auth, Mortar::Command::Base.new)
+        if vars['aws_access_key_id'] && vars['aws_secret_access_key']
+          set_aws_keys(vars['aws_access_key_id'], vars['aws_secret_access_key'])
         else
-          set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
+          error(API_CONFIG_ERROR_MESSAGE)
         end
-      else         
-        set_aws_keys("XXXXXXXXXXXX", "XXXXXXXXXXXX")
-      end
-      
+      end 
     end
   end
 
@@ -99,43 +108,9 @@ EOF
 
   def set_aws_keys(aws_access_key, aws_secret_key)    
     ENV['AWS_ACCESS_KEY'] = aws_access_key
-    ENV['AWS_SECRET_KEY'] = aws_secret_key
-        
-    print "AWS_ACCESS_KEY set to:" + ENV['AWS_ACCESS_KEY']
-    print "\nAWS_SECRET_KEY set to:" + ENV['AWS_SECRET_KEY']
+    ENV['AWS_SECRET_KEY'] = aws_secret_key    
   end
-
-  #  Ask if user wants to login
-  #  logs in if doas and returns true
-  #  returns falseaif doesnt
-  def ask_if_login(auth)
-    print "You are not logged in.  Would you like to login? [(y)es/(n)o]"
-    answer = ask
-    case answer
-      when 'y', 'yes'
-        auth.login
-        return true
-      else 
-        return false
-    end
-  end
-
-  #  Ask if user wants to sync their AWS keys or to
-  #  use XXXXXX
-  #  returns true to sync and false otherwise
-  def ask_for_key_set_preference
-    print "Would you like to synchronize your AWS keys with your mortar account? [(y)es/(n)o]"
-    answer = ask
-    case answer
-      when 'y', 'yes'
-        return true
-      else 
-        return false
-    end 
-  end
-
   
-
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
   def install_and_configure(pig_version=nil)
