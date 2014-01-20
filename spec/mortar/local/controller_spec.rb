@@ -17,24 +17,44 @@
 require 'spec_helper'
 require 'fakefs/spec_helpers'
 require 'mortar/local/controller'
+require 'mortar/auth'
+require 'mortar/command/base'
 require 'launchy'
+require 'excon'
 
 module Mortar::Local
   describe Controller do
 
     before do
+      stub_core
       ENV['AWS_ACCESS_KEY'] = "foo"
       ENV['AWS_SECRET_KEY'] = "BAR"
     end
 
-    context("aws keys") do
-      it "exits if they are not present" do
+    context("aws keys") do        
+      it "exits if they are not present and not logged in" do
         ENV.delete('AWS_ACCESS_KEY')
         ctrl = Mortar::Local::Controller.new
         previous_stderr, $stderr = $stderr, StringIO.new
+        mock(Mortar::Auth).has_credentials{false}
         begin
           expect { ctrl.require_aws_keys }.to raise_error(SystemExit)
           $stderr.string.should eq(Mortar::Local::Controller::NO_AWS_KEYS_ERROR_MESSAGE.gsub(/^/, " !    "))
+        ensure
+          $stderr = previous_stderr
+        end
+      end
+
+      it "exits if keys are not present, not logged in and api fails to return keys" do 
+        ENV.delete('AWS_ACCESS_KEY')
+        ctrl = Mortar::Local::Controller.new
+        previous_stderr, $stderr = $stderr, StringIO.new
+        mock(Mortar::Auth).has_credentials{true}
+        stub(Mortar::Command::Base).new {'base'}
+        mock(ctrl).fetch_aws_keys(Mortar::Auth, 'base'){{}}
+        begin
+          expect { ctrl.require_aws_keys }.to raise_error(SystemExit)
+          $stderr.string.should eq(Mortar::Local::Controller::API_CONFIG_ERROR_MESSAGE.gsub(/^/, " !    "))
         ensure
           $stderr = previous_stderr
         end
@@ -50,6 +70,48 @@ module Mortar::Local
           $stderr = previous_stderr
         end
       end
+      
+      it "sets fetches and sets aws keys if missing and logged in" do
+        ENV.delete('AWS_ACCESS_KEY')
+        ctrl = Mortar::Local::Controller.new
+        stub(Mortar::Command::Base).new {'base'}
+        stub(Mortar::Auth).has_credentials{true}
+        previous_stderr, $stderr = $stderr, StringIO.new
+        mock(ctrl).fetch_aws_keys(Mortar::Auth, 'base'){ 
+          {
+            "aws_access_key_id"=>"key_id", 
+            "aws_secret_access_key"=>"secret"
+          }
+        }
+        begin
+          ctrl.require_aws_keys()
+          $stderr.string.should eq("")
+          ENV['AWS_ACCESS_KEY'].should eq("key_id")
+          ENV['AWS_SECRET_KEY'].should eq("secret")
+        ensure
+          $stderr = previous_stderr
+        end
+      end
+
+
+    
+      it "fetches aws keys" do
+        ctrl = Mortar::Local::Controller.new
+        auth = Mortar::Auth        
+        
+
+        with_blank_project do
+          base = Mortar::Command::Base.new             
+          with_git_initialized_project do |p|
+            # stub api request
+            configs = {}
+            mock(Mortar::Auth.api).get_config_vars("myproject").returns(Excon::Response.new(:body => {"config" => configs}))
+            
+            ctrl.fetch_aws_keys(auth,base).should eq(configs)
+          end          
+        end        
+      end
+
 
       it "returns if they are not present but override is in place" do
         ENV.delete('AWS_ACCESS_KEY')
@@ -62,7 +124,7 @@ module Mortar::Local
         ensure
           $stderr = previous_stderr
         end
-      end
+      end      
 
     end
 

@@ -13,6 +13,7 @@
 #
 
 require "mortar/helpers"
+require "mortar/auth"
 require "mortar/pigversion"
 require "mortar/local/pig"
 require "mortar/local/java"
@@ -45,12 +46,25 @@ https://pypi.python.org/pypi/virtualenv
 EOF
 
   NO_AWS_KEYS_ERROR_MESSAGE = <<EOF
-Please specify your amazon AWS access key via environment variable AWS_ACCESS_KEY
-and your AWS secret key via environment variable AWS_SECRET_KEY, e.g.:
+You have not set AWS access keys, which will often prevent you from accessing input data.  You can either:
 
-  export AWS_ACCESS_KEY="XXXXXXXXXXXX"
+- Login to your Mortar account to automatically sync your AWS keys from Mortar when running commands ("mortar login")
+
+-  *or*, set your AWS keys via environment variables:
+
+  export AWS_ACCESS_KEY="XXXXXXXXXXXX" 
   export AWS_SECRET_KEY="XXXXXXXXXXXX"
 
+If your script does not need AWS S3 access, you can leave those values as XXXXXXXXXXXX.
+EOF
+
+  API_CONFIG_ERROR_MESSAGE = <<EOF
+We were unable to sync your AWS keys from Mortar.  
+To continue, please specify your amazon AWS access key via environment variable AWS_ACCESS_KEY and your AWS secret key via environment variable AWS_SECRET_KEY, e.g.:
+  
+  export AWS_ACCESS_KEY="XXXXXXXXXXXX"
+  export AWS_SECRET_KEY="XXXXXXXXXXXX"
+  
 If your script does not need AWS S3 access, you can set these variables to XXXXXXXXXXXX.
 EOF
 
@@ -68,13 +82,35 @@ EOF
     end
   end
 
-  # Exits with a helpful message if the user has not setup their aws keys
-  def require_aws_keys()
+  # Asks to sync with AWS if user has not setup their aws keys
+  def require_aws_keys()        
     unless verify_aws_keys()
-      error(NO_AWS_KEYS_ERROR_MESSAGE)
+      auth = Mortar::Auth
+      if !auth.has_credentials                      
+        error(NO_AWS_KEYS_ERROR_MESSAGE)
+      else
+        vars = fetch_aws_keys(auth, Mortar::Command::Base.new)
+        if vars['aws_access_key_id'] && vars['aws_secret_access_key']
+          set_aws_keys(vars['aws_access_key_id'], vars['aws_secret_access_key'])
+        else
+          error(API_CONFIG_ERROR_MESSAGE)
+        end
+      end 
     end
   end
 
+  # Fetches AWS Keys based on auth
+  def fetch_aws_keys(auth, base)    
+    project = base.project    
+    project_name = base.options[:project] || project.name    
+    return auth.api.get_config_vars(project_name).body['config']
+  end
+
+  def set_aws_keys(aws_access_key, aws_secret_key)    
+    ENV['AWS_ACCESS_KEY'] = aws_access_key
+    ENV['AWS_SECRET_KEY'] = aws_secret_key    
+  end
+  
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
   def install_and_configure(pig_version=nil)
