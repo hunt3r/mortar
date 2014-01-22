@@ -464,5 +464,71 @@ STDERR
       end
       
     end
+
+    context("fork") do
+      it "shows correct error message when user doesn't give git_url" do
+        stderr, stdout = execute("projects:fork")
+        stderr.should == <<-STDERR
+ !    Usage: mortar projects:fork GIT_URL PROJECT
+ !    Must specify GIT_URL and PROJECT.
+STDERR
+      end
+
+      it "errors when a project already exists with the name requested" do
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+        with_git_initialized_project do |p|           
+          stderr, stdout = execute("projects:fork GIT_URL Project1", nil, @git)
+          stderr.should == <<-STDERR
+ !    Your account already contains a project named Project1.
+ !    Please choose a different name for your new project, or clone the existing Project1 code using:
+ !    
+ !    mortar projects:clone Project1
+STDERR
+        end
+      end
+
+      it "shows error when in git repo already" do
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+
+        with_git_initialized_project do |p|           
+          stderr, stdout = execute("projects:fork GIT_URL Project3", nil, @git)
+          stderr.should == <<-STDERR
+ !    Currently in git repo.  You can not fork a new project inside of an existing git repository.
+STDERR
+        end
+      end
+
+      it "calls correct git commands on success" do
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+        project_id = "1234abcd1234abcd1234"
+        project_name = "some_new_project"
+        project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
+        original_git_url = "git@github.com:mortardata/mortar-recsys-fake"
+
+        mock(Mortar::Auth.api).post_project("some_new_project", false) {Excon::Response.new(:body => {"project_id" => project_id})}
+        status = Mortar::API::Projects::STATUS_ACTIVE
+        response = Excon::Response.new(:body => {"status" => status, "git_url" => project_git_url})
+        mock(Mortar::Auth.api).get_project(project_id).returns(response).ordered
+
+        mock(@git).has_dot_git?().returns(false)
+        mock(@git).clone(original_git_url, project_name, "base")
+        stub(Dir).chdir
+   
+        mock(@git).remote_add("mortar", project_git_url)
+        mock(@git).push_master
+        mock(@git).git("fetch --all")
+        mock(@git).git("branch --set-upstream-to mortar/master")
+        any_instance_of(Mortar::Command::Projects) do |base|
+          mock(base).ask.with_any_args.times(1) { 'y' }
+        end
+
+        stderr, stdout = execute("projects:fork #{original_git_url} #{project_name} --public", nil, @git)
+        stdout.should == <<-STDOUT
+Public projects allow anyone to view and fork the code in this project's repository. Are you sure? (y/n) Sending request to register project: some_new_project... done\n\n\r\e[0KStatus: ACTIVE  \n\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n
+STDOUT
+      end
+
+    end
+
   end
 end
