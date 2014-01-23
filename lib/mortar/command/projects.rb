@@ -169,6 +169,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
   end
   alias_command "register", "projects:register"
 
+
   # projects:set_remote PROJECTNAME
   #
   # Used after you checkout code for an existing Mortar project from a non-Mortar git repository.  
@@ -239,4 +240,52 @@ class Mortar::Command::Projects < Mortar::Command::Base
 
     display "\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
   end
+
+
+  # projects:fork GIT_URL PROJECT_NAME
+  #
+  # Used when you want to fork an existing Github repository into your own Mortar project.
+  #
+  # --public      # Register a public project, which can be viewed and forked by anyone.
+  #
+  def fork
+    git_url = shift_argument
+    name = shift_argument
+    unless git_url and name
+      error("Usage: mortar projects:fork GIT_URL PROJECT\nMust specify GIT_URL and PROJECT.")
+    end
+    validate_arguments!
+    validate_project_name(name)
+
+    if git.has_dot_git?
+      begin
+        error("Currently in git repo.  You can not fork a new project inside of an existing git repository.")
+      rescue Mortar::Command::CommandFailed => cf
+        error("Currently in git repo.  You can not fork a new project inside of an existing git repository.")
+      end
+    end
+
+    if options[:public]
+      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
+        error("Mortar project was not registered")
+      end
+      is_private = false
+    else
+      is_private = true
+    end
+
+    git.clone(git_url, name, "base")
+    Dir.chdir(name)
+
+    register_project(name, is_private) do |project_result|
+      git.remote_add("mortar", project_result['git_url'])
+      git.push_master
+      # We want the default remote to be the Mortar managed repo.
+      git.git("fetch --all")
+      git.git("branch --set-upstream-to mortar/master")
+      display "Your project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
+    end
+  end
+  alias_command "fork", "projects:fork"
+
 end

@@ -522,8 +522,8 @@ module Mortar
       #
       # clone
       #
-      def clone(git_url, path="")
-        git("clone %s \"%s\"" % [git_url, path], true, false)
+      def clone(git_url, path="", remote_name="origin")
+        git("clone -o %s %s \"%s\"" % [remote_name, git_url, path], true, false)
       end
     end
   end
