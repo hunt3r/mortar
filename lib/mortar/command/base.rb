@@ -143,12 +143,9 @@ class Mortar::Command::Base
     else
       is_private = true
     end
-    if project_id
-      # print 'Expect id'
-      # print project_id
-    end
+    
     if is_embedded
-      validate_project_name(name)
+      # validate_project_name(name)
       validate_project_structure()
 
       register_project(name, is_private, project_id) do |project_result|
@@ -164,7 +161,7 @@ class Mortar::Command::Base
         end
       end
 
-      validate_project_name(name)
+      # validate_project_name(name)
 
       unless git.remotes(git_organization).empty?
         begin
@@ -184,6 +181,7 @@ class Mortar::Command::Base
 
   def register_api_call(name, is_private)
     project_id = nil
+    validate_project_name(name)
     action("Sending request to register project: #{name}") do
       project_id = api.post_project(name, is_private).body["project_id"]
     end
@@ -191,7 +189,8 @@ class Mortar::Command::Base
   end
 
   def register_project(name, is_private, project_id)
-    if project_id == nil
+    'registering project....\n'
+    if project_id == nil      
       project_id = register_api_call(name, is_private)
     end
     

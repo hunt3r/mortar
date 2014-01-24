@@ -95,6 +95,7 @@ STDOUT
 
       it "registers and generates a project" do
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
@@ -169,6 +170,8 @@ STDOUT
 
       it "generates and registers an embedded project" do
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
@@ -240,7 +243,7 @@ STDERR
       it "errors when a project already exists with the name requested" do
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         with_git_initialized_project do |p|           
-          stderr, stdout = execute("projects:register Project1", nil, @git)
+          stderr, stdout = execute("projects:register Project1 --embedded", nil, @git)
           stderr.should == <<-STDERR
  !    Your account already contains a project named Project1.
  !    Please choose a different name for your new project, or clone the existing Project1 code using:
@@ -251,7 +254,6 @@ STDERR
       end
 
       it "show appropriate error message when user tries to register a project inside of an existing project" do
-         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
          with_git_initialized_project do |p|           
            stderr, stdout = execute("projects:register some_new_project", nil, @git)
            stderr.should == <<-STDERR
@@ -263,6 +265,8 @@ STDERR
       it "Confirms if user wants to create a public project, exits if not" do
         project_name = "some_new_project"
         project_id = "1234"
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).post_project("some_new_project", false) {Excon::Response.new(:body => {"project_id" => project_id})}
         any_instance_of(Mortar::Command::Projects) do |base|
           mock(base).ask.with_any_args.times(1) { 'n' }
@@ -502,6 +506,7 @@ STDERR
       end
 
       it "calls correct git commands on success" do
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"

@@ -96,6 +96,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       # args.push('--public')
       is_public = true
     end
+    validate_project_name(name)
     project_id = register_api_call(name, !is_public)
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
