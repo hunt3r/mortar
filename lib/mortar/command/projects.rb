@@ -88,23 +88,30 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:create PROJECTNAME\nMust specify PROJECTNAME")
     end
     
-    Mortar::Command::run("generate:project", [name])
 
-    FileUtils.cd(name)
 
     args = [name,]
+    is_public = false 
     if options[:public]
-      args.push('--public')
+      # args.push('--public')
+      is_public = true
     end
-
+    project_id = register_api_call(name, !is_public)
+    Mortar::Command::run("generate:project", [name])
+    FileUtils.cd(name)
+    # register_api_call(name,!is_public)
+    is_embedded = false
     if options[:embedded]
-      args.push("--embedded")
-      Mortar::Command::run("projects:register", args)
+      # args.push("--embedded")
+      is_embedded = true
+      register_do(name, is_public, is_embedded, project_id)
+      # Mortar::Command::run("projects:register", args)
     else
       git.git_init
       git.git("add .")
-      git.git("commit -m \"Mortar project scaffolding\"")
-      Mortar::Command::run("projects:register", args)
+      git.git("commit -m \"Mortar project scaffolding\"")      
+      register_do(name, is_public, is_embedded, project_id)
+      # Mortar::Command::run("projects:register", args)
       display "NOTE: You'll need to change to the new directory to use your project:\n    cd #{name}\n\n"
     end
   end
@@ -124,7 +131,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     end
     validate_arguments!
 
-    register_do(name, options) 
+    register_do(name, options[:public], options[:embedded], nil) 
     
   end
   alias_command "register", "projects:register"
@@ -237,7 +244,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     git.clone(git_url, name, "base")
     Dir.chdir(name)
 
-    register_project(name, is_private) do |project_result|
+    register_project(name, is_private, nil) do |project_result|
       git.remote_add("mortar", project_result['git_url'])
       git.push_master
       # We want the default remote to be the Mortar managed repo.

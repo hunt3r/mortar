@@ -93,7 +93,7 @@ STDOUT
     
     context("create") do
 
-      it "generates and registers a project" do
+      it "registers and generates a project" do
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
@@ -125,6 +125,7 @@ STDOUT
         File.read("pigscripts/some_new_project.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
 
         stdout.should == <<-STDOUT
+Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  
 \e[1;32m      create\e[0m  README.md
 \e[1;32m      create\e[0m  .gitignore
@@ -159,7 +160,7 @@ STDOUT
 \e[1;32m      create\e[0m  vendor/udfs/jython/.gitkeep
 \e[1;32m      create\e[0m  vendor/udfs/java
 \e[1;32m      create\e[0m  vendor/udfs/java/.gitkeep
-Sending request to register project: some_new_project... done\n\n\r\e[0KStatus: ACTIVE  \n\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n
+\n\r\e[0KStatus: ACTIVE  \n\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n
 NOTE: You'll need to change to the new directory to use your project:
     cd some_new_project
 
@@ -173,7 +174,7 @@ STDOUT
         project_git_url = "git@github.com:mortarcode-dev/#{project_name}"
         mock(Mortar::Auth.api).post_project("some_new_project", true) {Excon::Response.new(:body => {"project_id" => project_id})}
         mock(Mortar::Auth.api).get_project(project_id).returns(Excon::Response.new(:body => {"status" => Mortar::API::Projects::STATUS_ACTIVE,
-                                                                                             "git_url" => project_git_url})).ordered
+                                                                                           "git_url" => project_git_url})).ordered
 
         # test that sync_embedded_project is called. the method itself is tested in git_spec.
         mock(@git).sync_embedded_project.with_any_args.times(1) { true }
@@ -261,6 +262,8 @@ STDERR
 
       it "Confirms if user wants to create a public project, exits if not" do
         project_name = "some_new_project"
+        project_id = "1234"
+        mock(Mortar::Auth.api).post_project("some_new_project", false) {Excon::Response.new(:body => {"project_id" => project_id})}
         any_instance_of(Mortar::Command::Projects) do |base|
           mock(base).ask.with_any_args.times(1) { 'n' }
         end
