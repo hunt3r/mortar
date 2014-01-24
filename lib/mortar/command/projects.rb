@@ -93,26 +93,21 @@ class Mortar::Command::Projects < Mortar::Command::Base
     args = [name,]
     is_public = false 
     if options[:public]
-      # args.push('--public')
       is_public = true
     end
     validate_project_name(name)
     project_id = register_api_call(name, !is_public)
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
-    # register_api_call(name,!is_public)
     is_embedded = false
     if options[:embedded]
-      # args.push("--embedded")
       is_embedded = true
       register_do(name, is_public, is_embedded, project_id)
-      # Mortar::Command::run("projects:register", args)
     else
       git.git_init
       git.git("add .")
       git.git("commit -m \"Mortar project scaffolding\"")      
       register_do(name, is_public, is_embedded, project_id)
-      # Mortar::Command::run("projects:register", args)
       display "NOTE: You'll need to change to the new directory to use your project:\n    cd #{name}\n\n"
     end
   end
@@ -131,7 +126,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:register PROJECT\nMust specify PROJECT.")
     end
     validate_arguments!
-
+    # nil is non existant project_id because it hasn't been posted yet
     register_do(name, options[:public], options[:embedded], nil) 
     
   end
@@ -244,7 +239,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
 
     git.clone(git_url, name, "base")
     Dir.chdir(name)
-
+    # register a nil project id because it hasn't been created yet
     register_project(name, is_private, nil) do |project_result|
       git.remote_add("mortar", project_result['git_url'])
       git.push_master

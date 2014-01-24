@@ -132,7 +132,9 @@ class Mortar::Command::Base
       error("Project missing required directories: #{missing_dirs.to_s}")
     end
   end
-
+  # checks if project_id is already, 
+  # 
+  # if project id is not created, just pass in nil
   def register_do(name, is_public, is_embedded, project_id)
     is_private = nil    
     if is_public
@@ -145,7 +147,6 @@ class Mortar::Command::Base
     end
     
     if is_embedded
-      # validate_project_name(name)
       validate_project_structure()
 
       register_project(name, is_private, project_id) do |project_result|
@@ -161,7 +162,6 @@ class Mortar::Command::Base
         end
       end
 
-      # validate_project_name(name)
 
       unless git.remotes(git_organization).empty?
         begin
