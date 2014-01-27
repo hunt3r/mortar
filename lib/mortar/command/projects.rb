@@ -88,23 +88,27 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:create PROJECTNAME\nMust specify PROJECTNAME")
     end
     
-    Mortar::Command::run("generate:project", [name])
 
-    FileUtils.cd(name)
 
     args = [name,]
+    is_public = false 
     if options[:public]
-      args.push('--public')
+      is_public= true
     end
-
+    validate_project_name(name)
+    project_id = register_api_call(name,is_public) 
+    # is_public is created for clarity in other sections of code
+    Mortar::Command::run("generate:project", [name])
+    FileUtils.cd(name)
+    is_embedded = false
     if options[:embedded]
-      args.push("--embedded")
-      Mortar::Command::run("projects:register", args)
+      is_embedded = true
+      register_do(name, is_public, is_embedded, project_id)
     else
       git.git_init
       git.git("add .")
-      git.git("commit -m \"Mortar project scaffolding\"")
-      Mortar::Command::run("projects:register", args)
+      git.git("commit -m \"Mortar project scaffolding\"")      
+      register_do(name, is_public, is_embedded, project_id)
       display "NOTE: You'll need to change to the new directory to use your project:\n    cd #{name}\n\n"
     end
   end
@@ -123,49 +127,9 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:register PROJECT\nMust specify PROJECT.")
     end
     validate_arguments!
-
-    if options[:public]
-      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
-        error("Mortar project was not registered")
-      end
-      is_private = false
-    else
-      is_private = true
-    end
-
-    if options[:embedded]
-      validate_project_name(name)
-      validate_project_structure()
-
-      register_project(name, is_private) do |project_result|
-        initialize_embedded_project(project_result)
-      end
-    else
-      unless git.has_dot_git?
-      # check if we're in the parent directory
-        if File.exists? name
-          error("mortar projects:register must be run from within the project directory.\nPlease \"cd #{name}\" and rerun this command.")
-        else
-          error("No git repository found in the current directory.\nTo register a project that is not its own git repository, use the --embedded option.\nIf you do want this project to be its own git repository, please initialize git in this directory, and then rerun the register command.\nTo initialize your project in git, use:\n\ngit init\ngit add .\ngit commit -a -m \"first commit\"")
-        end
-      end
-
-      validate_project_name(name)
-
-      unless git.remotes(git_organization).empty?
-        begin
-          error("Currently in project: #{project.name}.  You can not register a new project inside of an existing mortar project.")
-        rescue Mortar::Command::CommandFailed => cf
-          error("Currently in an existing Mortar project.  You can not register a new project inside of an existing mortar project.")
-        end
-      end
-
-      register_project(name, is_private) do |project_result|
-        git.remote_add("mortar", project_result['git_url'])
-        git.push_master
-        display "Your project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
-      end
-    end
+    # nil is non existant project_id because it hasn't been posted yet
+    register_do(name, options[:public], options[:embedded], nil) 
+    
   end
   alias_command "register", "projects:register"
 
@@ -269,15 +233,15 @@ class Mortar::Command::Projects < Mortar::Command::Base
       unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
         error("Mortar project was not registered")
       end
-      is_private = false
+      is_public = true
     else
-      is_private = true
+      is_public = false
     end
 
     git.clone(git_url, name, "base")
     Dir.chdir(name)
-
-    register_project(name, is_private) do |project_result|
+    # register a nil project id because it hasn't been created yet
+    register_project(name, is_public, nil) do |project_result|
       git.remote_add("mortar", project_result['git_url'])
       git.push_master
       # We want the default remote to be the Mortar managed repo.

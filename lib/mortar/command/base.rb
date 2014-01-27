@@ -132,11 +132,63 @@ class Mortar::Command::Base
       error("Project missing required directories: #{missing_dirs.to_s}")
     end
   end
+  # Register logic 
+  # 
+  # if project id is not created, just pass in nil
+  def register_do(name, is_public, is_embedded, project_id)
+    if is_public
+      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
+        error("Mortar project was not registered")
+      end
+    end
+    
+    if is_embedded
+      validate_project_structure()
 
-  def register_project(name, is_private)
+      register_project(name, is_public, project_id) do |project_result|
+        initialize_embedded_project(project_result)
+      end
+    else
+      unless git.has_dot_git?
+      # check if we're in the parent directory
+        if File.exists? name
+          error("mortar projects:register must be run from within the project directory.\nPlease \"cd #{name}\" and rerun this command.")
+        else
+          error("No git repository found in the current directory.\nTo register a project that is not its own git repository, use the --embedded option.\nIf you do want this project to be its own git repository, please initialize git in this directory, and then rerun the register command.\nTo initialize your project in git, use:\n\ngit init\ngit add .\ngit commit -a -m \"first commit\"")
+        end
+      end
+
+
+      unless git.remotes(git_organization).empty?
+        begin
+          error("Currently in project: #{project.name}.  You can not register a new project inside of an existing mortar project.")
+        rescue Mortar::Command::CommandFailed => cf
+          error("Currently in an existing Mortar project.  You can not register a new project inside of an existing mortar project.")
+        end
+      end
+
+      register_project(name, is_public, project_id) do |project_result|
+        git.remote_add("mortar", project_result['git_url'])
+        git.push_master
+        display "Your project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
+      end
+    end
+  end
+
+  def register_api_call(name, is_public)
     project_id = nil
+    is_private = !is_public # is private required by restful api
+    validate_project_name(name)
     action("Sending request to register project: #{name}") do
       project_id = api.post_project(name, is_private).body["project_id"]
+    end
+    return project_id
+  end
+
+  def register_project(name, is_public, project_id)
+    'registering project....\n'
+    if project_id == nil      
+      project_id = register_api_call(name, is_public)
     end
     
     project_result = nil
