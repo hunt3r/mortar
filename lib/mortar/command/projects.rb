@@ -96,8 +96,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       is_public= true
     end
     validate_project_name(name)
-    is_private = !is_public 
-    project_id = register_api_call(name,is_private) 
+    project_id = register_api_call(name,is_public) 
     # is_public is created for clarity in other sections of code
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
@@ -234,15 +233,15 @@ class Mortar::Command::Projects < Mortar::Command::Base
       unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
         error("Mortar project was not registered")
       end
-      is_private = false
+      is_public = true
     else
-      is_private = true
+      is_public = false
     end
 
     git.clone(git_url, name, "base")
     Dir.chdir(name)
     # register a nil project id because it hasn't been created yet
-    register_project(name, is_private, nil) do |project_result|
+    register_project(name, is_public, nil) do |project_result|
       git.remote_add("mortar", project_result['git_url'])
       git.push_master
       # We want the default remote to be the Mortar managed repo.
