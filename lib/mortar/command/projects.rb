@@ -93,10 +93,12 @@ class Mortar::Command::Projects < Mortar::Command::Base
     args = [name,]
     is_public = false 
     if options[:public]
-      is_public = true
+      is_public= true
     end
     validate_project_name(name)
-    project_id = register_api_call(name, !is_public)
+    is_private = !is_public 
+    project_id = register_api_call(name,is_private) 
+    # is_public is created for clarity in other sections of code
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
     is_embedded = false

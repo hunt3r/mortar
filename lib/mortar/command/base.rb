@@ -132,18 +132,16 @@ class Mortar::Command::Base
       error("Project missing required directories: #{missing_dirs.to_s}")
     end
   end
-  # checks if project_id is already, 
+  # Register logic 
   # 
   # if project id is not created, just pass in nil
   def register_do(name, is_public, is_embedded, project_id)
-    is_private = nil    
+    is_private = true    
     if is_public
       unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
         error("Mortar project was not registered")
       end
       is_private = false
-    else
-      is_private = true
     end
     
     if is_embedded
