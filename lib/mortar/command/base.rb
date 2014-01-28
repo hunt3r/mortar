@@ -136,12 +136,6 @@ class Mortar::Command::Base
   # 
   # if project id is not created, just pass in nil
   def register_do(name, is_public, is_embedded, project_id)
-    if is_public
-      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
-        error("Mortar project was not registered")
-      end
-    end
-    
     if is_embedded
       validate_project_structure()
 
@@ -177,8 +171,14 @@ class Mortar::Command::Base
 
   def register_api_call(name, is_public)
     project_id = nil
+    if is_public
+      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
+        error("Mortar project was not registered")
+        end
+    end
     is_private = !is_public # is private required by restful api
     validate_project_name(name)
+    'registering project....\n'
     action("Sending request to register project: #{name}") do
       project_id = api.post_project(name, is_private).body["project_id"]
     end
@@ -186,7 +186,6 @@ class Mortar::Command::Base
   end
 
   def register_project(name, is_public, project_id)
-    'registering project....\n'
     if project_id == nil      
       project_id = register_api_call(name, is_public)
     end
