@@ -262,12 +262,10 @@ STDERR
          end
       end
 
-      it "Confirms if user wants to create a public project, exits if not" do
+      it "Confirms if user wants to create a public project, exits when user says no" do
         project_name = "some_new_project"
         project_id = "1234"
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
-        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
-        mock(Mortar::Auth.api).post_project("some_new_project", false) {Excon::Response.new(:body => {"project_id" => project_id})}
         any_instance_of(Mortar::Command::Projects) do |base|
           mock(base).ask.with_any_args.times(1) { 'n' }
         end

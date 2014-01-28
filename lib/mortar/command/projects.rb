@@ -87,17 +87,14 @@ class Mortar::Command::Projects < Mortar::Command::Base
     unless name
       error("Usage: mortar projects:create PROJECTNAME\nMust specify PROJECTNAME")
     end
-    
-
 
     args = [name,]
     is_public = false 
     if options[:public]
       is_public= true
-    end
+    end 
     validate_project_name(name)
     project_id = register_api_call(name,is_public) 
-    # is_public is created for clarity in other sections of code
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
     is_embedded = false
@@ -127,7 +124,8 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:register PROJECT\nMust specify PROJECT.")
     end
     validate_arguments!
-    # nil is non existant project_id because it hasn't been posted yet
+
+    #nil is non existant project_id because it hasn't been posted yet
     register_do(name, options[:public], options[:embedded], nil) 
     
   end
@@ -228,15 +226,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
         error("Currently in git repo.  You can not fork a new project inside of an existing git repository.")
       end
     end
-
-    if options[:public]
-      unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
-        error("Mortar project was not registered")
-      end
-      is_public = true
-    else
-      is_public = false
-    end
+    is_public = options[:public]
 
     git.clone(git_url, name, "base")
     Dir.chdir(name)
