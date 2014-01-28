@@ -208,7 +208,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
 
   # projects:fork GIT_URL PROJECT_NAME
   #
-  # Used when you want to fork an existing Github repository into your own Mortar project.
+  # Used when you want to fork an existing Git repository into your own Mortar project.
   #
   # --public      # Register a public project, which can be viewed and forked by anyone.
   #
