@@ -92,6 +92,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     is_public = false 
     if options[:public]
       is_public= true
+      ask_public(is_public)
     end 
     validate_project_name(name)
     project_id = register_api_call(name,is_public) 
@@ -124,7 +125,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:register PROJECT\nMust specify PROJECT.")
     end
     validate_arguments!
-
+    ask_public(options[:public])
     #nil is non existant project_id because it hasn't been posted yet
     register_do(name, options[:public], options[:embedded], nil) 
     
@@ -227,7 +228,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       end
     end
     is_public = options[:public]
-
+    ask_public(is_public)
     git.clone(git_url, name, "base")
     Dir.chdir(name)
     # register a nil project id because it hasn't been created yet
