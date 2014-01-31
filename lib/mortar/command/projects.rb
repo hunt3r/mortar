@@ -237,7 +237,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       git.push_master
       # We want the default remote to be the Mortar managed repo.
       git.git("fetch --all")
-      git.git("branch --set-upstream-to mortar/master")
+      git.set_upstream('mortar/master')
       display "Your project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n\n"
     end
   end

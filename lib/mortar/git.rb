@@ -29,16 +29,16 @@ module Mortar
       # core commands
       #
       
-      def has_git?
+      def has_git?(major_version=1, minor_version=7, revision_version=7)
         # Needs to have git version 1.7.7 or greater.  Earlier versions lack 
         # the necessary untracked option for stash.
         git_version_output, has_git = run_cmd("git --version")
         if has_git
           git_version = git_version_output.split(" ")[2]
           versions = git_version.split(".")
-          is_ok_version = versions[0].to_i >= 2 ||
-                          ( versions[0].to_i == 1 && versions[1].to_i >= 8 ) ||
-                          ( versions[0].to_i == 1 && versions[1].to_i == 7 && versions[2].to_i >= 7)
+          is_ok_version = versions[0].to_i >= major_version + 1 ||
+                          ( versions[0].to_i == major_version && versions[1].to_i >= minor_version + 1 ) ||
+                          ( versions[0].to_i == major_version && versions[1].to_i == minor_version && versions[2].to_i >= revision_version)
         end
         has_git && is_ok_version
       end
@@ -463,6 +463,14 @@ module Mortar
       
       def remote_add(name, url)
         git("remote add #{name} #{url}")
+      end
+
+      def set_upstream(remote_branch_name)
+        if has_git?(major_version=1, minor_version=8, revision_version=0)
+          git("branch --set-upstream-to #{remote_branch_name}")
+        else
+          git("branch --set-upstream master #{remote_branch_name}")
+        end
       end
 
       #

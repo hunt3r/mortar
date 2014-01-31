@@ -51,6 +51,16 @@ module Mortar
         @git.has_git?.should be_true
       end
 
+      it "returns true with supported version with params" do
+        mock(@git).run_cmd("git --version").returns(["git version 1.8.0", 0])
+        @git.has_git?(major_version=1,minor_version=8,revision_version=0).should be_true
+      end
+
+      it "returns false with unsupported version with params" do
+        mock(@git).run_cmd("git --version").returns(["git version 1.7.12", 0])
+        @git.has_git?(major_version=1,minor_version=8,revision_version=0).should be_false
+      end
+
     end
     
     context "has_any_commits" do

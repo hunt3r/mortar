@@ -522,7 +522,7 @@ STDERR
         mock(@git).remote_add("mortar", project_git_url)
         mock(@git).push_master
         mock(@git).git("fetch --all")
-        mock(@git).git("branch --set-upstream-to mortar/master")
+        mock(@git).set_upstream("mortar/master")
         any_instance_of(Mortar::Command::Projects) do |base|
           mock(base).ask.with_any_args.times(1) { 'y' }
         end
