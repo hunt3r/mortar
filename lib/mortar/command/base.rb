@@ -169,13 +169,17 @@ class Mortar::Command::Base
     end
   end
 
-  def register_api_call(name, is_public)
-    project_id = nil
+  def ask_public(is_public)
     if is_public
       unless confirm("Public projects allow anyone to view and fork the code in this project\'s repository. Are you sure? (y/n)")
         error("Mortar project was not registered")
-        end
+      end
     end
+  end
+
+  def register_api_call(name, is_public)
+    project_id = nil
+    
     is_private = !is_public # is private required by restful api
     validate_project_name(name)
     'registering project....\n'
