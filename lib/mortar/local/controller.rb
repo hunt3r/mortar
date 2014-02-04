@@ -194,4 +194,10 @@ EOF
     pig.validate_script(pig_script, pig_version, pig_parameters)
   end
 
+  def repl(pig_version, pig_parameters)
+    install_and_configure(pig_version)
+    pig = Mortar::Local::Pig.new()
+    pig.launch_repl(pig_version, pig_parameters)
+  end
+
 end
