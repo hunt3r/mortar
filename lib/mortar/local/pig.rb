@@ -180,6 +180,10 @@ class Mortar::Local::Pig
     run_pig_command(" -check #{pig_script.path}", pig_version, pig_parameters)
   end
 
+  def launch_repl(pig_version, pig_parameters)
+    run_pig_command(" ", pig_version, pig_parameters)
+  end
+
 
   # run the pig script with user supplied pig parameters
   def run_script(pig_script, pig_version, pig_parameters)

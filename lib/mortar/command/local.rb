@@ -197,4 +197,18 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl.validate(script, pig_version, pig_parameters)
   end
 
+
+  # local:repl
+  #
+  # Start a local Pig REPL session
+  # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
+  # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
+  #
+  def repl
+    validate_arguments!
+    ctrl = Mortar::Local::Controller.new
+    ctrl.repl(pig_version, pig_parameters)
+  end
+
 end

@@ -9,7 +9,9 @@ export PIG_MAIN_CLASS=com.mortardata.hawk.HawkMain
 export PIG_OPTS="<% @pig_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
 
 # UDF paths are relative to this direectory
-cd <%= @project_home %>/pigscripts
+if [ -d "<%= @project_home %>/pigscripts" ]; then
+    cd <%= @project_home %>/pigscripts
+fi
 
 # Setup python environment
 source <%= @local_install_dir %>/pythonenv/bin/activate
