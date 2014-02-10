@@ -34,4 +34,21 @@ class Mortar::Command::Version < Mortar::Command::Base
     display(Mortar::USER_AGENT)
   end
 
+  # upgrade
+  #
+  # Upgrades mortar gem without ruby
+  #
+  def upgrade
+    # TODO
+    if options[:specify]
+      version_number = shift_argument 
+      if version_number == ' '
+        version_number = ''
+      end
+      display(version_number)
+    end
+
+    Kernel.system "curl -L https://www.opscode.com/chef/install.sh | sudo bash" 
+  end
+
 end
