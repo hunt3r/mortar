@@ -17,6 +17,7 @@
 # used under an MIT license (https://github.com/heroku/heroku/blob/master/LICENSE).
 #
 
+
 require "mortar/command/base"
 require "mortar/version"
 
@@ -34,21 +35,16 @@ class Mortar::Command::Version < Mortar::Command::Base
     display(Mortar::USER_AGENT)
   end
 
-  # upgrade
+  # version:upgrade [OPTIONAL_VERSION_NUMBER]
   #
-  # Upgrades mortar gem without ruby
-  #
+  # Upgrades mortar mortar gem using omnibus build.  Makes a curl request to upgrade current version. 
+  # 
+  # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
   def upgrade
-    # TODO
-    if options[:specify]
-      version_number = shift_argument 
-      if version_number == ' '
-        version_number = ''
-      end
-      display(version_number)
-    end
+    validate_arguments!
+    version_number = options[:version]
+    Kernel.system "curl -L http://install.m0rtardata.com | sudo bash#{version_number}"
 
-    Kernel.system "curl -L https://www.opscode.com/chef/install.sh | sudo bash" 
   end
 
 end

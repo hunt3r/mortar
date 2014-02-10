@@ -25,7 +25,7 @@ module Mortar::Command
       stub_core
     end
     
-    base_url  = "https://www.opscode.com/chef/install.sh"
+    base_url  = "http://install.m0rtardata.com"
     base_version = "1.0"
     curl_command = "curl -L #{base_url} | sudo bash"
 
@@ -36,12 +36,14 @@ module Mortar::Command
         execute("version:upgrade");
       end
       
-     # it "makes curl request for different versions when requested" do
-     #   mortar_version = "1.0"
-     #   curl_command_with_version = "curl -L #{base_url} | sudo bash #{mortar_version}"
-     #   mock(Kernel).system( curl_command_with_version)
-     #   execute( "version:upgrade --specify #{mortar_version}");
-     # end
+      it "makes curl request for different versions when requested" do
+        mortar_version = "1.0"
+        curl_command_with_version = "curl -L #{base_url} | sudo bash#{mortar_version}"
+        mock(Kernel).system( curl_command_with_version)
+        mock(Kernel).system( curl_command_with_version)
+        execute( "version:upgrade -v #{mortar_version}");
+        execute( "version:upgrade --version #{mortar_version}");
+      end
       
     end
   end
