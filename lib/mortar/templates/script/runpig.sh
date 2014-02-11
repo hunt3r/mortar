@@ -10,8 +10,13 @@ export PIG_OPTS="<% @pig_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
 
 # UDF paths are relative to this direectory
 if [ -d "<%= @project_home %>/pigscripts" ]; then
-    cd <%= @project_home %>/pigscripts
+    scriptsdir="<%= @project_home %>/pigscripts"
+    cleanup=false
+else
+    scriptsdir=`mktemp --directory <%= @project_home %>/mortar-local-tmp-XXXX`
+    cleanup=true
 fi
+cd "$scriptsdir"
 
 # Setup python environment
 source <%= @local_install_dir %>/pythonenv/bin/activate
@@ -23,3 +28,7 @@ source <%= @local_install_dir %>/pythonenv/bin/activate
     -propertyFile <%= @local_install_dir %>/lib-common/conf/pig-cli-local-dev.properties \
     -param_file <%= @pig_params_file %> \
     <%= @pig_sub_command %>
+
+if $cleanup; then
+    rm -rf "$scriptsdir";
+fi
