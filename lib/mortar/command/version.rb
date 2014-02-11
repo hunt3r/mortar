@@ -20,10 +20,12 @@
 
 require "mortar/command/base"
 require "mortar/version"
+require "mortar/helpers"
 
 # display version
 #
 class Mortar::Command::Version < Mortar::Command::Base
+  include Mortar::Helpers
   # version
   #
   # show mortar client version
@@ -42,9 +44,13 @@ class Mortar::Command::Version < Mortar::Command::Base
   def upgrade
     # require to check if running on a mac, use running_on_a_mac? in Helper.rb  
     validate_arguments!
-    version_number = options[:version]
-    shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
-    Kernel.system "curl -s -L #{shell_url} | sudo bash#{version_number}"
+    if Mortar::Helpers.running_on_a_mac?
+      version_number = options[:version]
+      shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
+      Kernel.system "curl -s -L #{shell_url} | sudo bash#{version_number}"
+    else
+      error("mortar version:upgrade is currently only supported for OSX")
+    end
 
   end
 

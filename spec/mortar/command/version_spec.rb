@@ -14,14 +14,13 @@
 # limitations under the License.
 #
 require "spec_helper"
-require "fakefs/spec_helpers"
 require "mortar/command/version"
 require "launchy"
 require "mortar/helpers"
 
 module Mortar::Command
   describe Version do
-    include Mortar::Helpers
+
     before(:each) do
       stub_core
     end
@@ -62,7 +61,9 @@ module Mortar::Command
     end
 
     context("version not Mac OSX") do
-  
+      #mock(Mortar::Helpers).running_on_a_mac? {false} # troubles in mocking this function
+      #execute("version:upgrade");
+      #TODO
     end
   end
     
