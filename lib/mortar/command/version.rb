@@ -24,7 +24,6 @@ require "mortar/version"
 # display version
 #
 class Mortar::Command::Version < Mortar::Command::Base
-
   # version
   #
   # show mortar client version
@@ -41,9 +40,11 @@ class Mortar::Command::Version < Mortar::Command::Base
   # 
   # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
   def upgrade
+    # require to check if running on a mac, use running_on_a_mac? in Helper.rb  
     validate_arguments!
     version_number = options[:version]
-    Kernel.system "curl -L http://install.m0rtardata.com | sudo bash#{version_number}"
+    shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
+    Kernel.system "curl -s -L #{shell_url} | sudo bash#{version_number}"
 
   end
 
