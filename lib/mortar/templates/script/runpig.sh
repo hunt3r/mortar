@@ -13,7 +13,7 @@ if [ -d "<%= @project_home %>/pigscripts" ]; then
     scriptsdir="<%= @project_home %>/pigscripts"
     cleanup=false
 else
-    scriptsdir=`mktemp --directory <%= @project_home %>/mortar-local-tmp-XXXX`
+    scriptsdir=`mktemp -d <%= @project_home %>/mortar-local-tmp-XXXX`
     cleanup=true
 fi
 cd "$scriptsdir"
