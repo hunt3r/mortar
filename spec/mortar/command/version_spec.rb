@@ -31,8 +31,10 @@ module Mortar::Command
     context("version in prod") do
       it "makes a curl request to download default version" do
         mock(Kernel).system (curl_command)
-        
-        execute("version:upgrade");
+        any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).installed_with_omnibus? {true}
+          execute("version:upgrade");
+        end
       end
       
       it "makes curl request for different versions when requested" do
@@ -40,8 +42,12 @@ module Mortar::Command
         curl_command_with_version = curl_command +  " -v " + mortar_version
         mock(Kernel).system( curl_command_with_version)
         mock(Kernel).system( curl_command_with_version)
-        execute( "version:upgrade -v #{mortar_version}");
-        execute( "version:upgrade --version #{mortar_version}");
+        any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).installed_with_omnibus? {true}
+          mock(base).installed_with_omnibus? {true}
+          execute( "version:upgrade -v #{mortar_version}");
+          execute( "version:upgrade --version #{mortar_version}");
+        end
       end
       
     end
@@ -55,9 +61,12 @@ module Mortar::Command
 
       it "makes a curl request to download default version on dev" do
         mock(Kernel).system(dev_curl)
-        execute("version:upgrade");
-      end
+        any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).installed_with_omnibus? {true}
 
+          execute("version:upgrade");
+        end
+      end
     end
 
     context("version not Mac OSX") do
@@ -68,7 +77,17 @@ module Mortar::Command
           stderr.should == <<-STDERR
  !    mortar version:upgrade is currently only supported for OSX.
 STDERR
+        end
+      end
 
+      it "throws an error when running on a mac but installed with ruby gem" do
+        any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).running_on_a_mac? {true}
+          mock(base).installed_with_omnibus? {false}
+          stderr, stdout = execute("version:upgrade");
+          stderr.should == <<-STDERR
+ !    mortar version:upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.
+STDERR
         end
       end
     end

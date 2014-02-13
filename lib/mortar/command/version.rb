@@ -44,13 +44,17 @@ class Mortar::Command::Version < Mortar::Command::Base
   def upgrade
     # require to check if running on a mac, use running_on_a_mac? in Helper.rb  
     validate_arguments!
-    if running_on_a_mac?
-      version_number = ''
-      if options[:version] 
-        version_number = " -v " + options[:version]
+    if running_on_a_mac? 
+      if installed_with_omnibus?
+        version_number = ''
+        if options[:version] 
+          version_number = " -v " + options[:version]
+        end
+        shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
+        Kernel.system "curl -sL -o /tmp/install.sh #{shell_url} && sudo bash /tmp/install.sh#{version_number}"
+      else
+        error("mortar version:upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")
       end
-      shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
-      Kernel.system "curl -sL -o /tmp/install.sh #{shell_url} && sudo bash /tmp/install.sh#{version_number}"
     else
       error("mortar version:upgrade is currently only supported for OSX.")
     end
