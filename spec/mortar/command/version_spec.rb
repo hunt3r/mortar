@@ -16,7 +16,6 @@
 require "spec_helper"
 require "mortar/command/version"
 require "launchy"
-require "mortar/helpers"
 
 module Mortar::Command
   describe Version do
@@ -27,7 +26,7 @@ module Mortar::Command
     
     base_url  = "http://install.mortardata.com"
     base_version = "1.0"
-    curl_command = "curl -s -L #{base_url} | sudo bash"
+    curl_command = "curl -sL -o /tmp/install.sh #{base_url} && sudo bash /tmp/install.sh"
 
     context("version in prod") do
       it "makes a curl request to download default version" do
@@ -38,7 +37,7 @@ module Mortar::Command
       
       it "makes curl request for different versions when requested" do
         mortar_version = "1.0"
-        curl_command_with_version = curl_command + mortar_version
+        curl_command_with_version = curl_command +  " -v " + mortar_version
         mock(Kernel).system( curl_command_with_version)
         mock(Kernel).system( curl_command_with_version)
         execute( "version:upgrade -v #{mortar_version}");
@@ -49,7 +48,7 @@ module Mortar::Command
 
     context("version dev") do
       dev_url = "dev_url.com"
-      dev_curl =  "curl -s -L #{dev_url} | sudo bash" 
+      dev_curl =  "curl -sL -o /tmp/install.sh #{dev_url} && sudo bash /tmp/install.sh" 
       before(:each) do
         ENV['MORTAR_INSTALL'] = dev_url
       end
@@ -58,13 +57,22 @@ module Mortar::Command
         mock(Kernel).system(dev_curl)
         execute("version:upgrade");
       end
+
     end
 
     context("version not Mac OSX") do
-      #mock(Mortar::Helpers).running_on_a_mac? {false} # troubles in mocking this function
-      #execute("version:upgrade");
-      #TODO
+      it "throws error when not on mac" do
+        any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).running_on_a_mac? {false} # troubles in mocking this function
+          stderr, stdout = execute("version:upgrade");
+          stderr.should == <<-STDERR
+ !    mortar version:upgrade is currently only supported for OSX.
+STDERR
+
+        end
+      end
     end
   end
     
 end
+
