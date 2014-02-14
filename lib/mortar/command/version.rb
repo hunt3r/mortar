@@ -61,11 +61,6 @@ class Mortar::Command::Version < Mortar::Command::Base
         ensure
           FileUtils.remove_entry_secure dir
         end
-      #  Dir.mktmpdir{|dir|
-      #    cmd = "curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
-      #    Kernel.system cmd
-
-      #  }
 
 
 
