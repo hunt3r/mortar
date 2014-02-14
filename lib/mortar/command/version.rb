@@ -21,6 +21,7 @@
 require "mortar/command/base"
 require "mortar/version"
 require "mortar/helpers"
+require "open3"
 
 # display version
 #
@@ -36,13 +37,13 @@ class Mortar::Command::Version < Mortar::Command::Base
     display(Mortar::USER_AGENT)
   end
 
+  # upgrade [OPTIONAL_VERSION_NUMBER]
   # version:upgrade [OPTIONAL_VERSION_NUMBER]
   #
-  # Upgrades mortar mortar gem using omnibus build.  Makes a curl request to upgrade current version. 
-  # 
+  # Upgrade the Mortar development framework
+  #
   # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
   def upgrade
-    # require to check if running on a mac, use running_on_a_mac? in Helper.rb  
     validate_arguments!
     if running_on_a_mac? 
       if installed_with_omnibus?
@@ -51,13 +52,17 @@ class Mortar::Command::Version < Mortar::Command::Base
           version_number = " -v " + options[:version]
         end
         shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
-        Kernel.system "curl -sL -o /tmp/install.sh #{shell_url} && sudo bash /tmp/install.sh#{version_number}"
+
+       cmd = "curl -sS -L -o /tmp/install.sh #{shell_url} && sudo bash /tmp/install.sh#{version_number}"
+        Kernel.system cmd
       else
-        error("mortar version:upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")
+        error("mortar upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")
       end
     else
-      error("mortar version:upgrade is currently only supported for OSX.")
+      error("mortar upgrade is currently only supported for OSX.")
     end
   end
+
+  alias_command "upgrade", "version:upgrade"
 
 end

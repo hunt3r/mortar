@@ -15,20 +15,28 @@
 #
 require "spec_helper"
 require "mortar/command/version"
-require "launchy"
 
 module Mortar::Command
   describe Version do
 
     before(:each) do
       stub_core
+      
     end
     
     base_url  = "http://install.mortardata.com"
     base_version = "1.0"
-    curl_command = "curl -sL -o /tmp/install.sh #{base_url} && sudo bash /tmp/install.sh"
+    curl_command = "curl -sS -L -o /tmp/install.sh #{base_url} && sudo bash /tmp/install.sh"
 
     context("version in prod") do
+      mortar_install_env = ENV['MORTAR_INSTALL']
+      before(:each) do
+        ENV['MORTAR_INSTALL'] = nil  
+      end
+
+      after(:all) do
+        ENV['MORTAR_INSTALL'] = mortar_install_env
+      end
       it "makes a curl request to download default version" do
         mock(Kernel).system (curl_command)
         any_instance_of(Mortar::Command::Version) do |base|
@@ -45,7 +53,7 @@ module Mortar::Command
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
           mock(base).installed_with_omnibus? {true}
-          execute( "version:upgrade -v #{mortar_version}");
+          execute( "upgrade -v #{mortar_version}");
           execute( "version:upgrade --version #{mortar_version}");
         end
       end
@@ -54,7 +62,7 @@ module Mortar::Command
 
     context("version dev") do
       dev_url = "dev_url.com"
-      dev_curl =  "curl -sL -o /tmp/install.sh #{dev_url} && sudo bash /tmp/install.sh" 
+      dev_curl =  "curl -sS -L -o /tmp/install.sh #{dev_url} && sudo bash /tmp/install.sh" 
       before(:each) do
         ENV['MORTAR_INSTALL'] = dev_url
       end
@@ -64,7 +72,7 @@ module Mortar::Command
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
 
-          execute("version:upgrade");
+          execute("upgrade");
         end
       end
     end
@@ -75,7 +83,7 @@ module Mortar::Command
           mock(base).running_on_a_mac? {false} # troubles in mocking this function
           stderr, stdout = execute("version:upgrade");
           stderr.should == <<-STDERR
- !    mortar version:upgrade is currently only supported for OSX.
+ !    mortar upgrade is currently only supported for OSX.
 STDERR
         end
       end
@@ -86,7 +94,7 @@ STDERR
           mock(base).installed_with_omnibus? {false}
           stderr, stdout = execute("version:upgrade");
           stderr.should == <<-STDERR
- !    mortar version:upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.
+ !    mortar upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.
 STDERR
         end
       end
