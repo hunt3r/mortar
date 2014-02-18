@@ -52,12 +52,12 @@ class Mortar::Command::Version < Mortar::Command::Base
           version_number = " -v " + options[:version]
         end
         shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
-        dir = Dir.mktmpdir
+        dir = Dir.mktmpdir #makes temporary directory for install script to live in
         begin
-          cmd = "curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
+          cmd = "sudo curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
           Kernel.system cmd
         ensure
-          FileUtils.remove_entry_secure dir
+          FileUtils.remove_entry_secure dir #removes temporaryily created directory
         end
       else
         error("mortar upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")

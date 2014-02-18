@@ -51,7 +51,7 @@ module Mortar
     end
     
     def installed_with_omnibus?
-      File.directory?('/opt/mortar')    
+      File.exists?('/opt/mortar/version-manifest.txt')    
     end
 
     def write_to_file(str_data, path, mkdir_p=true)
