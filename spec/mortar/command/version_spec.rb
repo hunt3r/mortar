@@ -43,6 +43,7 @@ module Mortar::Command
         mock(Kernel).system (curl_command)
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
+          mock(base).running_on_a_mac? {true} 
           execute("version:upgrade");
         end
       end
@@ -57,6 +58,8 @@ module Mortar::Command
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
           mock(base).installed_with_omnibus? {true}
+          mock(base).running_on_a_mac? {true} 
+          mock(base).running_on_a_mac? {true} 
           execute( "upgrade -v #{mortar_version}");
           execute( "version:upgrade --version #{mortar_version}");
         end
@@ -77,7 +80,7 @@ module Mortar::Command
         mock(FileUtils).remove_entry_secure(tmp_dir_dumm)
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
-
+          mock(base).running_on_a_mac? {true} 
           execute("upgrade");
         end
       end
