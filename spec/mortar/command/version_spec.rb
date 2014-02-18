@@ -26,7 +26,7 @@ module Mortar::Command
     
     base_url  = "http://install.mortardata.com"
     base_version = "1.0"
-    tmp_dir_dumm = "/my_tmp"
+    tmp_dir_dumm = "/opt/mortar/installer"
     curl_command = "sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{base_url} && sudo bash #{tmp_dir_dumm}/install.sh"
 
     context("version in prod") do
@@ -39,7 +39,6 @@ module Mortar::Command
         ENV['MORTAR_INSTALL'] = mortar_install_env
       end
       it "makes a curl request to download default version" do
-        mock(Dir).mktmpdir{tmp_dir_dumm}
         mock(FileUtils).remove_entry_secure(tmp_dir_dumm)
         mock(Kernel).system (curl_command)
         any_instance_of(Mortar::Command::Version) do |base|
@@ -51,8 +50,6 @@ module Mortar::Command
       it "makes curl request for different versions when requested" do
         mortar_version = "1.0"
         curl_command_with_version = curl_command +  " -v " + mortar_version
-        mock(Dir).mktmpdir{tmp_dir_dumm}
-        mock(Dir).mktmpdir{tmp_dir_dumm}
         mock(FileUtils).remove_entry_secure(tmp_dir_dumm)
         mock(FileUtils).remove_entry_secure(tmp_dir_dumm)
         mock(Kernel).system( curl_command_with_version)
@@ -77,7 +74,6 @@ module Mortar::Command
       it "makes a curl request to download default version on dev" do
         mock(Kernel).system(dev_curl)
         
-        mock(Dir).mktmpdir{tmp_dir_dumm}
         mock(FileUtils).remove_entry_secure(tmp_dir_dumm)
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}

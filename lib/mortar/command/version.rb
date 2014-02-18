@@ -52,7 +52,7 @@ class Mortar::Command::Version < Mortar::Command::Base
           version_number = " -v " + options[:version]
         end
         shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
-        dir = Dir.mktmpdir #makes temporary directory for install script to live in
+        dir = "/opt/mortar/installer"
         begin
           cmd = "sudo curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
           Kernel.system cmd
