@@ -207,6 +207,39 @@ module Mortar
         return existing_install_date < remote_archive_date
       end
 
+      def run_templated_script(template, template_params)
+        unset_hadoop_env_vars
+        reset_local_logs
+        # Generate the script for running the command, then
+        # write it to a temp script which will be exectued
+        script_text = render_script_template(template, template_params)
+        script = Tempfile.new("mortar-")
+        script.write(script_text)
+        script.close(false)
+        FileUtils.chmod(0755, script.path)
+        system(script.path)
+        script.unlink
+        return (0 == $?.to_i)
+      end
+
+      def render_script_template(template, template_params)
+        erb = ERB.new(File.read(template), 0, "%<>")
+        erb.result(BindingClazz.new(template_params).get_binding)
+      end
+
+      # Allows us to use a hash for template variables
+      class BindingClazz
+        def initialize(attrs)
+          attrs.each{ |k, v|
+        # set an instance variable with the key name so the binding will find it in scope
+            self.instance_variable_set("@#{k}".to_sym, v)
+          }
+        end
+        def get_binding()
+          binding
+        end
+      end
+
     end
   end
 end

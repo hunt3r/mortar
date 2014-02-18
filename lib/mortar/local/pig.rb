@@ -291,18 +291,9 @@ class Mortar::Local::Pig
   # can be appended to the command line invocation of Pig that will
   # get it to do something interesting, such as '-f some-file.pig'
   def run_pig_command(cmd, pig_version, parameters = nil, jython_output = true)
-    unset_hadoop_env_vars
-    reset_local_logs
-    # Generate the script for running the command, then
-    # write it to a temp script which will be exectued
-    script_text = script_for_command(cmd, pig_version, parameters)
-    script = Tempfile.new("mortar-")
-    script.write(script_text)
-    script.close(false)
-    FileUtils.chmod(0755, script.path)
-    system(script.path)
-    script.unlink
-    return (0 == $?.to_i)
+    template_params = pig_command_script_template_parameters(cmd, pig_version, parameters)
+    template_params['pig_opts']['jython.output'] = jython_output
+    return run_templated_script(pig_command_script_template_path, template_params)
   end
 
   # so Pig doesn't try to load the wrong hadoop jar/configuration
@@ -318,15 +309,6 @@ class Mortar::Local::Pig
     end
     Dir.mkdir local_log_dir
     Dir.mkdir local_udf_log_dir
-  end
-
-  # Generates a bash script which sets up the necessary environment and
-  # then runs the pig command
-  def script_for_command(cmd, pig_version, parameters, jython_output = true)
-    template_params = pig_command_script_template_parameters(cmd, pig_version, parameters)
-    template_params['pig_opts']['jython.output'] = jython_output
-    erb = ERB.new(File.read(pig_command_script_template_path), 0, "%<>")
-    erb.result(BindingClazz.new(template_params).get_binding)
   end
 
   # Path to the template which generates the bash script for running pig
@@ -421,19 +403,6 @@ class Mortar::Local::Pig
     @temp_file_objects.push(param_file)
 
     param_file.path
-  end
-
-  # Allows us to use a hash for template variables
-  class BindingClazz
-    def initialize(attrs)
-      attrs.each{ |k, v|
-        # set an instance variable with the key name so the binding will find it in scope
-        self.instance_variable_set("@#{k}".to_sym, v)
-      }
-    end
-    def get_binding()
-      binding
-    end
   end
 
 end
