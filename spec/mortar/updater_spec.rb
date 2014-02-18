@@ -87,8 +87,16 @@ module Mortar
           Mortar::VERSION = "1.0.0"
         end
         capture_stdout do
+          stub(Updater).installed_with_omnibus?{false}
+          stub(Updater).running_on_a_mac?{false}
           Updater.update_check
         end.should == "WARNING: There is a new version of the Mortar development framework available.  Please run 'gem install mortar' to install the latest version.\n\n"
+        capture_stdout do
+          mock(Updater).installed_with_omnibus?{true}
+          mock(Updater).running_on_a_mac?{true}
+          Updater.update_check
+        end.should == "WARNING: There is a new version of the Mortar development framework available.  Please run 'mortar upgrade' to install the latest version.\n\n"
+
       end
     end
   end

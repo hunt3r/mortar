@@ -49,6 +49,10 @@ module Mortar
     def test_name
       ENV['MORTAR_TEST_NAME']
     end
+    
+    def installed_with_omnibus?
+      File.exists?('/opt/mortar/version-manifest.txt')    
+    end
 
     def write_to_file(str_data, path, mkdir_p=true)
       if mkdir_p

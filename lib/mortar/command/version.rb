@@ -17,13 +17,16 @@
 # used under an MIT license (https://github.com/heroku/heroku/blob/master/LICENSE).
 #
 
+
 require "mortar/command/base"
 require "mortar/version"
+require "mortar/helpers"
+require "open3"
 
 # display version
 #
 class Mortar::Command::Version < Mortar::Command::Base
-
+  include Mortar::Helpers
   # version
   #
   # show mortar client version
@@ -33,5 +36,37 @@ class Mortar::Command::Version < Mortar::Command::Base
 
     display(Mortar::USER_AGENT)
   end
+
+  # upgrade [OPTIONAL_VERSION_NUMBER]
+  # version:upgrade [OPTIONAL_VERSION_NUMBER]
+  #
+  # Upgrade the Mortar development framework
+  #
+  # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
+  def upgrade
+    validate_arguments!
+    if running_on_a_mac? 
+      if installed_with_omnibus?
+        version_number = ''
+        if options[:version] 
+          version_number = " -v " + options[:version]
+        end
+        shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
+        dir = "/opt/mortar/installer"
+        begin
+          cmd = "sudo curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
+          Kernel.system cmd
+        ensure
+          FileUtils.remove_entry_secure dir #removes temporaryily created directory
+        end
+      else
+        error("mortar upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")
+      end
+    else
+      error("mortar upgrade is currently only supported for OSX.")
+    end
+  end
+
+  alias_command "upgrade", "version:upgrade"
 
 end
