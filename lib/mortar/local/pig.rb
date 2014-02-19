@@ -296,21 +296,6 @@ class Mortar::Local::Pig
     return run_templated_script(pig_command_script_template_path, template_params)
   end
 
-  # so Pig doesn't try to load the wrong hadoop jar/configuration
-  # this doesn't mess up the env vars in the terminal, just this process (ruby)
-  def unset_hadoop_env_vars
-    ENV['HADOOP_HOME'] = ''
-    ENV['HADOOP_CONF_DIR'] = ''
-  end
-
-  def reset_local_logs
-    if File.directory? local_log_dir
-      FileUtils.rm_rf local_log_dir
-    end
-    Dir.mkdir local_log_dir
-    Dir.mkdir local_udf_log_dir
-  end
-
   # Path to the template which generates the bash script for running pig
   def pig_command_script_template_path
     File.expand_path("../../templates/script/runpig.sh", __FILE__)
@@ -337,8 +322,6 @@ class Mortar::Local::Pig
     template_params['pig_classpath'] = "#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
-    template_params['project_home'] = File.expand_path("..", local_install_directory)
-    template_params['local_install_dir'] = local_install_directory
     template_params['pig_sub_command'] = cmd
     template_params['pig_opts'] = pig_options
     template_params

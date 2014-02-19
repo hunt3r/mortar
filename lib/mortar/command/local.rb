@@ -211,4 +211,34 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl.repl(pig_version, pig_parameters)
   end
 
+
+  # local:luigi SCRIPT
+  #
+  # Run a luigi workflow on your local machine.
+  #
+  # --project-root PROJECTDIR     # The root directory of the project if not the CWD
+  #
+  #Examples:
+  #
+  #    Run the generate_regression_model_coefficients script locally.
+  #        $ mortar local:run pigscripts/generate_regression_model_coefficients.pig
+  def luigi
+    script_name = shift_argument
+    unless script_name
+      error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
+    end
+    validate_arguments!
+
+    # cd into the project root
+    project_root = options[:project_root] ||= Dir.getwd
+    unless File.directory?(project_root)
+      error("No such directory #{project_root}")
+    end
+    Dir.chdir(project_root)
+    script = validate_script!(script_name)
+    ctrl = Mortar::Local::Controller.new
+    ctrl.run_luigi(script)
+  end
+
+
 end

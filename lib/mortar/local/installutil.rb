@@ -208,6 +208,10 @@ module Mortar
       end
 
       def run_templated_script(template, template_params)
+        # Insert standard template variables
+        template_params['project_home'] = File.expand_path("..", local_install_directory)
+        template_params['local_install_dir'] = local_install_directory
+
         unset_hadoop_env_vars
         reset_local_logs
         # Generate the script for running the command, then
@@ -226,6 +230,22 @@ module Mortar
         erb = ERB.new(File.read(template), 0, "%<>")
         erb.result(BindingClazz.new(template_params).get_binding)
       end
+
+      # so Pig doesn't try to load the wrong hadoop jar/configuration
+      # this doesn't mess up the env vars in the terminal, just this process (ruby)
+      def unset_hadoop_env_vars
+        ENV['HADOOP_HOME'] = ''
+        ENV['HADOOP_CONF_DIR'] = ''
+      end
+
+      def reset_local_logs
+        if File.directory? local_log_dir
+          FileUtils.rm_rf local_log_dir
+        end
+        Dir.mkdir local_log_dir
+        Dir.mkdir local_udf_log_dir
+      end
+
 
       # Allows us to use a hash for template variables
       class BindingClazz

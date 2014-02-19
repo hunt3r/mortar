@@ -287,4 +287,22 @@ class Mortar::Local::Python
     note_install mortar_package_dir(package_name)
   end
 
+  def run_luigi_script(luigi_script)
+    template_params = luigi_command_template_parameters(luigi_script)
+    return run_templated_script(python_command_script_template_path, template_params)
+  end
+
+  # Path to the template which generates the bash script for running python
+  def python_command_script_template_path
+    File.expand_path("../../templates/script/runpython.sh", __FILE__)
+  end
+
+  def luigi_command_template_parameters(luigi_script)
+    return {
+      :python_arugments => "",
+      :python_script => luigi_script.executable_path(),
+      :script_arguments => "",
+    }
+  end
+
 end
