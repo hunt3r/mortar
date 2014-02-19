@@ -202,7 +202,7 @@ class Mortar::Local::Pig
     outfile.path
   end
 
-  # Given a file path, open it and decode the containing json
+  # Given a file path, open it and decode the containing text
   def decode_illustrate_input_file(illustrate_outpath)
     data_raw = File.read(illustrate_outpath)
     begin
@@ -212,10 +212,9 @@ class Mortar::Local::Pig
       ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
       data_encoded = ic.iconv(data_raw)
     end
-    json_decode(data_encoded)
   end
 
-  def show_illustrate_output(illustrate_outpath)
+  def show_illustrate_output_browser(illustrate_outpath)
     ensure_dir_exists("illustrate-output")
     ensure_dir_exists("illustrate-output/resources")
     ensure_dir_exists("illustrate-output/resources/css")
@@ -229,7 +228,8 @@ class Mortar::Local::Pig
     }
 
     # Pull in the dumped json file
-    illustrate_data = decode_illustrate_input_file(illustrate_outpath)
+    illustrate_data_json_text = decode_illustrate_input_file(illustrate_outpath)
+    illustrate_data = json_decode(illustrate_data_json_text)
 
     # Render a template using it's values
     template_params = create_illustrate_template_parameters(illustrate_data)
@@ -248,7 +248,6 @@ class Mortar::Local::Pig
       require "launchy"
       Launchy.open(File.expand_path(@resource_destinations["illustrate_html"]))
     end
-
   end
 
   def create_illustrate_template_parameters(illustrate_data)
@@ -258,7 +257,7 @@ class Mortar::Local::Pig
     return params
   end
 
-  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version, pig_parameters)
+  def illustrate_alias(pig_script, pig_alias, skip_pruning, no_browser, pig_version, pig_parameters)
     cmd = "-e 'illustrate "
 
     # Parameters have to be entered with the illustrate command (as
@@ -275,7 +274,11 @@ class Mortar::Local::Pig
       cmd += " -skipPruning "
     end
 
-    cmd += " -json '"
+    if no_browser
+      cmd += " -str '"
+    else
+      cmd += " -json '"
+    end
 
     if pig_alias
       cmd += " #{pig_alias} "
@@ -283,7 +286,11 @@ class Mortar::Local::Pig
 
     result = run_pig_command(cmd, pig_version, [], false)
     if result
-      show_illustrate_output(illustrate_outpath)
+      if no_browser
+        display decode_illustrate_input_file(illustrate_outpath)
+      else
+        show_illustrate_output_browser(illustrate_outpath)
+      end
     end
   end
 
