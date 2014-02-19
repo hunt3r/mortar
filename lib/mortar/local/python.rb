@@ -22,7 +22,7 @@ class Mortar::Local::Python
   PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
   PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
 
-  MORTAR_PYTHON_PACKAGES = ["luigi"]
+  MORTAR_PYTHON_PACKAGES = ["luigi", "mortar-luigi"]
 
   # Path to the python binary that should be used
   # for running UDFs
@@ -298,7 +298,7 @@ class Mortar::Local::Python
   end
 
   def luigi_logging_config_file_path
-    File.expand_path("../../conf/luigi-logging.conf")
+    File.expand_path("../../conf/luigi/logging.ini", __FILE__)
   end
 
   def luigi_command_template_parameters(luigi_script, user_script_args)
