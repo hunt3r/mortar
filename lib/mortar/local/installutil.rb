@@ -66,10 +66,6 @@ module Mortar
         File.expand_path("../../templates/project/gitignore", __FILE__)
       end
 
-      def ensure_mortar_local_directory(relative_dir)
-        FileUtils.mkdir_p(File.join(local_install_directory, relative_dir))
-      end
-
       # Drops a marker file for an installed package, used
       # to help determine if updates should be performed
       def note_install(subdirectory)

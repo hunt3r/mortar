@@ -22,8 +22,6 @@ class Mortar::Local::Python
   PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
   PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
 
-  MORTAR_PYTHON_PACKAGES = ["luigi"]
-
   # Path to the python binary that should be used
   # for running UDFs
   @command = nil
@@ -166,18 +164,11 @@ class Mortar::Local::Python
     return ENV.fetch('PYTHON_DISTRO_URL', default_url)
   end
 
-  def has_valid_virtualenv?
-    `#{@command} -m virtualenv #{python_env_dir}`
-    if 0 != $?.to_i
-      return false
-    end
-    return true
-  end
-
   # Creates a virtualenv in a well known location and installs any packages
   # necessary for the users python udf
   def setup_project_python_environment
-    if not has_valid_virtualenv?
+    `#{@command} -m virtualenv #{python_env_dir}`
+    if 0 != $?.to_i
       return false
     end
     if should_do_requirements_install
@@ -191,11 +182,6 @@ class Mortar::Local::Python
             return false
           end
         note_install("pythonenv")
-      end
-    end
-    if should_install_python_dependencies?
-      unless install_python_dependencies()
-        return false
       end
     end
     return true
@@ -227,64 +213,6 @@ class Mortar::Local::Python
     else
       return nil
     end
-  end
-
-  def mortar_package_url(package)
-    return "http://s3.amazonaws.com/mortar-pypi/#{package}/#{package}.tar.gz";
-  end
-
-  def update_mortar_package?(package)
-    return is_newer_version(mortar_package_dir(package), mortar_package_url(package))
-  end
-
-  def mortar_packages_dir
-    return "pythonenv/mortar-packages"
-  end
-
-  def mortar_package_dir(package)
-    package_dir = "#{mortar_packages_dir}/#{package}"
-  end
-
-  def should_install_python_dependencies?
-    MORTAR_PYTHON_PACKAGES.each{ |package|
-      if update_mortar_package? package
-        return true
-      end
-    }
-    return false
-  end
-
-  def install_python_dependencies
-    action "Installing python dependencies to #{local_install_directory_name}" do
-      ensure_mortar_local_directory mortar_packages_dir
-      MORTAR_PYTHON_PACKAGES.each{ |package_name|
-        unless install_mortar_python_package(package_name)
-          return false
-        end
-      }
-    end
-    return true
-  end
-
-  def pip_install package_url
-    pip_output = `. #{python_env_dir}/bin/activate &&
-          #{python_env_dir}/bin/pip install  #{package_url} --use-mirrors`
-    if 0 != $?.to_i
-      File.open(pip_error_log_path, 'w') { |f|
-        f.write(pip_output)
-      }
-      return false
-    else
-      return true
-    end
-  end
-
-  def install_mortar_python_package(package_name)
-    unless pip_install mortar_package_url(package_name)
-        return false
-    end
-    ensure_mortar_local_directory mortar_package_dir(package_name)
-    note_install mortar_package_dir(package_name)
   end
 
 end
