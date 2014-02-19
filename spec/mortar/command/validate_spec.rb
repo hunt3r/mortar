@@ -53,6 +53,8 @@ STDERR
  !    No pigscripts found
  !    
  !    No controlscripts found
+ !    
+ !    No luigiscripts found
  STDERR
         end
       end

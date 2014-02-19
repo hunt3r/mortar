@@ -64,7 +64,9 @@ STDERR
  !    No pigscripts found
  !    
  !    No controlscripts found
- STDERR
+ !    
+ !    No luigiscripts found
+STDERR
         end
       end
 
@@ -77,6 +79,8 @@ STDERR
  !    No pigscripts found
  !    
  !    No controlscripts found
+ !    
+ !    No luigiscripts found
  STDERR
         end
       end

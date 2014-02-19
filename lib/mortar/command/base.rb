@@ -389,7 +389,7 @@ protected
       available_pigscripts = project.pigscripts.none? ? "No pigscripts found" : "Available pigscripts:\n#{project.pigscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
       available_controlscripts = project.controlscripts.none? ? "No controlscripts found" : "Available controlscripts:\n#{project.controlscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
       available_luigiscripts = project.luigiscripts.none? ? "No luigiscripts found" : "Available luigiscripts:\n#{project.luigiscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
-      error("Unable to find a pigscript or controlscript for #{script_name}\n\n#{available_pigscripts}\n\n#{available_controlscripts}\n\n#{available_luigiscripts}")
+      error("Unable to find a pigscript or controlscript for #{script_name}\n\n#{available_pigscripts}\n\n#{available_controlscripts}\n\n#{available_luigiscripts}\n")
     end
 
     if pigscript && controlscript
