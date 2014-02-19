@@ -167,8 +167,11 @@ class Mortar::Local::Python
   end
 
   def has_valid_virtualenv?
-    `#{@command} -m virtualenv #{python_env_dir}`
+    output = `#{@command} -m virtualenv #{python_env_dir} 2>&1`
     if 0 != $?.to_i
+      File.open(virtualenv_error_log_path, 'w') { |f|
+        f.write(output)
+      }
       return false
     end
     return true
@@ -203,6 +206,10 @@ class Mortar::Local::Python
 
   def pip_error_log_path
     return ENV.fetch('PIP_ERROR_LOG', "dependency_install.log")
+  end
+
+  def virtualenv_error_log_path
+    return ENV.fetch('VE_ERROR_LOG', "virtualenv.log")
   end
 
   # Whether or not we need to do a `pip install -r requirements.txt` because
