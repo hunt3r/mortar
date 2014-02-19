@@ -220,14 +220,13 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   #Examples:
   #
-  #    Run the generate_regression_model_coefficients script locally.
-  #        $ mortar local:run pigscripts/generate_regression_model_coefficients.pig
+  #    Run the recsys luigi script locally.
+  #        $ mortar local:luigi luigiscripts/recsys.py
   def luigi
     script_name = shift_argument
     unless script_name
       error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
     end
-    validate_arguments!
 
     # cd into the project root
     project_root = options[:project_root] ||= Dir.getwd
@@ -237,7 +236,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
     script = validate_script!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run_luigi(script)
+    ctrl.run_luigi(script, invalid_arguments)
   end
 
 

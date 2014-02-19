@@ -287,8 +287,8 @@ class Mortar::Local::Python
     note_install mortar_package_dir(package_name)
   end
 
-  def run_luigi_script(luigi_script)
-    template_params = luigi_command_template_parameters(luigi_script)
+  def run_luigi_script(luigi_script, user_script_args)
+    template_params = luigi_command_template_parameters(luigi_script, user_script_args)
     return run_templated_script(python_command_script_template_path, template_params)
   end
 
@@ -297,11 +297,20 @@ class Mortar::Local::Python
     File.expand_path("../../templates/script/runpython.sh", __FILE__)
   end
 
-  def luigi_command_template_parameters(luigi_script)
+  def luigi_logging_config_file_path
+    File.expand_path("../../conf/luigi-logging.conf")
+  end
+
+  def luigi_command_template_parameters(luigi_script, user_script_args)
+    script_args = [
+      "--local-scheduler",
+      "--logging-conf-file #{luigi_logging_config_file_path}",
+      user_script_args.join(" "),
+    ]
     return {
       :python_arugments => "",
       :python_script => luigi_script.executable_path(),
-      :script_arguments => "",
+      :script_arguments => script_args.join(" ")
     }
   end
 
