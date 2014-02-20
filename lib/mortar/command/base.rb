@@ -384,12 +384,10 @@ protected
     shortened_script_name = File.basename(script_name, ".*")
     pigscript = project.pigscripts[shortened_script_name]
     controlscript = project.controlscripts[shortened_script_name]
-    luigiscript = project.luigiscripts[shortened_script_name]
-    unless pigscript || controlscript || luigiscript
+    unless pigscript || controlscript
       available_pigscripts = project.pigscripts.none? ? "No pigscripts found" : "Available pigscripts:\n#{project.pigscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
       available_controlscripts = project.controlscripts.none? ? "No controlscripts found" : "Available controlscripts:\n#{project.controlscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
-      available_luigiscripts = project.luigiscripts.none? ? "No luigiscripts found" : "Available luigiscripts:\n#{project.luigiscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
-      error("Unable to find a pigscript or controlscript for #{script_name}\n\n#{available_pigscripts}\n\n#{available_controlscripts}\n\n#{available_luigiscripts}\n")
+      error("Unable to find a pigscript or controlscript for #{script_name}\n\n#{available_pigscripts}\n\n#{available_controlscripts}")
     end
 
     if pigscript && controlscript
@@ -399,7 +397,7 @@ protected
     #While validating we can load the defaults that are relevant to this script.
     load_defaults(shortened_script_name)
 
-    pigscript or controlscript or luigiscript
+    pigscript or controlscript
   end
 
   def validate_luigiscript!(luigiscript_name)

@@ -84,8 +84,6 @@ STDERR
  !    
  !    Available controlscripts:
  !    controlscripts/my_control_script.pig
- !    
- !    No luigiscripts found
 STDERR
         end
       end
