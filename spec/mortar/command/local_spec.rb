@@ -246,12 +246,7 @@ STDERR
         with_git_initialized_project do |p|
           stderr, stdout = execute("local:luigi foobarbaz", p)
           stderr.should == <<-STDERR
- !    Unable to find a pigscript or controlscript for foobarbaz
- !    
- !    No pigscripts found
- !    
- !    No controlscripts found
- !    
+ !    Unable to find luigiscript foobarbaz
  !    No luigiscripts found
 STDERR
         end

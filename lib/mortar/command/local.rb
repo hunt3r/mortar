@@ -235,7 +235,7 @@ class Mortar::Command::Local < Mortar::Command::Base
       error("No such directory #{project_root}")
     end
     Dir.chdir(project_root)
-    script = validate_script!(script_name)
+    script = validate_luigiscript!(script_name)
     ctrl = Mortar::Local::Controller.new
     ctrl.run_luigi(script, invalid_arguments)
   end
