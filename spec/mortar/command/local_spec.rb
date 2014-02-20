@@ -264,9 +264,12 @@ STDERR
           write_file(script_path)
           luigi_script = Mortar::Project::LuigiScript.new(script_name, script_path)
           mock(Mortar::Project::LuigiScript).new(script_name, script_path).returns(luigi_script)
+          any_instance_of(Mortar::Local::Python) do |u|
+            mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).run_luigi(luigi_script, %W{--myoption 2 --myotheroption 3})
-           end
+            mock(u).install_and_configure
+          end
           stderr, stdout = execute("local:luigi some_luigi_script --myoption 2 --myotheroption 3", p)
           stderr.should == ""
         end
