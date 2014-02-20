@@ -273,9 +273,27 @@ class Mortar::Local::Python
     return true
   end
 
+  def local_activate_path
+    return "#{python_env_dir}/bin/activate"
+  end
+
+  def local_python_bin
+    return "#{python_env_dir}/bin/python"
+  end
+
+  def local_pip_bin
+    return "#{python_env_dir}/bin/pip"
+  end
+
   def pip_install package_url
-    pip_output = `. #{python_env_dir}/bin/activate &&
-          #{python_env_dir}/bin/pip install  #{package_url} --use-mirrors`
+    # Note that we're executing pip by passing it as a script for python to execute, this is
+    # explicitly done to deal with this command breaking due to the maximum size of the path
+    # to the interpreter in a shebang.  Since the containing virtualenv is already buried
+    # several layers deep in the .mortar-local directory we're very likely to (read: have) hit
+    # this limit.  This unfortunately leads to very vague errors about pip not existing when
+    # in fact it is the truncated path to the interpreter that does not exist.  I would now
+    # like the last day of my life back.
+    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} install  #{package_url} --use-mirrors;`
     if 0 != $?.to_i
       File.open(pip_error_log_path, 'w') { |f|
         f.write(pip_output)
