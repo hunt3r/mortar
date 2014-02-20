@@ -228,6 +228,50 @@ PARAMS
 
     end
 
+    context "local:luigi" do
+
+      it "Exits with error if no script specified" do
+        with_git_initialized_project do |p|
+          stderr, stdout = execute("local:luigi", p)
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:luigi SCRIPT
+ !    Must specify SCRIPT.
+STDERR
+        end
+      end
+
+      it "Exits with error if script doesn't exist" do
+        with_git_initialized_project do |p|
+          stderr, stdout = execute("local:luigi foobarbaz", p)
+          stderr.should == <<-STDERR
+ !    Unable to find luigiscript foobarbaz
+ !    No luigiscripts found
+STDERR
+        end
+      end
+
+      it "Runs script forwarding options to luigi script" do
+        with_git_initialized_project do |p|
+          script_name = "some_luigi_script"
+          script_path = File.join(p.luigiscripts_path, "#{script_name}.py")
+          write_file(script_path)
+          luigi_script = Mortar::Project::LuigiScript.new(script_name, script_path)
+          mock(Mortar::Project::LuigiScript).new(script_name, script_path).returns(luigi_script)
+          any_instance_of(Mortar::Local::Python) do |u|
+            mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
+          end
+          any_instance_of(Mortar::Local::Controller) do |u|
+            mock(u).install_and_configure
+          end
+          stderr, stdout = execute("local:luigi some_luigi_script --myoption 2 --myotheroption 3", p)
+          stderr.should == ""
+        end
+      end
+
+
+    end
+
+
   end
 end
 

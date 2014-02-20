@@ -19,6 +19,7 @@ require 'fakefs/spec_helpers'
 require 'mortar/local/pig'
 require 'mortar/auth'
 require 'launchy'
+require 'mortar/pigversion'
 
 class Mortar::Local::Pig
   attr_reader :command

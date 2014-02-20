@@ -22,7 +22,7 @@ class Mortar::Local::Python
   PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
   PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
 
-  MORTAR_PYTHON_PACKAGES = ["luigi"]
+  MORTAR_PYTHON_PACKAGES = ["luigi", "mortar-luigi"]
 
   # Path to the python binary that should be used
   # for running UDFs
@@ -310,6 +310,33 @@ class Mortar::Local::Python
     end
     ensure_mortar_local_directory mortar_package_dir(package_name)
     note_install mortar_package_dir(package_name)
+  end
+
+  def run_luigi_script(luigi_script, user_script_args)
+    template_params = luigi_command_template_parameters(luigi_script, user_script_args)
+    return run_templated_script(python_command_script_template_path, template_params)
+  end
+
+  # Path to the template which generates the bash script for running python
+  def python_command_script_template_path
+    File.expand_path("../../templates/script/runpython.sh", __FILE__)
+  end
+
+  def luigi_logging_config_file_path
+    File.expand_path("../../conf/luigi/logging.ini", __FILE__)
+  end
+
+  def luigi_command_template_parameters(luigi_script, user_script_args)
+    script_args = [
+      "--local-scheduler",
+      "--logging-conf-file #{luigi_logging_config_file_path}",
+      user_script_args.join(" "),
+    ]
+    return {
+      :python_arugments => "",
+      :python_script => luigi_script.executable_path(),
+      :script_arguments => script_args.join(" ")
+    }
   end
 
 end

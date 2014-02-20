@@ -200,4 +200,10 @@ EOF
     pig.launch_repl(pig_version, pig_parameters)
   end
 
+  def run_luigi(luigi_script, user_script_args)
+    install_and_configure()
+    py = Mortar::Local::Python.new()
+    py.run_luigi_script(luigi_script, user_script_args)
+  end
+
 end

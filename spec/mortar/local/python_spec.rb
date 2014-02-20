@@ -128,5 +128,26 @@ module Mortar::Local
 
     end
 
+    context "running python commands" do
+
+      it "Generates the appropriate tempate variables" do
+        with_git_initialized_project do |p|
+          script_name = "some_luigi_script"
+          script_path = File.join(p.luigiscripts_path, "#{script_name}.py")
+          write_file(script_path)
+          luigi_script = Mortar::Project::LuigiScript.new(script_name, script_path)
+          args = %W{--myoption 2 --myotheroption 3}
+          py = Mortar::Local::Python.new
+          expected_hash = {
+            :python_arugments => "",
+            :python_script => "luigiscripts/#{script_name}.py",
+            :script_arguments => "--local-scheduler --logging-conf-file #{py.luigi_logging_config_file_path} --myoption 2 --myotheroption 3",
+          }
+          expect(py.luigi_command_template_parameters(luigi_script, args)).to eq(expected_hash)
+        end
+      end
+
+    end
+
   end
 end
