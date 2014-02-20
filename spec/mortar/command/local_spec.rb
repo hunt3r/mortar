@@ -44,7 +44,7 @@ STDERR
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).illustrate(pigscript, "some_alias", is_a(Mortar::PigVersion::Pig09), [], false).returns(nil)
+            mock(u).illustrate(pigscript, "some_alias", is_a(Mortar::PigVersion::Pig09), [], false, false).returns(nil)
           end
           stderr, stdout = execute("local:illustrate #{script_name} some_alias", p)
           stderr.should == ""
@@ -59,7 +59,7 @@ STDERR
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).illustrate(pigscript, nil, is_a(Mortar::PigVersion::Pig012), [], false).returns(nil)
+            mock(u).illustrate(pigscript, nil, is_a(Mortar::PigVersion::Pig012), [], false, false).returns(nil)
           end
           stderr, stdout = execute("local:illustrate #{script_name} -g 0.12", p)
           stderr.should == ""
