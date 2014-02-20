@@ -181,11 +181,11 @@ EOF
   end
 
   # Main entry point for illustrating a pig alias
-  def illustrate(pig_script, pig_alias, pig_version, pig_parameters, skip_pruning)
+  def illustrate(pig_script, pig_alias, pig_version, pig_parameters, skip_pruning, no_browser)
     require_aws_keys
     install_and_configure(pig_version)
     pig = Mortar::Local::Pig.new()
-    pig.illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version, pig_parameters)
+    pig.illustrate_alias(pig_script, pig_alias, skip_pruning, no_browser, pig_version, pig_parameters)
   end
 
   def validate(pig_script, pig_version, pig_parameters)

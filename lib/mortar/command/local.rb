@@ -145,6 +145,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript_name = shift_argument
     alias_name = shift_argument
     skip_pruning = options[:skippruning] ||= false
+    no_browser = options[:no_browser] ||= false
 
     unless pigscript_name
       error("Usage: mortar local:illustrate PIGSCRIPT [ALIAS]\nMust specify PIGSCRIPT.")
@@ -161,7 +162,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript = validate_pigscript!(pigscript_name)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning)
+    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning, no_browser)
   end
 
 

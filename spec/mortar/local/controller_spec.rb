@@ -175,11 +175,12 @@ module Mortar::Local
         test_script = "foobar-script"
         script_alias = "some_alias"
         prune = false
+        no_browser = false
         the_parameters = []
         any_instance_of(Mortar::Local::Pig) do |p|
-          mock(p).illustrate_alias(test_script, script_alias, prune, "0.9", the_parameters)
+          mock(p).illustrate_alias(test_script, script_alias, prune, no_browser, "0.9", the_parameters)
         end
-        c.illustrate(test_script, script_alias, "0.9", the_parameters, prune)
+        c.illustrate(test_script, script_alias, "0.9", the_parameters, prune, no_browser)
       end
     end
 
