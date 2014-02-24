@@ -21,6 +21,7 @@ class Mortar::Local::Python
 
   PYTHON_OSX_TGZ_NAME = "mortar-python-osx.tgz"
   PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
+  PYPI_URL_PATH = "resource/mortar_pypi"
 
   MORTAR_PYTHON_PACKAGES = ["luigi"]
 
@@ -237,7 +238,9 @@ class Mortar::Local::Python
   end
 
   def mortar_package_url(package)
-    return "http://s3.amazonaws.com/mortar-pypi/#{package}/#{package}.tar.gz";
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + PYPI_URL_PATH
+    "#{ENV.fetch('MORTAR_PACKAGE_URL', default_url)}/#{package}"
   end
 
   def update_mortar_package?(package)

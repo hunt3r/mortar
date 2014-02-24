@@ -165,6 +165,7 @@ module Mortar
         else
           raise RuntimeError, "Unknown call type: #{call_func}"
         end
+
         case response.status
         when 300..303 then 
           make_call(response.headers['Location'], call_func, redirect_times+1, errors)
