@@ -43,11 +43,11 @@ class Mortar::Command::Illustrate < Mortar::Command::Base
     skip_pruning = options[:skippruning] ||= false
     
     validate_arguments!
-    pigscript = validate_script!(pigscript_name)
           
     unless pigscript_name
       error("Usage: mortar illustrate PIGSCRIPT [ALIAS]\nMust specify PIGSCRIPT.")
     end
+    pigscript = validate_script!(pigscript_name)
     
     if pigscript.is_a? Mortar::Project::ControlScript
       error "Currently Mortar does not support illustrating control scripts"
