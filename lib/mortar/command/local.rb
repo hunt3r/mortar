@@ -144,6 +144,8 @@ class Mortar::Command::Local < Mortar::Command::Base
   def illustrate
     pigscript_name = shift_argument
     alias_name = shift_argument
+    validate_arguments!
+
     skip_pruning = options[:skippruning] ||= false
     no_browser = options[:no_browser] ||= false
 
@@ -158,7 +160,6 @@ class Mortar::Command::Local < Mortar::Command::Base
     end
     Dir.chdir(project_root)
 
-    validate_arguments!
     pigscript = validate_pigscript!(pigscript_name)
 
     ctrl = Mortar::Local::Controller.new
@@ -229,6 +230,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     unless script_name
       error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
     end
+    validate_arguments!
 
     # cd into the project root
     project_root = options[:project_root] ||= Dir.getwd

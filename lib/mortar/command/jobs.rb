@@ -205,6 +205,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
     unless job_id
       error("Usage: mortar jobs:status JOB_ID\nMust specify JOB_ID.")
     end
+    validate_arguments!
     
     # Inner function to display the hash table when the job is complte
     def display_job_status(job_status)
@@ -313,6 +314,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
     unless job_id
       error("Usage: mortar jobs:stop JOB_ID\nMust specify JOB_ID.")
     end
+    validate_arguments!
 
     response = api.stop_job(job_id).body  
 
