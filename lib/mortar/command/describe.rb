@@ -22,7 +22,7 @@ class Mortar::Command::Describe < Mortar::Command::Base
   
   include Mortar::Git
     
-  # describe [PIGSCRIPT] [ALIAS]
+  # describe PIGSCRIPT ALIAS
   #
   # Describe the schema of an alias and all of its ancestors.
   #
