@@ -478,6 +478,11 @@ protected
       elsif remotes.values.uniq.size == 1
         # take the only project in the remotes
         [remotes.first[1], remotes.first[0]]
+      elsif remotes.has_key? 'mortar'
+        # In some cases (like forking a public project in mortar-code
+        # we'll have more than one possible remote.  We'll default to the
+        # one called mortar.
+        [remotes['mortar'], 'mortar']
       else
         raise(Mortar::Command::CommandFailed, "Multiple projects in folder and no project specified.\nSpecify which project to use with --project <project name>")
       end
