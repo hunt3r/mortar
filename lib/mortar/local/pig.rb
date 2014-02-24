@@ -202,7 +202,7 @@ class Mortar::Local::Pig
     outfile.path
   end
 
-  # Given a file path, open it and decode the containing json
+  # Given a file path, open it and decode the containing text
   def decode_illustrate_input_file(illustrate_outpath)
     data_raw = File.read(illustrate_outpath)
     begin
@@ -212,10 +212,9 @@ class Mortar::Local::Pig
       ic = Iconv.new('UTF-8//IGNORE', 'UTF-8')
       data_encoded = ic.iconv(data_raw)
     end
-    json_decode(data_encoded)
   end
 
-  def show_illustrate_output(illustrate_outpath)
+  def show_illustrate_output_browser(illustrate_outpath)
     ensure_dir_exists("illustrate-output")
     ensure_dir_exists("illustrate-output/resources")
     ensure_dir_exists("illustrate-output/resources/css")
@@ -229,7 +228,8 @@ class Mortar::Local::Pig
     }
 
     # Pull in the dumped json file
-    illustrate_data = decode_illustrate_input_file(illustrate_outpath)
+    illustrate_data_json_text = decode_illustrate_input_file(illustrate_outpath)
+    illustrate_data = json_decode(illustrate_data_json_text)
 
     # Render a template using it's values
     template_params = create_illustrate_template_parameters(illustrate_data)
@@ -248,7 +248,6 @@ class Mortar::Local::Pig
       require "launchy"
       Launchy.open(File.expand_path(@resource_destinations["illustrate_html"]))
     end
-
   end
 
   def create_illustrate_template_parameters(illustrate_data)
@@ -258,7 +257,7 @@ class Mortar::Local::Pig
     return params
   end
 
-  def illustrate_alias(pig_script, pig_alias, skip_pruning, pig_version, pig_parameters)
+  def illustrate_alias(pig_script, pig_alias, skip_pruning, no_browser, pig_version, pig_parameters)
     cmd = "-e 'illustrate "
 
     # Parameters have to be entered with the illustrate command (as
@@ -275,7 +274,11 @@ class Mortar::Local::Pig
       cmd += " -skipPruning "
     end
 
-    cmd += " -json '"
+    if no_browser
+      cmd += " -str '"
+    else
+      cmd += " -json '"
+    end
 
     if pig_alias
       cmd += " #{pig_alias} "
@@ -283,7 +286,11 @@ class Mortar::Local::Pig
 
     result = run_pig_command(cmd, pig_version, [], false)
     if result
-      show_illustrate_output(illustrate_outpath)
+      if no_browser
+        display decode_illustrate_input_file(illustrate_outpath)
+      else
+        show_illustrate_output_browser(illustrate_outpath)
+      end
     end
   end
 
@@ -291,42 +298,9 @@ class Mortar::Local::Pig
   # can be appended to the command line invocation of Pig that will
   # get it to do something interesting, such as '-f some-file.pig'
   def run_pig_command(cmd, pig_version, parameters = nil, jython_output = true)
-    unset_hadoop_env_vars
-    reset_local_logs
-    # Generate the script for running the command, then
-    # write it to a temp script which will be exectued
-    script_text = script_for_command(cmd, pig_version, parameters)
-    script = Tempfile.new("mortar-")
-    script.write(script_text)
-    script.close(false)
-    FileUtils.chmod(0755, script.path)
-    system(script.path)
-    script.unlink
-    return (0 == $?.to_i)
-  end
-
-  # so Pig doesn't try to load the wrong hadoop jar/configuration
-  # this doesn't mess up the env vars in the terminal, just this process (ruby)
-  def unset_hadoop_env_vars
-    ENV['HADOOP_HOME'] = ''
-    ENV['HADOOP_CONF_DIR'] = ''
-  end
-
-  def reset_local_logs
-    if File.directory? local_log_dir
-      FileUtils.rm_rf local_log_dir
-    end
-    Dir.mkdir local_log_dir
-    Dir.mkdir local_udf_log_dir
-  end
-
-  # Generates a bash script which sets up the necessary environment and
-  # then runs the pig command
-  def script_for_command(cmd, pig_version, parameters, jython_output = true)
     template_params = pig_command_script_template_parameters(cmd, pig_version, parameters)
     template_params['pig_opts']['jython.output'] = jython_output
-    erb = ERB.new(File.read(pig_command_script_template_path), 0, "%<>")
-    erb.result(BindingClazz.new(template_params).get_binding)
+    return run_templated_script(pig_command_script_template_path, template_params)
   end
 
   # Path to the template which generates the bash script for running pig
@@ -355,8 +329,6 @@ class Mortar::Local::Pig
     template_params['pig_classpath'] = "#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
-    template_params['project_home'] = File.expand_path("..", local_install_directory)
-    template_params['local_install_dir'] = local_install_directory
     template_params['pig_sub_command'] = cmd
     template_params['pig_opts'] = pig_options
     template_params
@@ -421,19 +393,6 @@ class Mortar::Local::Pig
     @temp_file_objects.push(param_file)
 
     param_file.path
-  end
-
-  # Allows us to use a hash for template variables
-  class BindingClazz
-    def initialize(attrs)
-      attrs.each{ |k, v|
-        # set an instance variable with the key name so the binding will find it in scope
-        self.instance_variable_set("@#{k}".to_sym, v)
-      }
-    end
-    def get_binding()
-      binding
-    end
   end
 
 end

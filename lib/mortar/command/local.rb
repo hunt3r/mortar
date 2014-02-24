@@ -145,6 +145,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript_name = shift_argument
     alias_name = shift_argument
     skip_pruning = options[:skippruning] ||= false
+    no_browser = options[:no_browser] ||= false
 
     unless pigscript_name
       error("Usage: mortar local:illustrate PIGSCRIPT [ALIAS]\nMust specify PIGSCRIPT.")
@@ -161,7 +162,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     pigscript = validate_pigscript!(pigscript_name)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning)
+    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning, no_browser)
   end
 
 
@@ -210,5 +211,35 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl = Mortar::Local::Controller.new
     ctrl.repl(pig_version, pig_parameters)
   end
+
+
+  # local:luigi SCRIPT
+  #
+  # Run a luigi workflow on your local machine in local scheduler mode.
+  # Any additional command line arguments will be passed directly to the luigi script.
+  #
+  # --project-root PROJECTDIR     # The root directory of the project if not the CWD
+  #
+  #Examples:
+  #
+  #    Run the recsys luigi script with a parameter named date-interval
+  #        $ mortar local:luigi luigiscripts/recsys.py --date-interval 2012-04
+  def luigi
+    script_name = shift_argument
+    unless script_name
+      error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
+    end
+
+    # cd into the project root
+    project_root = options[:project_root] ||= Dir.getwd
+    unless File.directory?(project_root)
+      error("No such directory #{project_root}")
+    end
+    Dir.chdir(project_root)
+    script = validate_luigiscript!(script_name)
+    ctrl = Mortar::Local::Controller.new
+    ctrl.run_luigi(script, invalid_arguments)
+  end
+
 
 end

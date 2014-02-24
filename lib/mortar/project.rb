@@ -70,7 +70,20 @@ module Mortar
           :optional => true)
         @controlscripts
       end
-      
+
+      def luigiscripts_path
+        File.join(@root_path, "luigiscripts")
+      end
+
+      def luigiscripts
+        @luigiscripts ||= LuigiScripts.new(
+          luigiscripts_path,
+          "luigiscripts",
+          ".py",
+          :optional => true)
+        @luigiscripts
+      end
+
       def tmp_path
         path = File.join(@root_path, "tmp")
         unless File.directory? path
@@ -153,6 +166,12 @@ module Mortar
       end
     end
 
+    class LuigiScripts < ProjectEntity
+      def element(name, path)
+        LuigiScript.new(name, path)
+      end
+    end
+
     class PythonUDFs < ProjectEntity
       def element(name, path)
         Script.new(name, path)
@@ -179,6 +198,14 @@ module Mortar
       def to_s
         code
       end
+    end
+
+    class LuigiScript < Script
+      
+      def executable_path
+        "luigiscripts/#{self.name}.py"
+      end
+      
     end
     
     class ControlScript < Script

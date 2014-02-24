@@ -23,7 +23,7 @@ class Mortar::Local::Python
   PYTHON_OSX_TGZ_DEFAULT_URL_PATH = "resource/python_osx"
   PYPI_URL_PATH = "resource/mortar_pypi"
 
-  MORTAR_PYTHON_PACKAGES = ["luigi"]
+  MORTAR_PYTHON_PACKAGES = ["luigi", "mortar-luigi"]
 
   # Path to the python binary that should be used
   # for running UDFs
@@ -276,9 +276,27 @@ class Mortar::Local::Python
     return true
   end
 
+  def local_activate_path
+    return "#{python_env_dir}/bin/activate"
+  end
+
+  def local_python_bin
+    return "#{python_env_dir}/bin/python"
+  end
+
+  def local_pip_bin
+    return "#{python_env_dir}/bin/pip"
+  end
+
   def pip_install package_url
-    pip_output = `. #{python_env_dir}/bin/activate &&
-          #{python_env_dir}/bin/pip install  #{package_url} --use-mirrors`
+    # Note that we're executing pip by passing it as a script for python to execute, this is
+    # explicitly done to deal with this command breaking due to the maximum size of the path
+    # to the interpreter in a shebang.  Since the containing virtualenv is already buried
+    # several layers deep in the .mortar-local directory we're very likely to (read: have) hit
+    # this limit.  This unfortunately leads to very vague errors about pip not existing when
+    # in fact it is the truncated path to the interpreter that does not exist.  I would now
+    # like the last day of my life back.
+    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} install  #{package_url} --use-mirrors;`
     if 0 != $?.to_i
       File.open(pip_error_log_path, 'w') { |f|
         f.write(pip_output)
@@ -295,6 +313,33 @@ class Mortar::Local::Python
     end
     ensure_mortar_local_directory mortar_package_dir(package_name)
     note_install mortar_package_dir(package_name)
+  end
+
+  def run_luigi_script(luigi_script, user_script_args)
+    template_params = luigi_command_template_parameters(luigi_script, user_script_args)
+    return run_templated_script(python_command_script_template_path, template_params)
+  end
+
+  # Path to the template which generates the bash script for running python
+  def python_command_script_template_path
+    File.expand_path("../../templates/script/runpython.sh", __FILE__)
+  end
+
+  def luigi_logging_config_file_path
+    File.expand_path("../../conf/luigi/logging.ini", __FILE__)
+  end
+
+  def luigi_command_template_parameters(luigi_script, user_script_args)
+    script_args = [
+      "--local-scheduler",
+      "--logging-conf-file #{luigi_logging_config_file_path}",
+      user_script_args.join(" "),
+    ]
+    return {
+      :python_arugments => "",
+      :python_script => luigi_script.executable_path(),
+      :script_arguments => script_args.join(" ")
+    }
   end
 
 end

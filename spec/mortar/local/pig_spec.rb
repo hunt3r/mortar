@@ -19,6 +19,7 @@ require 'fakefs/spec_helpers'
 require 'mortar/local/pig'
 require 'mortar/auth'
 require 'launchy'
+require 'mortar/pigversion'
 
 class Mortar::Local::Pig
   attr_reader :command
@@ -131,7 +132,9 @@ module Mortar::Local
         template_location = pig.resource_locations["illustrate_template"]
         template_contents = File.read(template_location)
         output_path = pig.resource_destinations["illustrate_html"]
-        mock(pig).decode_illustrate_input_file("foo/bar/file.json").returns(fake_illustrate_data)
+        temp_text = "This is temporary text"
+        mock(pig).decode_illustrate_input_file("foo/bar/file.json").returns(temp_text)
+        mock(pig).json_decode(temp_text).returns(fake_illustrate_data)
 
         # TODO: test that these files are copied
         ["illustrate_css", 
@@ -149,7 +152,7 @@ module Mortar::Local
           File.open(template_location, 'w') { |f| f.write(template_contents) }
           begin
             previous_stdout, $stdout = $stdout, StringIO.new
-            pig.show_illustrate_output("foo/bar/file.json")
+            pig.show_illustrate_output_browser("foo/bar/file.json")
           ensure
             $stdout = previous_stdout
           end
@@ -172,7 +175,8 @@ module Mortar::Local
         illustrate_output_file = 'illustrate-output.json'
         FakeFS do
           File.open(illustrate_output_file, 'w') { |f| f.write(json) }
-          actual_data = pig.decode_illustrate_input_file(illustrate_output_file)
+          actual_data_raw = pig.decode_illustrate_input_file(illustrate_output_file)
+          actual_data = pig.json_decode(actual_data_raw)
           expect(actual_data).to eq(expected_data)
         end
       end
@@ -187,7 +191,8 @@ module Mortar::Local
         illustrate_output_file = 'illustrate-output.json'
         FakeFS do
           File.open(illustrate_output_file, 'w') { |f| f.write(json) }
-          actual_data = pig.decode_illustrate_input_file(illustrate_output_file)
+          actual_data_raw = pig.decode_illustrate_input_file(illustrate_output_file)
+          actual_data = pig.json_decode(actual_data_raw)
           expect(actual_data).to eq(expected_data)
         end
       end
@@ -201,9 +206,19 @@ module Mortar::Local
         script = Mortar::Project::PigScripts.new('/foo/bar/baz.pig', 'baz', 'pig')
         pig = Mortar::Local::Pig.new
         mock(pig).run_pig_command.with_any_args.returns(true)
-        mock(pig).show_illustrate_output.with_any_args
+        mock(pig).show_illustrate_output_browser.with_any_args
         stub(pig).make_pig_param_file.returns('param.file')
-        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
+        pig.illustrate_alias(script, 'my_alias', false, false, "0.9", [])
+      end
+
+      it "displays text results if illustrate was successful with no_browser" do
+        any_instance_of(Mortar::Project::PigScripts, :elements => nil, :path => "/foo/bar/baz.pig")
+        script = Mortar::Project::PigScripts.new('/foo/bar/baz.pig', 'baz', 'pig')
+        pig = Mortar::Local::Pig.new
+        stub(pig).run_pig_command.with_any_args.returns(true)
+        mock(pig).display.with_any_args
+        stub(pig).make_pig_param_file.returns('param.file')
+        pig.illustrate_alias(script, 'my_alias', false, true, "0.9", [])
       end
 
       it "skips results if illustrate was unsuccessful" do
@@ -211,9 +226,9 @@ module Mortar::Local
         script = Mortar::Project::PigScripts.new('/foo/bar/baz.pig', 'baz', 'pig')
         pig = Mortar::Local::Pig.new
         mock(pig).run_pig_command.with_any_args.returns(false)
-        mock(pig).show_illustrate_output.with_any_args.never
+        mock(pig).show_illustrate_output_browser.with_any_args.never
         stub(pig).make_pig_param_file.returns('param.file')
-        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
+        pig.illustrate_alias(script, 'my_alias', false, false, "0.9", [])
       end
 
       it "does not require login credentials for illustration" do
@@ -222,8 +237,8 @@ module Mortar::Local
         pig = Mortar::Local::Pig.new
         mock(Mortar::Auth).user_s3_safe(true).returns('notloggedin-user-org')
         mock(pig).run_pig_command.with_any_args.returns(true)
-        mock(pig).show_illustrate_output.with_any_args
-        pig.illustrate_alias(script, 'my_alias', false, "0.9", [])
+        mock(pig).show_illustrate_output_browser.with_any_args
+        pig.illustrate_alias(script, 'my_alias', false, false, "0.9", [])
       end
 
     end
