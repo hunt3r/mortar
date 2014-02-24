@@ -219,7 +219,9 @@ class Mortar::Command::Local < Mortar::Command::Base
   # Run a luigi workflow on your local machine in local scheduler mode.
   # Any additional command line arguments will be passed directly to the luigi script.
   #
-  # --project-root PROJECTDIR     # The root directory of the project if not the CWD
+  # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
+  # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # --project-root PROJECTDIR   # The root directory of the project if not the CWD
   #
   #Examples:
   #
@@ -240,7 +242,8 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
     script = validate_luigiscript!(script_name)
     ctrl = Mortar::Local::Controller.new
-    ctrl.run_luigi(script, invalid_arguments)
+    luigi_params = pig_parameters.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+    ctrl.run_luigi(script, luigi_params)
   end
 
 

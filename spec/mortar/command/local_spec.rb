@@ -263,7 +263,7 @@ STDERR
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure
           end
-          stderr, stdout = execute("local:luigi some_luigi_script --myoption 2 --myotheroption 3", p)
+          stderr, stdout = execute("local:luigi some_luigi_script -p myoption=2 -p myotheroption=3", p)
           stderr.should == ""
         end
       end
