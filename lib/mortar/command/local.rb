@@ -242,7 +242,8 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
     script = validate_luigiscript!(script_name)
     ctrl = Mortar::Local::Controller.new
-    luigi_params = pig_parameters.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+    luigi_params = pig_parameters.sort_by { |p| p['name'] }
+    luigi_params = luigi_params.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
     ctrl.run_luigi(script, luigi_params)
   end
 
