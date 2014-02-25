@@ -40,9 +40,9 @@ class Mortar::Command::Illustrate < Mortar::Command::Base
   def index
     pigscript_name = shift_argument
     alias_name = shift_argument
-    skip_pruning = options[:skippruning] ||= false
-    
     validate_arguments!
+
+    skip_pruning = options[:skippruning] ||= false
           
     unless pigscript_name
       error("Usage: mortar illustrate PIGSCRIPT [ALIAS]\nMust specify PIGSCRIPT.")

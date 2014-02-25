@@ -69,6 +69,13 @@ other\tgit@github.com:other.git (push)
         @base.project.name.should == 'myproject'
       end
 
+      it "gets the project from remotes when there's two projects but one mortar remote" do
+        stub(@base.git).has_dot_git? {true}
+        stub(@base.git).remotes {{ 'mortar' => 'myproject', 'base' => 'my-base-project'}}
+        mock(@base.git).git("config mortar.remote", false).returns("")
+        @base.project.name.should == 'myproject'
+      end
+
       it "accepts a --remote argument to choose the project from the remote name" do
         stub(@base.git).has_dot_git?.returns(true)
         stub(@base.git).remotes.returns({ 'staging' => 'myproject-staging', 'production' => 'myproject' })
