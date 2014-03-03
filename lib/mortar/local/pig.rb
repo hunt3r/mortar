@@ -320,6 +320,10 @@ class Mortar::Local::Pig
    "#{lib_directory}/conf/log4j-cli-local-dev.properties"
   end
 
+  def log4j_conf_no_project
+   "#{lib_directory}/conf/log4j-cli-local-no-project.properties"
+  end
+
   # Parameters necessary for rendering the bash script template
   def pig_command_script_template_parameters(cmd, pig_version, pig_parameters)
     template_params = {}
@@ -329,6 +333,7 @@ class Mortar::Local::Pig
     template_params['pig_classpath'] = "#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
+    template_params['no_project_log4j_conf'] = log4j_conf_no_project
     template_params['pig_sub_command'] = cmd
     template_params['pig_opts'] = pig_options
     template_params
