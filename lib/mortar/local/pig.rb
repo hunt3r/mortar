@@ -181,6 +181,17 @@ class Mortar::Local::Pig
   end
 
   def launch_repl(pig_version, pig_parameters)
+    # The REPL is very likely to be run outside a mortar project and almost equally as likely
+    # to be run in the users home directory.  The default log4j config file references pig log
+    # file as being ../logs/local-pig.log, which is a path relative to the 'pigscripts' directory.
+    # Since we very likely aren't going be run from a mortar project we won't have a pigscripts
+    # directory to cd into, so log4j spits out an ugly error message when it doesn't have permissions
+    # to create /home/logs/local-pig.log. So to work around this we copy the log4j configuration and
+    # overwrite the log file to no longer be relative.
+    File.open(log4j_conf_no_project, 'w') do |out|
+      out << File.open(log4j_conf).read.gsub(/log4j.appender.LogFileAppender.File=.*\n/,
+                                        "log4j.appender.LogFileAppender.File=local-pig.log\n")
+    end
     run_pig_command(" ", pig_version, pig_parameters)
   end
 
@@ -320,6 +331,10 @@ class Mortar::Local::Pig
    "#{lib_directory}/conf/log4j-cli-local-dev.properties"
   end
 
+  def log4j_conf_no_project
+   "#{lib_directory}/conf/log4j-cli-local-no-project.properties"
+  end
+
   # Parameters necessary for rendering the bash script template
   def pig_command_script_template_parameters(cmd, pig_version, pig_parameters)
     template_params = {}
@@ -329,6 +344,7 @@ class Mortar::Local::Pig
     template_params['pig_classpath'] = "#{pig_directory(pig_version)}/lib-local/*:#{lib_directory}/lib-local/*:#{pig_directory(pig_version)}/lib-pig/*:#{pig_directory(pig_version)}/lib-cluster/*:#{lib_directory}/lib-pig/*:#{lib_directory}/lib-cluster/*:#{jython_directory}/jython.jar"
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
+    template_params['no_project_log4j_conf'] = log4j_conf_no_project
     template_params['pig_sub_command'] = cmd
     template_params['pig_opts'] = pig_options
     template_params
