@@ -181,6 +181,17 @@ class Mortar::Local::Pig
   end
 
   def launch_repl(pig_version, pig_parameters)
+    # The REPL is very likely to be run outside a mortar project and almost equally as likely
+    # to be run in the users home directory.  The default log4j config file references pig log
+    # file as being ../logs/local-pig.log, which is a path relative to the 'pigscripts' directory.
+    # Since we very likely aren't going be run from a mortar project we won't have a pigscripts
+    # directory to cd into, so log4j spits out an ugly error message when it doesn't have permissions
+    # to create /home/logs/local-pig.log. So to work around this we copy the log4j configuration and
+    # overwrite the log file to no longer be relative.
+    File.open(log4j_conf_no_project, 'w') do |out|
+      out << File.open(log4j_conf).read.gsub(/log4j.appender.LogFileAppender.File=.*\n/,
+                                        "log4j.appender.LogFileAppender.File=local-pig.log\n")
+    end
     run_pig_command(" ", pig_version, pig_parameters)
   end
 
