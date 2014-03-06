@@ -7,6 +7,7 @@ export PIG_CLASSPATH=<%= @pig_classpath %>
 export CLASSPATH=<%= @classpath %>
 export PIG_MAIN_CLASS=com.mortardata.hawk.HawkMain
 export PIG_OPTS="<% @pig_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
+export HADOOP_OPTS="<% @hadoop_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
 
 # UDF paths are relative to this direectory
 if [ -d "<%= @project_home %>/pigscripts" ]; then

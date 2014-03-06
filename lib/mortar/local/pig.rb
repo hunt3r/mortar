@@ -347,6 +347,11 @@ class Mortar::Local::Pig
     template_params['no_project_log4j_conf'] = log4j_conf_no_project
     template_params['pig_sub_command'] = cmd
     template_params['pig_opts'] = pig_options
+    template_params['hadoop_opts'] = {}
+    if osx? then
+      template_params['hadoop_opts']['java.security.krb5.realm'] = 'OX.AC.UK'
+      template_params['hadoop_opts']['java.security.krb5.kdc'] = 'kdc0.ox.ac.uk:kdc1.ox.ac.uk'
+    end
     template_params
   end
 
