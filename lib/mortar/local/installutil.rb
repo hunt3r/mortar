@@ -112,8 +112,8 @@ module Mortar
       end
 
       # Downloads the file at a specified url into the supplied directory
-      def download_file(url, dest_file_path)
-        response = get_resource(url)
+      def download_file(url, dest_file_path, command=nil)
+        response = get_resource(url, command)
         
         File.open(dest_file_path, "wb") do |dest_file|
           dest_file.write(response.body)
@@ -122,13 +122,13 @@ module Mortar
       end
 
       # Perform a get request to a url and follow redirects if necessary.
-      def get_resource(url)
-        make_call(url, 'get')
+      def get_resource(url, command=nil)
+        make_call(url, 'get', 0, 0, command)
       end
 
       # Perform a head request to a url and follow redirects if necessary.
-      def head_resource(url)
-        make_call(url, 'head')
+      def head_resource(url, command=nil)
+        make_call(url, 'head', 0, 0, command)
       end
 
       # Make a request to a mortar resource url.  Check response for a 
@@ -136,7 +136,7 @@ module Mortar
       # support automatically following redirects.  Adds parameter that
       # checks an environment variable to identify the test making this call
       # (if being run by a test).
-      def make_call(url, call_func, redirect_times=0, errors=0)
+      def make_call(url, call_func, redirect_times=0, errors=0, command=nil)
         if redirect_times >= 5
           raise RuntimeError, "Too many redirects.  Last url: #{url}"
         end
@@ -149,6 +149,12 @@ module Mortar
         query = {}
         if test_name
           query[:test_name] = test_name
+        end
+        if command
+          query[:command] = command
+          if Mortar::Auth.has_credentials
+            query[:user] = Mortar::Auth.user
+          end
         end
 
         headers = {'User-Agent' => Mortar::USER_AGENT}
@@ -190,21 +196,21 @@ module Mortar
         return Time.httpdate(date_str).to_i
       end
 
-      def url_date(url)
-        result = head_resource(url)
+      def url_date(url, command=nil)
+        result = head_resource(url, command)
         http_date_to_epoch(result.get_header('Last-Modified'))
       end
 
       # Given a subdirectory where we have installed some software
       # and a url to the tgz file it's sourced from, check if the
       # remote version is newer than the installed version
-      def is_newer_version(subdir, url)
+      def is_newer_version(subdir, url, command=nil)
         existing_install_date = install_date(subdir)
         if not existing_install_date then
           # There is no existing install
           return true
         end
-        remote_archive_date = url_date(url)
+        remote_archive_date = url_date(url, command)
         return existing_install_date < remote_archive_date
       end
 

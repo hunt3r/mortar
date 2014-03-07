@@ -111,20 +111,20 @@ class Mortar::Local::Pig
 
   # Determines if a pig install needs to occur, true if server side
   # pig tgz is newer than date of the existing install
-  def should_do_pig_update?(pig_version)
-    return is_newer_version(pig_version.name, pig_archive_url(pig_version))
+  def should_do_pig_update?(pig_version, command=nil)
+    return is_newer_version(pig_version.name, pig_archive_url(pig_version), command)
   end
 
   def should_do_lib_update?
     return is_newer_version('lib-common', lib_archive_url)
   end
 
-  def install_or_update(pig_version)
+  def install_or_update(pig_version, command=nil)
     if should_do_pig_install?(pig_version)
       action "Installing #{pig_version.name} to #{local_install_directory_name}" do
-        install_pig(pig_version)
+        install_pig(pig_version, command)
       end
-    elsif should_do_pig_update?(pig_version)
+    elsif should_do_pig_update?(pig_version, command)
       action "Updating to latest #{pig_version.name} in #{local_install_directory_name}" do
         install_pig(pig_version)
       end
@@ -142,7 +142,7 @@ class Mortar::Local::Pig
   end
 
   # Installs pig for this project if it is not already present
-  def install_pig(pig_version)
+  def install_pig(pig_version, command=nil)
     #Delete the directory if it already exists to ensure cruft isn't left around.
     if File.directory? pig_directory(pig_version)
       FileUtils.rm_rf pig_directory(pig_version)
@@ -150,7 +150,7 @@ class Mortar::Local::Pig
 
     FileUtils.mkdir_p(local_install_directory)
     local_tgz = File.join(local_install_directory, pig_version.tgz_name)
-    download_file(pig_archive_url(pig_version), local_tgz)
+    download_file(pig_archive_url(pig_version), local_tgz, command)
     extract_tgz(local_tgz, local_install_directory)
 
     # This has been seening coming out of the tgz w/o +x so we do
