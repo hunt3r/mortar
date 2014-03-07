@@ -366,8 +366,14 @@ class Mortar::Local::Pig
     opts['python.home'] = jython_directory
     opts['python.path'] = "#{local_install_directory}/../controlscripts/lib:#{local_install_directory}/../vendor/controlscripts/lib"
     opts['python.cachedir'] = jython_cache_directory
-    opts['java.security.krb5.realm'] = ''
-    opts['java.security.krb5.kdc'] = ''
+    if osx? then
+      opts['java.security.krb5.realm'] = 'OX.AC.UK'
+      opts['java.security.krb5.kdc'] = 'kdc0.ox.ac.uk:kdc1.ox.ac.uk'
+      opts['java.security.krb5.conf'] = '/dev/null'
+    else
+      opts['java.security.krb5.realm'] = ''
+      opts['java.security.krb5.kdc'] = ''
+    end
     return opts
   end
 
