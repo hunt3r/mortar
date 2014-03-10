@@ -31,6 +31,34 @@ module Mortar::Local
       @installutil.extend(Mortar::Local::InstallUtil)
     end
 
+    context("install directory") do
+      @old_local_dir = nil
+
+      before(:each) do
+        if ENV.has_key?('MORTAR_LOCAL_DIR')
+          @old_local_dir = ENV['MORTAR_LOCAL_DIR']
+        end
+      end
+
+      after(:all) do
+        if nil != @old_local_dir
+          ENV['MORTAR_LOCAL_DIR'] = @old_local_dir
+        end
+      end
+
+      it "Uses Environment override if specified" do
+        ENV['MORTAR_LOCAL_DIR'] = "/tmp/mortar-local"
+        expect(@installutil.local_install_directory).to eq("/tmp/mortar-local")
+      end
+
+      it "Uses the default project directory otherwise" do
+        ENV.delete('MORTAR_LOCAL_DIR')
+        with_blank_project do |p|
+          expect(@installutil.local_install_directory).to eq("#{p.root_path}/.mortar-local")
+        end
+      end
+    end
+
     context("install_date") do
 
       it "nil if never installed" do

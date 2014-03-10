@@ -39,7 +39,7 @@ module Mortar
       end
 
       def local_install_directory
-        File.join(project_root, local_install_directory_name)
+        ENV.fetch('MORTAR_LOCAL_DIR', File.join(project_root, local_install_directory_name))
       end
 
       def local_log_dir
