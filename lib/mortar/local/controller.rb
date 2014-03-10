@@ -113,7 +113,7 @@ EOF
   
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
-  def install_and_configure(pig_version=nil)
+  def install_and_configure(pig_version=nil, command=nil)
     #To support old watchtower plugins we'll accept nil pig_version
     if pig_version.nil?
       pig_version = Mortar::PigVersion::Pig09.new
@@ -124,7 +124,7 @@ EOF
     end
 
     pig = Mortar::Local::Pig.new()
-    pig.install_or_update(pig_version)
+    pig.install_or_update(pig_version, command)
 
     py = Mortar::Local::Python.new()
     unless py.check_or_install
@@ -175,7 +175,7 @@ EOF
   # Main entry point for user running a pig script
   def run(pig_script, pig_version, pig_parameters)
     require_aws_keys
-    install_and_configure(pig_version)
+    install_and_configure(pig_version, 'run')
     pig = Mortar::Local::Pig.new()
     pig.run_script(pig_script, pig_version, pig_parameters)
   end
@@ -183,25 +183,25 @@ EOF
   # Main entry point for illustrating a pig alias
   def illustrate(pig_script, pig_alias, pig_version, pig_parameters, skip_pruning, no_browser)
     require_aws_keys
-    install_and_configure(pig_version)
+    install_and_configure(pig_version, 'illustrate')
     pig = Mortar::Local::Pig.new()
     pig.illustrate_alias(pig_script, pig_alias, skip_pruning, no_browser, pig_version, pig_parameters)
   end
 
   def validate(pig_script, pig_version, pig_parameters)
-    install_and_configure(pig_version)
+    install_and_configure(pig_version, 'validate')
     pig = Mortar::Local::Pig.new()
     pig.validate_script(pig_script, pig_version, pig_parameters)
   end
 
   def repl(pig_version, pig_parameters)
-    install_and_configure(pig_version)
+    install_and_configure(pig_version, 'repl')
     pig = Mortar::Local::Pig.new()
     pig.launch_repl(pig_version, pig_parameters)
   end
 
   def run_luigi(luigi_script, user_script_args)
-    install_and_configure()
+    install_and_configure(nil, 'luigi')
     py = Mortar::Local::Python.new()
     py.run_luigi_script(luigi_script, user_script_args)
   end
