@@ -198,7 +198,7 @@ PARAMS
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09))
+            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09), 'validate')
           end
           any_instance_of(Mortar::Local::Pig) do |u|
             mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [])
@@ -216,7 +216,7 @@ PARAMS
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09))
+            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09), 'validate')
           end
           any_instance_of(Mortar::Local::Pig) do |u|
             mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [])
@@ -261,7 +261,7 @@ STDERR
             mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
           end
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure
+            mock(u).install_and_configure(nil,'luigi')
           end
           stderr, stdout = execute("local:luigi some_luigi_script -p myoption=2 -p myotheroption=3", p)
           stderr.should == ""

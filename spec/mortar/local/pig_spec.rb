@@ -37,7 +37,7 @@ module Mortar::Local
           pig = Mortar::Local::Pig.new
           pig09 = Mortar::PigVersion::Pig09.new
           local_pig_archive = File.join(pig.local_install_directory, pig09.tgz_name)
-          mock(pig).download_file(pig.pig_archive_url(pig09), local_pig_archive) do
+          mock(pig).download_file(pig.pig_archive_url(pig09), local_pig_archive, nil) do
             # Simulate the tgz file being downloaded, this should be deleted
             # before the method finishes executing
             FileUtils.touch(local_pig_archive)
@@ -64,7 +64,7 @@ module Mortar::Local
         pig09 = Mortar::PigVersion::Pig09.new
 
         mock(pig).should_do_pig_install?(pig09).returns(false)
-        mock(pig).should_do_pig_update?(pig09).returns(false)
+        mock(pig).should_do_pig_update?(pig09, nil).returns(false)
         mock(pig).should_do_lib_install?.returns(false)
         mock(pig).should_do_lib_update?.returns(false)
         FakeFS do
@@ -84,7 +84,7 @@ module Mortar::Local
         mock(pig).should_do_pig_install?(pig09).returns(true)
         mock(pig).should_do_lib_install?.returns(true)
 
-        mock(pig).install_pig(pig09)
+        mock(pig).install_pig(pig09, nil)
         mock(pig).install_lib
         capture_stdout do
           pig.install_or_update(pig09)
@@ -96,7 +96,7 @@ module Mortar::Local
         pig09 = Mortar::PigVersion::Pig09.new
 
         mock(pig).should_do_pig_install?(pig09).returns(false)
-        mock(pig).should_do_pig_update?(pig09).returns(true)
+        mock(pig).should_do_pig_update?(pig09, nil).returns(true)
         mock(pig).should_do_lib_install?.returns(false)
         mock(pig).should_do_lib_update?.returns(true)
         mock(pig).install_pig(pig09)

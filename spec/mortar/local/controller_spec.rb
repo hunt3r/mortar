@@ -136,7 +136,7 @@ module Mortar::Local
           mock(j).check_install.returns(true)
         end
         any_instance_of(Mortar::Local::Pig) do |p|
-          mock(p).install_or_update(is_a(Mortar::PigVersion::Pig09))
+          mock(p).install_or_update(is_a(Mortar::PigVersion::Pig09), nil)
         end
         any_instance_of(Mortar::Local::Python) do |p|
           mock(p).check_or_install.returns(true)
@@ -156,7 +156,7 @@ module Mortar::Local
       it "checks for aws keys, checks depenendency installation, runs script" do
         c = Mortar::Local::Controller.new
         mock(c).require_aws_keys
-        mock(c).install_and_configure("0.9")
+        mock(c).install_and_configure("0.9", "run")
         test_script = "foobar-script"
         the_parameters = []
         any_instance_of(Mortar::Local::Pig) do |p|
@@ -171,7 +171,7 @@ module Mortar::Local
       it "checks for aws keys, checks depenendency installation, runs the illustrate process" do
         c = Mortar::Local::Controller.new
         mock(c).require_aws_keys
-        mock(c).install_and_configure("0.9")
+        mock(c).install_and_configure("0.9", "illustrate")
         test_script = "foobar-script"
         script_alias = "some_alias"
         prune = false
