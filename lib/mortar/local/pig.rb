@@ -363,7 +363,7 @@ class Mortar::Local::Pig
     template_params['pig_params_file'] = make_pig_param_file(pig_parameters)
     template_params['pig_dir'] = pig_version.name
     template_params['pig_home'] = pig_directory(pig_version)
-    template_params['pig_classpath'] = pig_classpath
+    template_params['pig_classpath'] = pig_classpath(pig_version)
     template_params['classpath'] = template_params_classpath
     template_params['log4j_conf'] = log4j_conf
     template_params['no_project_log4j_conf'] = log4j_conf_no_project
