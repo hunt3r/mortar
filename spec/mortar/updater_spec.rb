@@ -89,12 +89,10 @@ module Mortar
         end
         capture_stdout do
           stub(Mortar::Helpers).installed_with_omnibus?{false}
-          stub(Mortar::Helpers).running_on_a_mac?{false}
           Updater.update_check
         end.should == "WARNING: There is a new version of the Mortar development framework available.  Please run 'gem install mortar' to install the latest version.\n\n"
         capture_stdout do
           mock(Mortar::Helpers).installed_with_omnibus?{true}
-          mock(Mortar::Helpers).running_on_a_mac?{true}
           Updater.update_check
         end.should == "WARNING: There is a new version of the Mortar development framework available.  Please run 'mortar upgrade' to install the latest version.\n\n"
 
