@@ -146,7 +146,7 @@ class Mortar::Local::Python
   end
 
   def pip_requirements_path
-    return ENV.fetch('PIP_REQ_FILE', File.join(Dir.getwd, "udfs", "python", "requirements.txt"))
+    return ENV.fetch('PIP_REQ_FILE', File.join(Dir.getwd, "requirements.txt"))
   end
 
   def has_python_requirements
@@ -185,15 +185,10 @@ class Mortar::Local::Python
       return false
     end
     if should_do_requirements_install
-      action "Installing python UDF dependencies" do
-        pip_output = `. #{python_env_dir}/bin/activate &&
-          #{python_env_dir}/bin/pip install --requirement #{pip_requirements_path}`
-          if 0 != $?.to_i
-            File.open(pip_error_log_path, 'w') { |f|
-              f.write(pip_output)
-            }
-            return false
-          end
+      action "Installing user defined python dependencies" do
+        unless install_user_python_dependencies()
+          return false
+        end
         note_install("pythonenv")
       end
     end
@@ -288,7 +283,7 @@ class Mortar::Local::Python
     return "#{python_env_dir}/bin/pip"
   end
 
-  def pip_install package_url
+  def run_pip_command subcmd
     # Note that we're executing pip by passing it as a script for python to execute, this is
     # explicitly done to deal with this command breaking due to the maximum size of the path
     # to the interpreter in a shebang.  Since the containing virtualenv is already buried
@@ -296,7 +291,7 @@ class Mortar::Local::Python
     # this limit.  This unfortunately leads to very vague errors about pip not existing when
     # in fact it is the truncated path to the interpreter that does not exist.  I would now
     # like the last day of my life back.
-    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} install  #{package_url} --use-mirrors;`
+    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} #{subcmd}`
     if 0 != $?.to_i
       File.open(pip_error_log_path, 'w') { |f|
         f.write(pip_output)
@@ -305,6 +300,15 @@ class Mortar::Local::Python
     else
       return true
     end
+
+  end
+
+  def install_user_python_dependencies
+    return run_pip_command "install --requirement #{pip_requirements_path}"
+  end
+
+  def pip_install package_url
+    return run_pip_command "install  #{package_url} --use-mirrors;"
   end
 
   def install_mortar_python_package(package_name)
