@@ -45,7 +45,6 @@ class Mortar::Command::Version < Mortar::Command::Base
   # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
   def upgrade
     validate_arguments!
-    if running_on_a_mac? 
       if installed_with_omnibus?
         version_number = ''
         if options[:version] 
@@ -61,9 +60,6 @@ class Mortar::Command::Version < Mortar::Command::Base
       else
         error("mortar upgrade is only for installations not conducted with ruby gem.  Please upgrade by running 'gem install mortar'.")
       end
-    else
-      error("mortar upgrade is currently only supported for OSX.")
-    end
   end
 
   alias_command "upgrade", "version:upgrade"

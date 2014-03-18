@@ -45,7 +45,7 @@ module Mortar
       newest_version = self.get_newest_version
 
       if compare_versions(newest_version, local_version) > 0
-        if Mortar::Helpers.installed_with_omnibus? and Mortar::Helpers.running_on_a_mac? 
+        if Mortar::Helpers.installed_with_omnibus? 
           Mortar::Helpers.warning("There is a new version of the Mortar development framework available.  Please run 'mortar upgrade' to install the latest version.\n\n")
         else
           Mortar::Helpers.warning("There is a new version of the Mortar development framework available.  Please run 'gem install mortar' to install the latest version.\n\n")

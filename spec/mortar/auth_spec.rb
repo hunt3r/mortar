@@ -30,7 +30,6 @@ module Mortar
       
       @cli = Mortar::Auth
       stub(@cli).display
-      stub(@cli).running_on_a_mac? {false}
       @cli.credentials = nil
 
       FakeFS.activate!

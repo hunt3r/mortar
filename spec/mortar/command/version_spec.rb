@@ -25,7 +25,7 @@ module Mortar::Command
     end
     
     base_url  = "http://install.mortardata.com"
-    base_version = "1.0"
+    base_version = "0.15.1"
     tmp_dir_dumm = "/opt/mortar/installer"
     curl_command = "sudo mkdir -p #{tmp_dir_dumm} && sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{base_url} && sudo bash #{tmp_dir_dumm}/install.sh"
 
@@ -42,21 +42,18 @@ module Mortar::Command
         mock(Kernel).system (curl_command)
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
-          mock(base).running_on_a_mac? {true} 
           execute("version:upgrade");
         end
       end
       
       it "makes curl request for different versions when requested" do
-        mortar_version = "1.0"
+        mortar_version = "0.15.1"
         curl_command_with_version = curl_command +  " -v " + mortar_version
         mock(Kernel).system( curl_command_with_version)
         mock(Kernel).system( curl_command_with_version)
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
           mock(base).installed_with_omnibus? {true}
-          mock(base).running_on_a_mac? {true} 
-          mock(base).running_on_a_mac? {true} 
           execute( "upgrade -v #{mortar_version}");
           execute( "version:upgrade --version #{mortar_version}");
         end
@@ -76,26 +73,14 @@ module Mortar::Command
         
         any_instance_of(Mortar::Command::Version) do |base|
           mock(base).installed_with_omnibus? {true}
-          mock(base).running_on_a_mac? {true} 
           execute("upgrade");
         end
       end
     end
 
-    context("version not Mac OSX") do
-      it "throws error when not on mac" do
+    context("not installed via omnibus") do
+      it "throws an error when running on an install not done via omnibus" do
         any_instance_of(Mortar::Command::Version) do |base|
-          mock(base).running_on_a_mac? {false} 
-          stderr, stdout = execute("version:upgrade");
-          stderr.should == <<-STDERR
- !    mortar upgrade is currently only supported for OSX.
-STDERR
-        end
-      end
-
-      it "throws an error when running on a mac but installed with ruby gem" do
-        any_instance_of(Mortar::Command::Version) do |base|
-          mock(base).running_on_a_mac? {true}
           mock(base).installed_with_omnibus? {false}
           stderr, stdout = execute("version:upgrade");
           stderr.should == <<-STDERR
@@ -105,6 +90,5 @@ STDERR
       end
     end
   end
-    
 end
 
