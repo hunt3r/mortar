@@ -50,7 +50,9 @@ module Mortar::Command
         mortar_version = "0.15.1"
         curl_command_with_version = curl_command +  " -v " + mortar_version
         mock(Kernel).system( curl_command_with_version)
+        mock(Kernel).system( curl_command_with_version)
         any_instance_of(Mortar::Command::Version) do |base|
+          mock(base).installed_with_omnibus? {true}
           mock(base).installed_with_omnibus? {true}
           execute( "upgrade -v #{mortar_version}");
           execute( "version:upgrade --version #{mortar_version}");
