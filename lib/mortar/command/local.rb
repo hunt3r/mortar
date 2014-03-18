@@ -71,8 +71,10 @@ class Mortar::Command::Local < Mortar::Command::Base
     end
     Dir.chdir(project_root)
     script = validate_script!(script_name)
+    params = config_parameters.concat(pig_parameters)
+
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_version, pig_parameters)
+    ctrl.run(script, pig_version, params)
   end
 
   # local:characterize -f PARAMFILE
@@ -119,8 +121,10 @@ class Mortar::Command::Local < Mortar::Command::Base
     gen = Mortar::Generators::CharacterizeGenerator.new
     gen.generate_characterize
     script = validate_script!(controlscript_name)
+    params = config_parameters.concat(pig_parameters)
+
     ctrl = Mortar::Local::Controller.new
-    ctrl.run(script, pig_version, pig_parameters)
+    ctrl.run(script, pig_version, params)
     gen.cleanup_characterize(project_root)
   end
 
@@ -161,9 +165,10 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     pigscript = validate_pigscript!(pigscript_name)
+    params = config_parameters.concat(pig_parameters)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.illustrate(pigscript, alias_name, pig_version, pig_parameters, skip_pruning, no_browser)
+    ctrl.illustrate(pigscript, alias_name, pig_version, params, skip_pruning, no_browser)
   end
 
 
@@ -195,8 +200,10 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     script = validate_script!(script_name)
+    params = config_parameters.concat(pig_parameters)
+
     ctrl = Mortar::Local::Controller.new
-    ctrl.validate(script, pig_version, pig_parameters)
+    ctrl.validate(script, pig_version, params)
   end
 
 
@@ -209,8 +216,11 @@ class Mortar::Command::Local < Mortar::Command::Base
   #
   def repl
     validate_arguments!
+
+    params = config_parameters.concat(pig_parameters)
+    
     ctrl = Mortar::Local::Controller.new
-    ctrl.repl(pig_version, pig_parameters)
+    ctrl.repl(pig_version, params)
   end
 
 

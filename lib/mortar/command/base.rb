@@ -76,6 +76,23 @@ class Mortar::Command::Base
   def git
     @git ||= Mortar::Git::Git.new
   end
+
+  def config_parameters
+    param_list = []
+    begin
+      if project.name
+        vars = api.get_config_vars(project.name).body['config']
+        unless vars.empty?
+          vars.each{|k, v| param_list.push({"name"=>k, "value"=>v})}
+        end
+      end
+    rescue Mortar::Command::CommandFailed, Mortar::API::Errors::ErrorWithResponse
+        # When running locally we're not guaranteed this is a project
+        # or that it has a config, so lets keep running.
+        vars = []
+    end
+    param_list
+  end
   
   def pig_parameters
     paramfile_params = {}
