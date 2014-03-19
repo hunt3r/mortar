@@ -43,6 +43,9 @@ STDERR
           write_file(script_path)
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([])
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).illustrate(pigscript, "some_alias", is_a(Mortar::PigVersion::Pig09), [], false, false).returns(nil)
           end
@@ -58,8 +61,30 @@ STDERR
           write_file(script_path)
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([])
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).illustrate(pigscript, nil, is_a(Mortar::PigVersion::Pig012), [], false, false).returns(nil)
+          end
+          stderr, stdout = execute("local:illustrate #{script_name} -g 0.12", p)
+          stderr.should == ""
+        end
+      end
+
+      it "puts config params before pig params" do
+        with_git_initialized_project do |p|
+          script_name = "some_script"
+          script_path = File.join(p.pigscripts_path, "#{script_name}.pig")
+          write_file(script_path)
+          pigscript = Mortar::Project::PigScript.new(script_name, script_path)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([{"name"=>"first", "value"=>1}])
+            mock(u).pig_parameters.returns([{"name"=>"second", "value"=>2}])
+          end
+          mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+          any_instance_of(Mortar::Local::Controller) do |u|
+            mock(u).illustrate(pigscript, nil, is_a(Mortar::PigVersion::Pig012), [{"name"=>"first", "value"=>1},{"name"=>"second", "value"=>2}], false, false).returns(nil)
           end
           stderr, stdout = execute("local:illustrate #{script_name} -g 0.12", p)
           stderr.should == ""
@@ -95,6 +120,9 @@ STDERR
           write_file(script_path)
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([])
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).run(pigscript, is_a(Mortar::PigVersion::Pig09), []).returns(nil)
           end
@@ -197,11 +225,15 @@ PARAMS
           write_file(script_path)
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([{"key"=>"k", "value"=>"v"}])
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09), 'validate')
           end
           any_instance_of(Mortar::Local::Pig) do |u|
-            mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [])
+            mock(u).run_pig_command(" -check #{pigscript.path}", is_a(Mortar::PigVersion::Pig09), [{"key"=>"k", "value"=>"v"}])
           end
           stderr, stdout = execute("local:validate #{script_name}", p)
           stderr.should == ""
@@ -215,6 +247,9 @@ PARAMS
           write_file(script_path)
           pigscript = Mortar::Project::PigScript.new(script_name, script_path)
           mock(Mortar::Project::PigScript).new(script_name, script_path).returns(pigscript)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns([])
+          end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09), 'validate')
           end

@@ -92,6 +92,31 @@ other\tgit@github.com:other.git (push)
       end
     end
 
+    context "config_parameters" do
+      it "handles when not in mortar project" do
+        stub_core
+        @base.config_parameters.should == []
+      end
+
+      it "handles when in valid mortar project that isn't registered" do
+        with_blank_project_with_name('proj_name') do |p|
+          stub_core
+          mock(Mortar::Auth.api).get_config_vars('proj_name').returns { raise Mortar::API::Errors::ErrorWithResponse.new("meessage",400) }
+          @base.config_parameters.should == []
+        end
+      end
+
+      it "works" do
+         with_blank_project_with_name('proj_name') do |p|
+          stub_core
+          configs = {"foo" => "ABCDEFGHIJKLMNOP", "BAR" => "sheepdog"}
+          mock(Mortar::Auth.api).get_config_vars("proj_name").returns(Excon::Response.new(:body => {"config" => configs}))
+          @base.config_parameters.should =~ [{"name"=>"foo", "value"=>"ABCDEFGHIJKLMNOP"},
+                                             {"name"=>"BAR", "value"=>"sheepdog"}]
+        end
+      end
+    end
+
     context "load_defaults" do
       it "no errors with no .mortar-defaults file" do
         with_git_initialized_project do |p|
