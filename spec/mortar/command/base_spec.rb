@@ -111,7 +111,7 @@ other\tgit@github.com:other.git (push)
           stub_core
           configs = {"foo" => "ABCDEFGHIJKLMNOP", "BAR" => "sheepdog"}
           mock(Mortar::Auth.api).get_config_vars("proj_name").returns(Excon::Response.new(:body => {"config" => configs}))
-          @base.config_parameters.should == [{"name"=>"foo", "value"=>"ABCDEFGHIJKLMNOP"},
+          @base.config_parameters.should =~ [{"name"=>"foo", "value"=>"ABCDEFGHIJKLMNOP"},
                                              {"name"=>"BAR", "value"=>"sheepdog"}]
         end
       end
