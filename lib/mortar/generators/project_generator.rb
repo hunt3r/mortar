@@ -80,6 +80,11 @@ module Mortar
             end
           end
 
+          mkdir "lib"
+          inside "lib" do
+            copy_file "gitkeep", ".gitkeep"
+          end
+
           mkdir "vendor"
 
           inside "vendor" do
