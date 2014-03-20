@@ -146,6 +146,8 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  udfs/jython/.gitkeep
 \e[1;32m      create\e[0m  udfs/java
 \e[1;32m      create\e[0m  udfs/java/.gitkeep
+\e[1;32m      create\e[0m  lib
+\e[1;32m      create\e[0m  lib/.gitkeep
 \e[1;32m      create\e[0m  vendor
 \e[1;32m      create\e[0m  vendor/controlscripts
 \e[1;32m      create\e[0m  vendor/controlscripts/lib
