@@ -181,6 +181,9 @@ module Mortar
           if File.directory? "#{path}/vendor"
             manifest.puts "vendor"
           end
+          if File.directory? "#{path}/lib"
+            manifest.puts "lib"
+          end
         end
       end
     
