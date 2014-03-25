@@ -21,6 +21,10 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency  "netrc",           "~> 0.7"
   gem.add_runtime_dependency  "launchy",         "~> 2.1"
   gem.add_runtime_dependency  "parseconfig",     "~> 1.0.2"
+  gem.add_runtime_dependency  "aws-sdk",         "~> 1.0"
+  # specifically use version 1.5.0 as it is required for aws-sdk to work on ruby 1.8.7
+  gem.add_runtime_dependency  "nokogiri",        "~> 1.5.0"
+
 
   gem.add_development_dependency 'excon', '~>0.28'
   gem.add_development_dependency "fakefs", '~> 0.4.2'
