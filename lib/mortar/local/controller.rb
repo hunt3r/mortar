@@ -19,6 +19,7 @@ require "mortar/local/pig"
 require "mortar/local/java"
 require "mortar/local/python"
 require "mortar/local/jython"
+require "mortar/local/sqoop"
 
 
 class Mortar::Local::Controller
@@ -143,6 +144,10 @@ EOF
 
     jy = Mortar::Local::Jython.new()
     jy.install_or_update()
+
+
+    sqoop = Mortar::Local::Sqoop.new()
+    sqoop.install_or_update()
 
     ensure_local_install_dirs_in_gitignore
   end
