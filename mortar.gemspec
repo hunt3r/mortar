@@ -29,6 +29,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'excon', '~>0.28'
   gem.add_development_dependency "fakefs", '~> 0.4.2'
   gem.add_development_dependency "gem-release"
+  # rake is pinned as version 10.2 requires >= ruby 1.9
   gem.add_development_dependency "rake",   '~> 10.1.1'
   gem.add_development_dependency "rr"
   gem.add_development_dependency "rspec"

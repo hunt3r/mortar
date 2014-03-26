@@ -118,7 +118,6 @@ module Mortar
           [buck.objects[key]]
         else
           valid_items = Array.new
-          # TODO validate with Collect/Reject functional style 
           buck.objects.with_prefix(key).each do |obj|
             if is_file(obj.key, key) 
               valid_items.push(obj)
