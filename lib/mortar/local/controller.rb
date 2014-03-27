@@ -211,4 +211,10 @@ EOF
     py.run_luigi_script(luigi_script, user_script_args)
   end
 
+  def sqoop_export(connstr, dbtable, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    sqoop.export(connstr, dbtable, s3dest, options)
+  end
+
 end

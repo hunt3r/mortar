@@ -73,10 +73,55 @@ class Mortar::Local::Sqoop
 
     FileUtils.mv(File.join(local_install_directory, sqoop_dir_in_tgz), sqoop_directory)
 
+    # This has been seening coming out of the tgz w/o +x so we do
+    # here to be sure it has the necessary permissions
+    FileUtils.chmod(0755, "#{sqoop_directory}/bin/sqoop")
+
     File.delete(local_tgz)
     note_install("sqoop")
   end
 
+  def sqoop_command_script_template_path
+    File.expand_path("../../templates/script/sqoop.sh", __FILE__)
+  end
 
+  def hadoop_home
+    "#{local_install_directory}/hadoop"
+  end
+
+  def export(connstr, dbtable, s3dest, options)
+    template_params = sqoop_export_template_parameters(connstr, dbtable, s3dest, options)
+    return run_templated_script(sqoop_command_script_template_path, template_params)
+  end
+
+  def sqoop_export_template_parameters(connstr, dbtable, s3dest, options)
+    pig = Mortar::Local::Pig.new()
+    parameters = {
+      "sqoop_dir" => sqoop_directory,
+      "jdb_conn_string" => connstr,
+      "dbtable" => dbtable,
+      "destination" => s3dest,
+      "hadoop_home" => hadoop_home,
+      "classpath" => pig.template_params_classpath,
+      "dbtable" => dbtable,
+      "jdbc_conn" => connstr,
+      "s3dest" => s3dest,
+      "sqoop_opts" => sqoop_java_options
+    }
+    parameters["dbuser"] = options[:username] if options[:username]
+    parameters["dbpass"] = options[:password] if options[:password]
+    parameters["jdbcdriver"] = options[:jdbcdriver] if options[:jdbcdriver]
+    parameters["direct_import"] = true if options[:direct]
+    return parameters
+  end
+
+  def sqoop_java_options
+    opts = {}
+    opts['fs.s3n.awsAccessKeyId'] = ENV['AWS_ACCESS_KEY']
+    opts['fs.s3n.awsSecretAccessKey'] = ENV['AWS_SECRET_KEY']
+    opts['fs.s3.awsAccessKeyId'] = ENV['AWS_ACCESS_KEY']
+    opts['fs.s3.awsSecretAccessKey'] = ENV['AWS_SECRET_KEY']
+    return opts
+  end
 
 end

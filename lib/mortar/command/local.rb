@@ -258,4 +258,51 @@ class Mortar::Command::Local < Mortar::Command::Base
   end
 
 
+
+
+  # local:sqoop jdbc-conn table s3-destination
+  #
+  # Export data from an RDBMS table to S3.
+  #
+  # -u --username USERNAME # User to log into the database with
+  # -p, --password PASSWORD # Password to log into the database
+  # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
+  # -d, --direct # Use a direct import path
+  #
+  #Examples:
+  #
+  #    Export from a postgres database
+  #        $ mortar local:sqoop -u steve -p stevespassword jdbc:postgres://dbhost01.com/physdb mytable s3://com.dbhost01/archive
+  def sqoop
+    connstr = shift_argument
+    unless connstr
+      error("Usage: mortar jdbc-conn table s3-destination\nMust specify jdbc-conn.")
+    end
+    dbtable = shift_argument
+    unless dbtable
+      error("Usage: mortar jdbc-conn table s3-destination\nMust specify database table.")
+    end
+    s3dest = shift_argument
+    unless s3dest
+      error("Usage: mortar jdbc-conn table s3-destination\nMust specify s3 destination.")
+    end
+    validate_arguments!
+
+    ctrl = Mortar::Local::Controller.new
+    ctrl.sqoop_export(connstr, dbtable, s3dest, options)
+
+    # # cd into the project root
+    # project_root = options[:project_root] ||= Dir.getwd
+    # unless File.directory?(project_root)
+    #   error("No such directory #{project_root}")
+    # end
+    # Dir.chdir(project_root)
+    # script = validate_luigiscript!(script_name)
+    # ctrl = Mortar::Local::Controller.new
+    # luigi_params = pig_parameters.sort_by { |p| p['name'] }
+    # luigi_params = luigi_params.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+    # ctrl.run_luigi(script, luigi_params)
+  end
+
+
 end
