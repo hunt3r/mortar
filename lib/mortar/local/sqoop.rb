@@ -23,6 +23,7 @@ class Mortar::Local::Sqoop
   include Mortar::Local::InstallUtil
 
   SQOOP_URL = "http://apache.mirror.quintex.com/sqoop/1.4.4/sqoop-1.4.4.bin__hadoop-1.0.0.tar.gz"
+  HADOOP_URL = "https://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/hadoop-1.0.3-bin.tar.gz"
 
   def install_or_update
     @command = "#{local_install_directory}/python/bin/python"
@@ -41,24 +42,61 @@ class Mortar::Local::Sqoop
   def sqoop_url
     return ENV.fetch('SQOOP_DISTRO_URL', SQOOP_URL)
   end
+  def hadoop_url
+    return ENV.fetch('HADOOP_DISTRO_URL', HADOOP_URL)
+  end
 
   def should_do_install?
-    return (not (File.exists?(sqoop_directory)))
+    return ((not (File.exists?(sqoop_directory))) or (not (File.exists?(hadoop_directory))))
   end
 
   def should_do_update?
-    return is_newer_version('sqoop', sqoop_url)
+    return (is_newer_version('sqoop', sqoop_url) or is_newer_version('hadoop', hadoop_url))
   end
 
   def sqoop_directory
     return "#{local_install_directory}/sqoop"
   end
+  def hadoop_directory
+    return "#{local_install_directory}/hadoop"
+  end
 
   def sqoop_dir_in_tgz
     File.basename(sqoop_url).split('.')[0..-3].join('.')
   end
+  def hadoop_dir_in_tgz
+    File.basename(hadoop_url).split('.')[0..-3].join('.').split('-')[0..1].join('-')
+  end
 
   def do_install
+    do_hadoop_install
+    do_sqoop_install
+  end
+
+  def do_hadoop_install
+    local_tgz = File.join(local_install_directory, File.basename(hadoop_url))
+    if File.exists?(local_tgz)
+      FileUtils.rm(local_tgz)
+    end
+    download_file(hadoop_url, local_tgz)
+
+    if File.exists?(hadoop_directory)
+      FileUtils.rm_rf(hadoop_directory)
+    end
+
+    extract_tgz(local_tgz, local_install_directory)
+
+    FileUtils.mv(File.join(local_install_directory, hadoop_dir_in_tgz), hadoop_directory)
+
+    # This has been seening coming out of the tgz w/o +x so we do
+    # here to be sure it has the necessary permissions
+    FileUtils.chmod(0755, "#{hadoop_directory}/bin/hadoop")
+
+    File.delete(local_tgz)
+    note_install("hadoop")
+  end
+
+  def do_sqoop_install
     local_tgz = File.join(local_install_directory, File.basename(sqoop_url))
     if File.exists?(local_tgz)
       FileUtils.rm(local_tgz)
