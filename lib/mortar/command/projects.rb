@@ -229,7 +229,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     end
     is_public = options[:public]
     ask_public(is_public)
-    git.clone(git_url, name, "base")
+    git.clone(git_url, name, git.fork_base_remote_name)
     Dir.chdir(name)
     # register a nil project id because it hasn't been created yet
     register_project(name, is_public, nil) do |project_result|

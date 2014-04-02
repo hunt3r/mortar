@@ -536,6 +536,52 @@ module Mortar
       def clone(git_url, path="", remote_name="origin")
         git("clone -o %s %s \"%s\"" % [remote_name, git_url, path], true, false)
       end
+
+      def fork_base_remote_name
+        "base"
+      end
+
+      def is_fork_repo_updated(git_organization)
+        if remotes(git_organization).has_key?(fork_base_remote_name)
+          fetch(fork_base_remote_name)
+          latest_commit = get_latest_hash(fork_base_remote_name)
+          last_commit = get_last_recorded_fork_hash
+          unless latest_commit == last_commit || contains_hash(latest_commit)
+            File.open(mortar_fork_meta_file, "wb") do |f|
+              f.write(latest_commit)
+            end
+            return true
+          end
+        end
+        return false
+      end
+
+      def get_last_recorded_fork_hash
+        if File.exists?(mortar_fork_meta_file)
+          File.open(mortar_fork_meta_file, "r") do |f|
+            file_contents = f.read()
+            file_contents.strip
+          end
+        end
+      end
+
+      def mortar_fork_meta_file
+        ".mortar-fork"
+      end
+
+      def fetch(remote)
+        git("fetch #{remote}")
+      end
+
+      def get_latest_hash(remote)
+        git("log --pretty=\"%H\" -n 1 #{remote}")
+      end
+
+      def contains_hash(hash)
+        git("log --pretty=\"%H\"").include?(hash)
+      end
+
+
     end
   end
 end

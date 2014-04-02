@@ -83,6 +83,24 @@ other\tgit@github.com:other.git (push)
         @base.project.name.should == 'myproject-staging'
       end
 
+      it "errors out on checking for updates to forked project and nobody cares" do
+        stub(@base.git).has_dot_git? {true}
+        stub(@base.git).remotes {{ 'mortar' => 'myproject' }}
+        mock(@base.git).git("config mortar.remote", false).returns("")
+        mock(@base.git).is_fork_repo_updated.with_any_args.returns { raise StandardError.new("meessage") }
+        mock(@base).warning.times(0)
+        @base.project.name.should == 'myproject'
+      end
+
+      it "finds an updated forked project and displays warning" do
+        stub(@base.git).has_dot_git? {true}
+        stub(@base.git).remotes {{ 'mortar' => 'myproject' }}
+        mock(@base.git).git("config mortar.remote", false).returns("")
+        mock(@base.git).is_fork_repo_updated.with_any_args.returns(true)
+        mock(@base).warning.times(1).with_any_args
+        @base.project.name.should == 'myproject'
+      end
+
     end
 
     context "method_added" do

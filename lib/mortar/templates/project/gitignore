@@ -3,6 +3,7 @@ Gemfile.lock
 *.class
 *.log
 tmp
+.mortar-fork
 .mortar-local
 logs
 illustrate-output
