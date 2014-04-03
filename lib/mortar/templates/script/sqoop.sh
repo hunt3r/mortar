@@ -18,8 +18,8 @@ OPTARGS="$OPTARGS <%= "--direct" if @direct_import %>"
 
 <%= @sqoop_dir %>/bin/sqoop \
     import \
-    -m 1 \
     $SQOOP_OPTS \
+    -m 1 \
     --table <%= @dbtable %> \
     --connect <%= @jdbc_conn %> \
     --target-dir <%= @s3dest %> \
