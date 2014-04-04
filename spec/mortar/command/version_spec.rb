@@ -27,7 +27,7 @@ module Mortar::Command
     base_url  = "http://install.mortardata.com"
     base_version = "0.15.1"
     tmp_dir_dumm = "/opt/mortar/installer"
-    curl_command = "sudo mkdir -p #{tmp_dir_dumm} && sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{base_url} && sudo bash #{tmp_dir_dumm}/install.sh"
+    curl_command = "echo 'Upgrading will prompt for your sudo password.\n' && sudo mkdir -p #{tmp_dir_dumm} && sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{base_url} && sudo bash #{tmp_dir_dumm}/install.sh"
 
     context("version in prod") do
       mortar_install_env = ENV['MORTAR_INSTALL']
@@ -63,7 +63,7 @@ module Mortar::Command
 
     context("version dev") do
       dev_url = "dev_url.com"
-      dev_curl =  "sudo mkdir -p #{tmp_dir_dumm} && sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{dev_url} && sudo bash #{tmp_dir_dumm}/install.sh" 
+      dev_curl =  "echo 'Upgrading will prompt for your sudo password.\n' && sudo mkdir -p #{tmp_dir_dumm} && sudo curl -sS -L -o #{tmp_dir_dumm}/install.sh #{dev_url} && sudo bash #{tmp_dir_dumm}/install.sh" 
       before(:each) do
         ENV['MORTAR_INSTALL'] = dev_url
       end
