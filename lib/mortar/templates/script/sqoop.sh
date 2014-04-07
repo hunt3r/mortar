@@ -2,7 +2,7 @@
 
 set -e
 
-export HADOOP_CLASSPATH="<%= @classpath %>"
+export HADOOP_CLASSPATH="<%= @project_root %>/lib/*"
 export HADOOP_COMMON_HOME="<%= @hadoop_home %>"
 export HADOOP_MAPRED_HOME="<%= @hadoop_home %>"
 
