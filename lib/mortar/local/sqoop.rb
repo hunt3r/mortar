@@ -22,7 +22,6 @@ require "mortar/local/installutil"
 class Mortar::Local::Sqoop
   include Mortar::Local::InstallUtil
 
-  SQOOP_URL = "http://apache.mirror.quintex.com/sqoop/1.4.4/sqoop-1.4.4.bin__hadoop-1.0.0.tar.gz"
   HADOOP_URL = "https://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/hadoop-1.0.3-bin.tar.gz"
 
   def install_or_update
@@ -40,8 +39,11 @@ class Mortar::Local::Sqoop
   end
 
   def sqoop_url
-    return ENV.fetch('SQOOP_DISTRO_URL', SQOOP_URL)
+    full_host  = (host =~ /^http/) ? host : "https://api.#{host}"
+    default_url = full_host + "/" + "resource/sqoop"
+    return ENV.fetch('SQOOP_DISTRO_URL', default_url)
   end
+
   def hadoop_url
     return ENV.fetch('HADOOP_DISTRO_URL', HADOOP_URL)
   end
@@ -62,8 +64,9 @@ class Mortar::Local::Sqoop
   end
 
   def sqoop_dir_in_tgz
-    File.basename(sqoop_url).split('.')[0..-3].join('.')
+    "sqoop-1.4.4-mortar"
   end
+
   def hadoop_dir_in_tgz
     File.basename(hadoop_url).split('.')[0..-3].join('.').split('-')[0..1].join('-')
   end
@@ -97,7 +100,7 @@ class Mortar::Local::Sqoop
   end
 
   def do_sqoop_install
-    local_tgz = File.join(local_install_directory, File.basename(sqoop_url))
+    local_tgz = File.join(local_install_directory, "sqoop-1.4.4-mortar.tar.gz")
     if File.exists?(local_tgz)
       FileUtils.rm(local_tgz)
     end
