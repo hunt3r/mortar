@@ -405,7 +405,56 @@ STASH
         end
       end
     end
-    
+
+    context "checking updates for forked projects" do
+      it "skips non forked projects" do
+        with_git_initialized_project do |p|
+          @git.is_fork_repo_updated("mortarcode-dev").should be_false
+        end
+      end
+
+      it "returns true with no .mortar-fork file and new commits" do
+        with_forked_git_project do |p|
+          mock(@git).fetch(@git.fork_base_remote_name)
+          new_commit_hash = "ANewCommitHash"
+          mock(@git).get_latest_hash(@git.fork_base_remote_name) {new_commit_hash}
+          
+          @git.is_fork_repo_updated("mortarcode-dev").should be_true
+          File.exists?(@git.mortar_fork_meta_file).should be_true
+          File.open(@git.mortar_fork_meta_file, "r") do |f|
+            file_contents = f.read()
+            file_contents.strip
+            file_contents.eql?(new_commit_hash).should be_true
+          end
+        end
+      end
+
+      it "returns false with up to date .mortar-fork file and new commits" do
+        with_forked_git_project do |p|
+          mock(@git).fetch(@git.fork_base_remote_name)
+          new_commit_hash = "ANewCommitHash"
+          mock(@git).get_latest_hash(@git.fork_base_remote_name) {new_commit_hash}
+          File.open(@git.mortar_fork_meta_file, "wb") do |f|
+            f.write(new_commit_hash)
+          end
+          File.exists?(@git.mortar_fork_meta_file).should be_true
+          
+          @git.is_fork_repo_updated("mortarcode-dev").should be_false
+        end
+      end
+
+      it "returns false with no .mortar-fork file and no new commits" do
+        with_forked_git_project do |p|
+          mock(@git).fetch(@git.fork_base_remote_name)
+          current_latest_hash = @git.get_latest_hash("")
+          mock(@git).get_latest_hash(@git.fork_base_remote_name) {current_latest_hash}
+          
+          @git.is_fork_repo_updated("mortarcode-dev").should be_false
+        end
+      end
+    end 
+
+      
 =begin
     #TODO: Fix this.
 

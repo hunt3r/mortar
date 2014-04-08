@@ -200,6 +200,15 @@ def with_blank_project_with_name(name, &block)
   end
 end
 
+def with_forked_git_project(&block)
+  with_git_initialized_project do |project|
+    git = Mortar::Git::Git.new
+    remote = git.fork_base_remote_name
+    `git remote add #{remote} git@github.com:mortarcode-dev/fork_#{project.name}.git`
+    block.call(project)
+  end
+end
+
 def with_git_initialized_project(&block)
   remote_prefix = "4dbbd83cae8d5bf8a4000000_"
   with_git_initialized_project_with_remote_prefix(remote_prefix, &block)

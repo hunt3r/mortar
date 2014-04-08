@@ -65,10 +65,20 @@ class Mortar::Command::Base
       end
       
       @project = Mortar::Project::Project.new(project_name, project_dir, remote)
+
+      #Every time we get the project, we're going to check if its a forked version and
+      #if it is we'll check for new updates to the base project.
+      begin
+        if git.is_fork_repo_updated(git_organization)
+          warning("The repository this project was forked from has been updated.  To get the latest changes commit all of your work and do:\n\n\tgit merge #{git.fork_base_remote_name}/master\n\nYou may have conflicts that will need to be resolved manually.\n\n")
+        end
+      rescue 
+        #Do nothing.  We'll repeat this call often enough that we don't care if it fails.
+      end
     end
     @project
   end
-  
+
   def api
     Mortar::Auth.api
   end
