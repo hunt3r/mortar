@@ -296,5 +296,45 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl.sqoop_export_table(connstr, dbtable, s3dest, options)
   end
 
+  # local:sqoop_query dbtype database-name query s3-destination
+  #
+  # Export the result of an SQL query to S3.
+  #
+  # -h, --host HOSTNAME # Database host, localhost assumed if not specified
+  # -u, --username USERNAME # User to log into the database with
+  # -p, --password PASSWORD # Password to log into the database
+  # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
+  # -d, --direct # Use a direct import path
+  #
+  #Examples:
+  #
+  #    Export from a postgres database
+  #        $ mortar local:sqoop_query postgres mydb "select user_name, id from users" s3://com.dbhost01/archive
+  def sqoop_query
+    dbtype = shift_argument
+    unless dbtype
+      error("Usage: mortar local:sqoop_query dbtype database-name query s3-destination\nMust specify database type.")
+    end
+    physdb = shift_argument
+    unless physdb
+      error("Usage: mortar local:sqoop_query dbtype database-name query s3-destination\nMust specify database name.")
+    end
+    query = shift_argument
+    unless query
+      error("Usage: mortar local:sqoop_query dbtype database-name query s3-destination\nMust specify sql query.")
+    end
+    s3dest = shift_argument
+    unless s3dest
+      error("Usage: mortar local:sqoop_query dbtype database-name query s3-destination\nMust specify s3 destination.")
+    end
+    validate_arguments!
+
+    dbhost = options[:host] || "localhost"
+    connstr = jdbc_conn(dbtype, dbhost, physdb)
+
+    ctrl = Mortar::Local::Controller.new
+    ctrl.sqoop_export_query(connstr, query, s3dest, options)
+  end
+
 
 end

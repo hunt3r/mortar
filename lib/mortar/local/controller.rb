@@ -214,7 +214,15 @@ EOF
   def sqoop_export_table(connstr, dbtable, s3dest, options)
     install_and_configure(nil, 'sqoop')
     sqoop = Mortar::Local::Sqoop.new()
-    sqoop.export(connstr, dbtable, s3dest, options)
+    options[:dbtable] = dbtable
+    sqoop.export(connstr, s3dest, options)
+  end
+
+  def sqoop_export_query(connstr, query, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    options[:sqlquery] = sqoop.prep_query(query)
+    sqoop.export(connstr, s3dest, options)
   end
 
 end

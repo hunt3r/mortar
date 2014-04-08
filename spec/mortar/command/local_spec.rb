@@ -352,7 +352,6 @@ STDERR
         stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest} --host foobar.com"
       end
 
-
       it "defaults to 'localhost' if no host specified" do
         connstr = "jdbc:mysql://localhost/mydb"
         dbtable = "customers"
@@ -363,6 +362,62 @@ STDERR
         stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest}"
       end
 
+    end
+
+    context "local:sqoop_query" do
+      it "requires a db type" do
+          stderr, stdout = execute "local:sqoop_query"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_query dbtype database-name query s3-destination
+ !    Must specify database type.
+STDERR
+      end
+
+      it "requires the physical db name" do
+          stderr, stdout = execute "local:sqoop_query mysql"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_query dbtype database-name query s3-destination
+ !    Must specify database name.
+STDERR
+      end
+
+      it "requires the table name" do
+          stderr, stdout = execute "local:sqoop_query mysql myappdb"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_query dbtype database-name query s3-destination
+ !    Must specify sql query.
+STDERR
+      end
+
+      it "requires the s3 destination" do
+          stderr, stdout = execute "local:sqoop_query mysql myappdb customers"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_query dbtype database-name query s3-destination
+ !    Must specify s3 destination.
+STDERR
+      end
+
+      it "sends everything to the controller" do
+        connstr = "jdbc:mysql://foobar.com/mydb"
+        query = "select_*_from_customers"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_query(connstr, query, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest} --host foobar.com"
+        stderr.should == ''
+      end
+
+      it "defaults to 'localhost' if no host specified" do
+        connstr = "jdbc:mysql://localhost/mydb"
+        query = "select_*_from_customers"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_query(connstr, query, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest}"
+        stderr.should == ''
+      end
 
     end
 

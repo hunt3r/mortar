@@ -90,26 +90,26 @@ class Mortar::Local::Sqoop
     "#{sqoop_directory}/hadoop"
   end
 
-  def export(connstr, dbtable, s3dest, options)
-    template_params = sqoop_export_template_parameters(connstr, dbtable, s3dest, options)
+  def export(connstr, s3dest, options)
+    template_params = sqoop_export_template_parameters(connstr, s3dest, options)
     return run_templated_script(sqoop_command_script_template_path, template_params)
   end
 
-  def sqoop_export_template_parameters(connstr, dbtable, s3dest, options)
+  def sqoop_export_template_parameters(connstr, s3dest, options)
     pig = Mortar::Local::Pig.new()
     parameters = {
       "sqoop_dir" => sqoop_directory,
       "jdb_conn_string" => connstr,
-      "dbtable" => dbtable,
       "destination" => s3dest,
       "hadoop_home" => hadoop_home,
       "classpath" => pig.template_params_classpath,
-      "dbtable" => dbtable,
       "jdbc_conn" => connstr,
       "s3dest" => s3dest,
       "project_root" => project_root,
       "sqoop_opts" => sqoop_java_options
     }
+    parameters["dbtable"] = options[:dbtable] if options[:dbtable]
+    parameters["sqlquery"] = options[:sqlquery] if options[:sqlquery]
     parameters["dbuser"] = options[:username] if options[:username]
     parameters["dbpass"] = options[:password] if options[:password]
     parameters["jdbcdriver"] = options[:jdbcdriver] if options[:jdbcdriver]
@@ -124,6 +124,28 @@ class Mortar::Local::Sqoop
     opts['fs.s3.awsAccessKeyId'] = ENV['AWS_ACCESS_KEY']
     opts['fs.s3.awsSecretAccessKey'] = ENV['AWS_SECRET_KEY']
     return opts
+  end
+
+  # So this part kind of sucks.  In order to partition a query across multiple map
+  # reduce tasks sqoop does a query to to find the range of identifiying values,
+  # divides this range across the number of tasks to be executed and then modifies
+  # the query for each m/r task. To do this Sqoop needs to know at what point in the
+  # query that it should place its portion of the where clause. This is done via the
+  # $CONDITIONS marker. So that's well and good when you're running sqoop on a cluster
+  # but our users will be running on their own machine and don't know or care for this
+  # parrallel queries stuff.  So to make their lives easier we make a best effort to
+  # add the clause for them in a safe way.
+  def prep_query(original_query)
+    if original_query.include? "$CONDITIONS"
+      return original_query
+    elsif original_query.downcase.include? "where"
+      idxwhere = original_query.downcase.index("where")
+      select_where = original_query[0..idxwhere+"where".length-1]
+      clause = original_query[idxwhere+"where".length+1..original_query.length]
+      return "#{select_where} (#{clause}) AND \$CONDITIONS"
+    else
+      return "#{original_query} WHERE \$CONDITIONS"
+    end
   end
 
 end
