@@ -556,6 +556,10 @@ protected
     return Mortar::Auth.user_s3_safe + "-base"
   end
 
+  def jdbc_conn(dbtype, host, dbname)
+    "jdbc:#{dbtype}://#{host}/#{dbname}"
+  end
+
 end
 
 module Mortar::Command
