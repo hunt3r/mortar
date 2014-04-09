@@ -225,4 +225,13 @@ EOF
     sqoop.export(connstr, s3dest, options)
   end
 
+  def sqoop_export_incremental(connstr, dbtable, column, max_value, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    options[:dbtable] = dbtable
+    options[:inc_column] = column
+    options[:inc_value] = max_value
+    sqoop.export(connstr, s3dest, options)
+  end
+
 end

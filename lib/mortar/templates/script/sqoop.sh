@@ -15,6 +15,11 @@ OPTARGS='<%= "--driver #{@jdbcdriver}" if @jdbcdriver %>'
 OPTARGS="$OPTARGS <%= "--username #{@dbuser}" if @dbuser %>"
 OPTARGS="$OPTARGS <%= "--password #{@dbpass}" if @dbpass %>"
 OPTARGS="$OPTARGS <%= "--direct" if @direct_import %>"
+<% if @inc_column and @inc_value %>
+OPTARGS="$OPTARGS --incremental <%= @inc_mode %>"
+OPTARGS="$OPTARGS --check-column <%= @inc_column %> --last-value '<%= @inc_value %>'"
+SQOOP_OPTS="$SQOOP_OPTS -Dsqoop.test.import.rootDir=<%= @s3dest %>/.tmp"
+<% end %>
 
 <%= @sqoop_dir %>/bin/sqoop \
     import \

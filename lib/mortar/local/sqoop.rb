@@ -110,6 +110,13 @@ class Mortar::Local::Sqoop
     }
     parameters["dbtable"] = options[:dbtable] if options[:dbtable]
     parameters["sqlquery"] = options[:sqlquery] if options[:sqlquery]
+    parameters["inc_column"] = options[:inc_column] if options[:inc_column]
+    parameters["inc_value"] = options[:inc_value] if options[:inc_value]
+    if options[:inc_value] and 0 == options[:inc_value].to_i
+      parameters[:inc_mode] = "lastmodified"
+    elsif options[:inc_value]
+      parameters[:inc_mode] = "append"
+    end
     parameters["dbuser"] = options[:username] if options[:username]
     parameters["dbpass"] = options[:password] if options[:password]
     parameters["jdbcdriver"] = options[:jdbcdriver] if options[:jdbcdriver]

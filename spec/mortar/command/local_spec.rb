@@ -421,6 +421,82 @@ STDERR
 
     end
 
+    context "local:sqoop_incremental" do
+      it "requires a db type" do
+          stderr, stdout = execute "local:sqoop_incremental"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify database type.
+STDERR
+      end
+
+      it "requires the physical db name" do
+          stderr, stdout = execute "local:sqoop_incremental mysql"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify database name.
+STDERR
+      end
+
+      it "requires the table name" do
+          stderr, stdout = execute "local:sqoop_incremental mysql myappdb"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify database table.
+STDERR
+      end
+
+      it "requires the column name" do
+          stderr, stdout = execute "local:sqoop_incremental mysql myappdb mytable"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify column.
+STDERR
+      end
+
+      it "requires the column value" do
+          stderr, stdout = execute "local:sqoop_incremental mysql myappdb mytable mycolumn"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify value.
+STDERR
+      end
+
+      it "requires the s3 destination" do
+          stderr, stdout = execute "local:sqoop_incremental mysql myappdb mytable mycolumn customers"
+          stderr.should == <<-STDERR
+ !    Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination
+ !    Must specify s3 destination.
+STDERR
+      end
+
+      it "sends everything to the controller" do
+        connstr = "jdbc:mysql://foobar.com/mydb"
+        dbtable = "customers"
+        column = "customer_id"
+        column_value = "12345"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_incremental(connstr, dbtable, column, column_value, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest} --host foobar.com"
+      end
+
+      it "defaults to 'localhost' if no host specified" do
+        connstr = "jdbc:mysql://localhost/mydb"
+        dbtable = "customers"
+        column = "customer_id"
+        column_value = "12345"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_incremental(connstr, dbtable, column, column_value, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest}"
+      end
+
+    end
+
+
 
   end
 end

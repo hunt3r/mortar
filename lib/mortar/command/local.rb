@@ -336,5 +336,53 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl.sqoop_export_query(connstr, query, s3dest, options)
   end
 
+  # local:sqoop_incremental dbtype database-name table column value s3-destination
+  #
+  # Export all records where column is > value
+  #
+  # -h, --host HOSTNAME # Database host, localhost assumed if not specified
+  # -u, --username USERNAME # User to log into the database with
+  # -p, --password PASSWORD # Password to log into the database
+  # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
+  # -d, --direct # Use a direct import path
+  #
+  #Examples:
+  #
+  #    Export from the newest users
+  #        $ mortar local:sqoop_incremental postgres mydb users user_id 12345 s3://com.dbhost01/archive
+  def sqoop_incremental
+    dbtype = shift_argument
+    unless dbtype
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify database type.")
+    end
+    physdb = shift_argument
+    unless physdb
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify database name.")
+    end
+    table = shift_argument
+    unless table
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify database table.")
+    end
+    column = shift_argument
+    unless column
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify column.")
+    end
+    max_value = shift_argument
+    unless max_value
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify value.")
+    end
+    s3dest = shift_argument
+    unless s3dest
+      error("Usage: mortar local:sqoop_incremental dbtype database-name table column value s3-destination\nMust specify s3 destination.")
+    end
+    validate_arguments!
+
+    dbhost = options[:host] || "localhost"
+    connstr = jdbc_conn(dbtype, dbhost, physdb)
+
+    ctrl = Mortar::Local::Controller.new
+    ctrl.sqoop_export_incremental(connstr, table, column, max_value, s3dest, options)
+  end
+
 
 end
