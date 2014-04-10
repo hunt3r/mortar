@@ -13,7 +13,7 @@ export HADOOP_MAPRED_HOME="<%= @hadoop_home %>"
 export HCAT_HOME="<%= @hadoop_home %>"
 export HBASE_HOME="<%= @hadoop_home %>"
 
-SQOOP_OPTS="<% @sqoop_opts.each do |k,v| %>-D <%= k %>=<%= v %> <% end %>"
+SQOOP_OPTS="<% @sqoop_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
 OPTARGS='<%= "--driver #{@jdbcdriver}" if @jdbcdriver %>'
 OPTARGS="$OPTARGS <%= "--username #{@dbuser}" if @dbuser %>"
 OPTARGS="$OPTARGS <%= "--password #{@dbpass}" if @dbpass %>"
@@ -23,6 +23,8 @@ OPTARGS="$OPTARGS --incremental <%= @inc_mode %>"
 OPTARGS="$OPTARGS --check-column <%= @inc_column %> "
 SQOOP_OPTS="$SQOOP_OPTS -Dsqoop.test.import.rootDir=<%= @s3dest %>/.tmp"
 <% end %>
+
+export HADOOP_OPTS="$SQOOP_OPTS";
 
 <%= @sqoop_dir %>/bin/sqoop \
     import \
