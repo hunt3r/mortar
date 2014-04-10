@@ -120,6 +120,7 @@ class Mortar::Local::Sqoop
     parameters["dbuser"] = options[:username] if options[:username]
     parameters["dbpass"] = options[:password] if options[:password]
     parameters["jdbcdriver"] = options[:jdbcdriver] if options[:jdbcdriver]
+    parameters["driverjar"] = options[:driverjar] if options[:driverjar]
     parameters["direct_import"] = true if options[:direct]
     return parameters
   end

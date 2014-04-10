@@ -3,6 +3,9 @@
 set -e
 
 export HADOOP_CLASSPATH="<%= @project_root %>/lib/*"
+<% if @driverjar %>
+export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:<%= @driverjar %>"
+<% end %>
 export HADOOP_COMMON_HOME="<%= @hadoop_home %>"
 export HADOOP_MAPRED_HOME="<%= @hadoop_home %>"
 
