@@ -20,7 +20,7 @@ OPTARGS="$OPTARGS <%= "--password #{@dbpass}" if @dbpass %>"
 OPTARGS="$OPTARGS <%= "--direct" if @direct_import %>"
 <% if @inc_column and @inc_value %>
 OPTARGS="$OPTARGS --incremental <%= @inc_mode %>"
-OPTARGS="$OPTARGS --check-column <%= @inc_column %> --last-value '<%= @inc_value %>'"
+OPTARGS="$OPTARGS --check-column <%= @inc_column %> "
 SQOOP_OPTS="$SQOOP_OPTS -Dsqoop.test.import.rootDir=<%= @s3dest %>/.tmp"
 <% end %>
 
@@ -33,4 +33,5 @@ SQOOP_OPTS="$SQOOP_OPTS -Dsqoop.test.import.rootDir=<%= @s3dest %>/.tmp"
     --connect <%= @jdbc_conn %> \
     --target-dir <%= @s3dest %> \
     $OPTARGS \
+    <% if @inc_column and @inc_value %>--last-value '<%= @inc_value %>'<% end %>
 
