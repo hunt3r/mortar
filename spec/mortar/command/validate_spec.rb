@@ -72,8 +72,8 @@ STDERR
           # stub api requests
           validate_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
           parameters = ["name"=>"key", "value"=>"value" ]
-          
-          mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"validate_id" => validate_id})}
+
+          mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"validate_id" => validate_id})}
           mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
           mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_PROGRESS, "status_description" => "Starting"})).ordered
@@ -103,7 +103,7 @@ STDOUT
           column_number = 32
           error_type = 'PigError'
           
-          mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.9", :parameters => []) {Excon::Response.new(:body => {"validate_id" => validate_id})}
+          mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => []) {Excon::Response.new(:body => {"validate_id" => validate_id})}
           mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_FAILURE, "status_description" => "Failed",
             "error_message" => error_message,
@@ -137,7 +137,7 @@ STDERR
         validate_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
         parameters = ["name"=>"key", "value"=>"value" ]
         
-        mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.12", :parameters => parameters) {Excon::Response.new(:body => {"validate_id" => validate_id})}
+        mock(Mortar::Auth.api).post_validate("myproject", "my_script", is_a(String), :pig_version => "0.12", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"validate_id" => validate_id})}
         mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_QUEUED, "status_description" => "Pending"})).ordered
         mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
         mock(Mortar::Auth.api).get_validate(validate_id).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Validate::STATUS_PROGRESS, "status_description" => "Starting"})).ordered

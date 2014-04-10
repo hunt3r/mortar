@@ -15,6 +15,7 @@
 #
 
 require 'fileutils'
+require 'pathname'
 
 module Mortar
   module Project
@@ -193,6 +194,11 @@ module Mortar
         script_contents = script_file.read
         script_file.close
         script_contents
+      end
+
+      def rel_path
+        p = Pathname.new(@path).dirname
+        rel_path = p.relative_path_from(Pathname.pwd).to_s
       end
       
       def to_s

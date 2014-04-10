@@ -166,6 +166,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         use_spot_instances = options[:spot] || false
         api.post_job_new_cluster(project_name, script_name, git_ref, cluster_size, 
           :pig_version => pig_version.version, 
+          :project_script_path => script.rel_path,
           :parameters => pig_parameters,
           :cluster_type => cluster_type,
           :notify_on_job_finish => notify_on_job_finish,
@@ -175,6 +176,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         cluster_id = options[:clusterid]
         api.post_job_existing_cluster(project_name, script_name, git_ref, cluster_id,
           :pig_version => pig_version.version, 
+          :project_script_path => script.rel_path,
           :parameters => pig_parameters,
           :notify_on_job_finish => notify_on_job_finish,
           :is_control_script => is_control_script).body

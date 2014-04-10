@@ -98,7 +98,7 @@ STDERR
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
           parameters = ["name"=>"key", "value"=>"value" ]
           
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_GATEWAY_STARTING, "status_description" => "Gateway starting"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_PROGRESS, "status_description" => "Starting pig"})).ordered
@@ -129,7 +129,7 @@ STDOUT
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
           parameters = ["name"=>"key", "value"=>"value" ]
           
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_GATEWAY_STARTING, "status_description" => "Gateway starting"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_PROGRESS, "status_description" => "Starting pig"})).ordered
@@ -163,7 +163,7 @@ STDOUT
           column_number = 32
           error_type = 'PigError'
           
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :parameters => []) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => []) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_FAILURE, "status_description" => "Failed",
             "error_message" => error_message,
@@ -198,7 +198,7 @@ STDERR
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
           parameters = ["name"=>"key", "value"=>"value" ]
           
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_QUEUED, "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_GATEWAY_STARTING, "status_description" => "Gateway starting"})).ordered
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_PROGRESS, "status_description" => "Starting pig"})).ordered
