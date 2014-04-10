@@ -15,6 +15,7 @@
 #
 
 require 'fileutils'
+require 'pathname'
 
 module Mortar
   module Project
