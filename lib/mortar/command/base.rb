@@ -557,7 +557,7 @@ protected
   end
 
   def jdbc_conn(dbtype, host, dbname)
-    "jdbc:#{dbtype}://#{host}/#{dbname}"
+    "jdbc:#{dbtype}://#{host}/#{dbname}?zeroDateTimeBehavior=convertToNull"
   end
 
 end
