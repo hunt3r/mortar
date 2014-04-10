@@ -65,6 +65,7 @@ module Mortar
           p.pigscripts.my_script.name.should == "my_script"
           p.pigscripts.my_script.path.should == pigscript_path
           p.pigscripts.my_script.executable_path.should == "pigscripts/my_script.pig"
+          p.pigscripts.my_script.rel_path.end_with?('pigscripts').should be_true 
         end
       end
 
@@ -74,6 +75,7 @@ module Mortar
           write_file pigscript_path
           p.pigscripts.my_script.name.should == "my_script"
           p.pigscripts.my_script.path.should == pigscript_path
+          p.pigscripts.my_script.rel_path.end_with?("pigscripts/subdir").should be_true
         end
       end
       

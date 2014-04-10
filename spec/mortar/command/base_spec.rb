@@ -176,7 +176,7 @@ no_browser=true
           describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
 
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.12", :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.12", :project_script_path => be_a_kind_of(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
           mock(Launchy).open(describe_url) {Thread.new {}}
 
@@ -204,7 +204,7 @@ no_browser=true
           describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
 
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.12", :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.12", :project_script_path => be_a_kind_of(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 
@@ -232,7 +232,7 @@ polling_interval=10
           describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
           describe_url = "https://api.mortardata.com/describe/#{describe_id}"
 
-          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
           mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
           write_file(File.join(p.pigscripts_path, "my_script.pig"))
 

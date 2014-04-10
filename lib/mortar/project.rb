@@ -194,6 +194,11 @@ module Mortar
         script_file.close
         script_contents
       end
+
+      def rel_path
+        p = Pathname.new(@path).dirname
+        rel_path = p.relative_path_from(Pathname.pwd).to_path
+      end
       
       def to_s
         code
