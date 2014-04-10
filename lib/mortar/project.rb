@@ -197,7 +197,7 @@ module Mortar
 
       def rel_path
         p = Pathname.new(@path).dirname
-        rel_path = p.relative_path_from(Pathname.pwd).to_path
+        rel_path = p.relative_path_from(Pathname.pwd).to_s
       end
       
       def to_s
