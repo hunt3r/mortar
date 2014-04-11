@@ -8,6 +8,7 @@ export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:<%= @driverjar %>"
 <% end %>
 export HADOOP_COMMON_HOME="<%= @hadoop_home %>"
 export HADOOP_MAPRED_HOME="<%= @hadoop_home %>"
+export HADOOP_HOME_WARN_SUPPRESS="t"
 
 # Only setting these to get rid of warnings that sqoop is showing
 export HCAT_HOME="<%= @hadoop_home %>"
