@@ -74,7 +74,7 @@ STDERR
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_PROGRESS,         "status_description" => "In progress"})).ordered
@@ -108,7 +108,7 @@ STDOUT
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_PROGRESS,         "status_description" => "In progress"})).ordered
@@ -142,7 +142,7 @@ STDOUT
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_SUCCESS,          "status_description" => "Succeeded", "web_result_url" => illustrate_url})).ordered
                     
@@ -169,7 +169,7 @@ STDOUT
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", true, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", true, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_SUCCESS,          "status_description" => "Succeeded", "web_result_url" => illustrate_url})).ordered
                     
@@ -195,7 +195,7 @@ STDOUT
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", nil, false, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", nil, false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_PROGRESS,         "status_description" => "In progress"})).ordered
@@ -232,7 +232,7 @@ STDOUT
           error_type = 'PigError'
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :parameters => []) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", "my_alias", false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => []) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,  "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_FAILURE, 
             "error_message" => error_message,
@@ -268,7 +268,7 @@ STDERR
           parameters = ["name"=>"key", "value"=>"value" ]
           
           # These don't test the validity of the error message, it only tests that the CLI can handle a message returned from the server
-          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", nil, false, is_a(String), :pig_version => "0.9", :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
+          mock(Mortar::Auth.api).post_illustrate("myproject", "my_script", nil, false, is_a(String), :pig_version => "0.9", :project_script_path => be_a_kind_of(String), :parameters => parameters) {Excon::Response.new(:body => {"illustrate_id" => illustrate_id})}
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_QUEUED,           "status_description" => "Pending"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_GATEWAY_STARTING, "status_description" => "GATEWAY_STARTING"})).ordered
           mock(Mortar::Auth.api).get_illustrate(illustrate_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Illustrate::STATUS_PROGRESS,         "status_description" => "In progress"})).ordered
