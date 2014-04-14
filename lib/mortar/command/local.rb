@@ -265,7 +265,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -p, --password PASSWORD # Password to log into the database
   # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
   # -d, --direct # Use a direct import path
-  # -r, --driverjar # Path to the jar containing the jdbc driver
+  # -r, --driverjar JARFILE # Path to the jar containing the jdbc driver
   #
   #Examples:
   #
@@ -306,7 +306,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -p, --password PASSWORD # Password to log into the database
   # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
   # -d, --direct # Use a direct import path
-  # -r, --driverjar # Path to the jar containing the jdbc driver
+  # -r, --driverjar JARFILE # Path to the jar containing the jdbc driver
   #
   #Examples:
   #
