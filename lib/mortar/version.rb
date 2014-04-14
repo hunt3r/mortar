@@ -16,5 +16,5 @@
 
 module Mortar
   # see http://semver.org/
-  VERSION = "0.15.6"
+  VERSION = "0.15.7"
 end
