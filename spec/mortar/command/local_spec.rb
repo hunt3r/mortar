@@ -343,7 +343,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb"
+        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -353,7 +353,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb"
+        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -398,7 +398,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb"
+        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -409,7 +409,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb"
+        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -471,7 +471,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb"
+        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
         dbtable = "customers"
         column = "customer_id"
         column_value = "12345"
@@ -483,7 +483,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb"
+        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
         dbtable = "customers"
         column = "customer_id"
         column_value = "12345"

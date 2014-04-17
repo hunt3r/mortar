@@ -146,6 +146,10 @@ module Mortar::Local
         any_instance_of(Mortar::Local::Jython) do |j|
           mock(j).install_or_update
         end
+        any_instance_of(Mortar::Local::Sqoop) do |s|
+          mock(s).install_or_update
+        end
+
         mock(ctrl).ensure_local_install_dirs_in_gitignore
         ctrl.install_and_configure
       end
