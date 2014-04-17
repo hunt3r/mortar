@@ -19,6 +19,7 @@ require "mortar/local/pig"
 require "mortar/local/java"
 require "mortar/local/python"
 require "mortar/local/jython"
+require "mortar/local/sqoop"
 
 
 class Mortar::Local::Controller
@@ -144,6 +145,10 @@ EOF
     jy = Mortar::Local::Jython.new()
     jy.install_or_update()
 
+
+    sqoop = Mortar::Local::Sqoop.new()
+    sqoop.install_or_update()
+
     ensure_local_install_dirs_in_gitignore
   end
 
@@ -204,6 +209,29 @@ EOF
     install_and_configure(nil, 'luigi')
     py = Mortar::Local::Python.new()
     py.run_luigi_script(luigi_script, user_script_args)
+  end
+
+  def sqoop_export_table(connstr, dbtable, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    options[:dbtable] = dbtable
+    sqoop.export(connstr, s3dest, options)
+  end
+
+  def sqoop_export_query(connstr, query, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    options[:sqlquery] = sqoop.prep_query(query)
+    sqoop.export(connstr, s3dest, options)
+  end
+
+  def sqoop_export_incremental(connstr, dbtable, column, max_value, s3dest, options)
+    install_and_configure(nil, 'sqoop')
+    sqoop = Mortar::Local::Sqoop.new()
+    options[:dbtable] = dbtable
+    options[:inc_column] = column
+    options[:inc_value] = max_value
+    sqoop.export(connstr, s3dest, options)
   end
 
 end
