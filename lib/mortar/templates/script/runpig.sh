@@ -7,6 +7,9 @@ export PIG_CLASSPATH=<%= @pig_classpath %>
 export CLASSPATH=<%= @classpath %>
 export PIG_MAIN_CLASS=com.mortardata.hawk.HawkMain
 export PIG_OPTS="<% @pig_opts.each do |k,v| %>-D<%= k %>=<%= v %> <% end %>"
+#Uncomment to debug pig code
+#export PIG_OPTS="$PIG_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000"
+
 
 # UDF paths are relative to this direectory
 if [ -d "<%= @project_home %>/pigscripts" ]; then
