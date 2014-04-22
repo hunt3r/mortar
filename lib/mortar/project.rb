@@ -227,7 +227,7 @@ module Mortar
     class ControlScript < Script
       
       def executable_path
-        "controlscripts/#{self.name}.pig"
+        "#{self.rel_path}/#{self.name}.pig"
       end
       
     end
@@ -235,7 +235,7 @@ module Mortar
     class PigScript < Script
       
       def executable_path
-        "pigscripts/#{self.name}.pig"
+        "#{self.rel_path}/#{self.name}.pig"
       end
     
     end
