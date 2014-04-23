@@ -151,13 +151,6 @@ module Mortar
               manifest.puts "" # ensure file ends with a newline
             end
 
-            if File.directory?('controlscripts') and not contents.include?('controlscripts')
-              manifest.puts "controlscripts"
-            end
-
-            if File.directory?("vendor") and not contents.include?("vendor")
-              manifest.puts "vendor"
-            end
           end
         else
           create_mortar_project_manifest('.')
@@ -169,18 +162,9 @@ module Mortar
       #
       def create_mortar_project_manifest(path)
         File.open("#{path}/.mortar-project-manifest", 'w') do |manifest|
-          if File.directory? "#{path}/controlscripts"
-            manifest.puts "controlscripts"
-          end
-          if File.directory? "#{path}/fixtures"
-            manifest.puts "fixtures"
-          end
           manifest.puts "pigscripts"
           manifest.puts "macros"
           manifest.puts "udfs"
-          if File.directory? "#{path}/vendor"
-            manifest.puts "vendor"
-          end
           if File.directory? "#{path}/lib"
             manifest.puts "lib"
           end

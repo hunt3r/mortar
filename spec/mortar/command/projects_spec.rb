@@ -113,13 +113,11 @@ STDOUT
         stderr, stdout = execute("projects:create #{project_name}", nil, @git)
         Dir.pwd.end_with?("some_new_project").should be_true
         File.exists?("macros").should be_true
-        File.exists?("fixtures").should be_true
         File.exists?("pigscripts").should be_true
         File.exists?("udfs").should be_true
         File.exists?("README.md").should be_true
         File.exists?("Gemfile").should be_false
         File.exists?("macros/.gitkeep").should be_true
-        File.exists?("fixtures/.gitkeep").should be_true
         File.exists?("pigscripts/some_new_project.pig").should be_true
         File.exists?("udfs/python/some_new_project.py").should be_true
 
@@ -132,13 +130,8 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  .gitignore
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig
-\e[1;32m      create\e[0m  controlscripts
-\e[1;32m      create\e[0m  controlscripts/lib
-\e[1;32m      create\e[0m  controlscripts/lib/__init__.py
 \e[1;32m      create\e[0m  macros
 \e[1;32m      create\e[0m  macros/.gitkeep
-\e[1;32m      create\e[0m  fixtures
-\e[1;32m      create\e[0m  fixtures/.gitkeep
 \e[1;32m      create\e[0m  udfs
 \e[1;32m      create\e[0m  udfs/python
 \e[1;32m      create\e[0m  udfs/python/some_new_project.py
@@ -148,21 +141,6 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  udfs/java/.gitkeep
 \e[1;32m      create\e[0m  lib
 \e[1;32m      create\e[0m  lib/.gitkeep
-\e[1;32m      create\e[0m  vendor
-\e[1;32m      create\e[0m  vendor/controlscripts
-\e[1;32m      create\e[0m  vendor/controlscripts/lib
-\e[1;32m      create\e[0m  vendor/controlscripts/lib/__init__.py
-\e[1;32m      create\e[0m  vendor/pigscripts
-\e[1;32m      create\e[0m  vendor/pigscripts/.gitkeep
-\e[1;32m      create\e[0m  vendor/macros
-\e[1;32m      create\e[0m  vendor/macros/.gitkeep
-\e[1;32m      create\e[0m  vendor/udfs
-\e[1;32m      create\e[0m  vendor/udfs/python
-\e[1;32m      create\e[0m  vendor/udfs/python/.gitkeep
-\e[1;32m      create\e[0m  vendor/udfs/jython
-\e[1;32m      create\e[0m  vendor/udfs/jython/.gitkeep
-\e[1;32m      create\e[0m  vendor/udfs/java
-\e[1;32m      create\e[0m  vendor/udfs/java/.gitkeep
 \n\r\e[0KStatus: ACTIVE  \n\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n
 NOTE: You'll need to change to the new directory to use your project:
     cd some_new_project
@@ -188,13 +166,11 @@ STDOUT
         Dir.pwd.end_with?("some_new_project").should be_true
         File.exists?(".mortar-project-remote").should be_true
         File.exists?("macros").should be_true
-        File.exists?("fixtures").should be_true
         File.exists?("pigscripts").should be_true
         File.exists?("udfs").should be_true
         File.exists?("README.md").should be_true
         File.exists?("Gemfile").should be_false
         File.exists?("macros/.gitkeep").should be_true
-        File.exists?("fixtures/.gitkeep").should be_true
         File.exists?("pigscripts/some_new_project.pig").should be_true
         File.exists?("udfs/python/some_new_project.py").should be_true
 
