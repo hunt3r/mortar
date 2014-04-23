@@ -2,7 +2,7 @@
 
 set -e
 
-export HADOOP_CLASSPATH="<%= @project_root %>/lib/*"
+export HADOOP_CLASSPATH="<%= @project_root %>/lib/*:<%= @postgres_jar %>"
 <% if @driverjar %>
 export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:<%= @driverjar %>"
 <% end %>

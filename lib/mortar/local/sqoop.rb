@@ -103,6 +103,7 @@ class Mortar::Local::Sqoop
       "destination" => s3dest,
       "hadoop_home" => hadoop_home,
       "classpath" => pig.template_params_classpath,
+      "postgres_jar" => "#{pig.lib_directory}/lib-cluster/postgresql.jar",
       "jdbc_conn" => connstr,
       "s3dest" => s3dest,
       "project_root" => project_root,
