@@ -212,6 +212,7 @@ EOF
   end
 
   def sqoop_export_table(connstr, dbtable, s3dest, options)
+    require_aws_keys
     install_and_configure(nil, 'sqoop')
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
@@ -219,6 +220,7 @@ EOF
   end
 
   def sqoop_export_query(connstr, query, s3dest, options)
+    require_aws_keys
     install_and_configure(nil, 'sqoop')
     sqoop = Mortar::Local::Sqoop.new()
     options[:sqlquery] = sqoop.prep_query(query)
@@ -226,6 +228,7 @@ EOF
   end
 
   def sqoop_export_incremental(connstr, dbtable, column, max_value, s3dest, options)
+    require_aws_keys
     install_and_configure(nil, 'sqoop')
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
