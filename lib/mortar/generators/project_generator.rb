@@ -40,24 +40,9 @@ module Mortar
             generate_file "pigscript.pig", "#{project_name}.pig"
           end
 
-          mkdir "controlscripts" 
-
-          inside "controlscripts" do
-            mkdir "lib"
-            inside "lib" do
-              copy_file "__init__.py", "__init__.py"
-            end
-          end
-          
           mkdir "macros"
           
           inside "macros" do
-            copy_file "gitkeep", ".gitkeep"
-          end
-
-          mkdir "fixtures"
-
-          inside "fixtures" do
             copy_file "gitkeep", ".gitkeep"
           end
           
@@ -85,46 +70,6 @@ module Mortar
             copy_file "gitkeep", ".gitkeep"
           end
 
-          mkdir "vendor"
-
-          inside "vendor" do
-            mkdir "controlscripts"
-            inside "controlscripts" do
-              mkdir "lib"
-              inside "lib" do
-                copy_file "__init__.py", "__init__.py"
-              end
-            end
-
-            mkdir "pigscripts"
-            inside "pigscripts" do
-              copy_file "gitkeep", ".gitkeep"
-            end
-
-            mkdir "macros"
-            inside "macros" do
-              copy_file "gitkeep", ".gitkeep"
-            end
-
-            mkdir "udfs"
-            inside "udfs" do
-              mkdir "python"
-              inside "python" do
-                copy_file "gitkeep", ".gitkeep"
-              end
-
-              mkdir "jython"
-              inside "jython" do
-                copy_file "gitkeep", ".gitkeep"
-              end
-
-              mkdir "java"
-              inside "java" do
-                copy_file "gitkeep", ".gitkeep"
-              end
-            end
-          end
-          
         rescue => e 
           #If we can't set up the project correctly and the project folder
           #didn't exist before - remove it.

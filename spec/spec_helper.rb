@@ -171,13 +171,12 @@ def with_blank_project_with_name(name, &block)
   FileUtils.mkdir_p(project_path)
   
   # setup project subdirectories
-  FileUtils.mkdir_p(File.join(project_path, "controlscripts"))
   FileUtils.mkdir_p(File.join(project_path, "pigscripts"))
   FileUtils.mkdir_p(File.join(project_path, "macros"))
   FileUtils.mkdir_p(File.join(project_path, "udfs"))
   FileUtils.mkdir_p(File.join(project_path, "udfs/python"))
   FileUtils.mkdir_p(File.join(project_path, "udfs/jython"))
-  FileUtils.mkdir_p(File.join(project_path, "fixtures"))
+  FileUtils.mkdir_p(File.join(project_path, "udfs/java"))
 
   Dir.chdir(project_path)
   
@@ -348,11 +347,11 @@ def create_and_validate_git_snapshot(git)
   git.git("branch").include?(snapshot_branch).should be_true
 
   snapshotted_paths = Dir.glob("**/*")
-  snapshotted_paths.should include("controlscripts")
   snapshotted_paths.should include("pigscripts")
   snapshotted_paths.should include("macros")
   snapshotted_paths.should include("udfs/python")
   snapshotted_paths.should include("udfs/jython")
+  snapshotted_paths.should include("udfs/java")
 
   Dir.chdir(curdir)
   FileUtils.remove_entry_secure(snapshot_dir)
