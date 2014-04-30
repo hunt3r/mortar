@@ -56,6 +56,15 @@ def execute_and_return_command(command_line, project=nil, git=nil)
     end
   end
 
+  # stub the relative paths which get messed up in tests
+  any_instance_of(Mortar::Project::PigScript) do |s|
+    stub(s).rel_path.returns('pigscripts')
+  end
+  any_instance_of(Mortar::Project::ControlScript) do |s|
+    stub(s).rel_path.returns('controlscripts')
+  end
+
+
   # stub git
   if git
     # stub out any operations that affect remote resources

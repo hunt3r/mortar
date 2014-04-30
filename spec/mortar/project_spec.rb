@@ -64,7 +64,7 @@ module Mortar
           write_file pigscript_path
           p.pigscripts.my_script.name.should == "my_script"
           p.pigscripts.my_script.path.should == pigscript_path
-          p.pigscripts.my_script.executable_path.should == "pigscripts/my_script.pig"
+          p.pigscripts.my_script.executable_path.end_with?("pigscripts/my_script.pig")
           p.pigscripts.my_script.rel_path.end_with?('pigscripts').should be_true 
         end
       end
@@ -76,6 +76,17 @@ module Mortar
           p.pigscripts.my_script.name.should == "my_script"
           p.pigscripts.my_script.path.should == pigscript_path
           p.pigscripts.my_script.rel_path.end_with?("pigscripts/subdir").should be_true
+        end
+      end
+
+      it "throws error on duplicate script stored in a subdirectory" do
+        with_blank_project do |p|
+          pigscript_path = File.join(p.pigscripts_path, "my_script.pig")
+          write_file pigscript_path
+          pigscript_path = File.join(p.pigscripts_path, "subdir", "my_script.pig")
+          write_file pigscript_path
+
+          lambda { p.pigscripts }.should raise_error(Mortar::Project::ProjectError)
         end
       end
       

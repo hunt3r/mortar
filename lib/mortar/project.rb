@@ -142,7 +142,17 @@ module Mortar
         if File.directory? @path
           # get {script_name => full_path}
           file_paths = Dir[File.join(@path, "**", "*#{@filename_extension}")]
-          file_paths_hsh = file_paths.collect{|element_path| [element_name(element_path), element(element_name(element_path), element_path)]}.flatten
+
+          scripts = file_paths.collect{|element_path| [element_name(element_path), element(element_name(element_path), element_path)]}
+
+          #Check for duplicates.
+          name_groups = scripts.group_by{ |x| x[0] }
+          duplicates = name_groups.find_all{ |k,v| v.length > 1 }
+          if duplicates.length > 0
+            raise ProjectError, "Multiple scripts found with the same name.  Each script must have a unique name regardless of what directory it is in.  Duplicate script names found: #{duplicates.collect{|d| d[0]}}"
+          end
+          
+          file_paths_hsh = scripts.flatten
           return Hash[*file_paths_hsh]
         else
           raise ProjectError, "Unable to find #{@name} directory in project" if not @optional
@@ -217,7 +227,7 @@ module Mortar
     class ControlScript < Script
       
       def executable_path
-        "controlscripts/#{self.name}.pig"
+        "#{self.rel_path}/#{self.name}.pig"
       end
       
     end
@@ -225,7 +235,7 @@ module Mortar
     class PigScript < Script
       
       def executable_path
-        "pigscripts/#{self.name}.pig"
+        "#{self.rel_path}/#{self.name}.pig"
       end
     
     end
