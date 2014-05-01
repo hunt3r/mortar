@@ -132,6 +132,8 @@ class Mortar::Local::Sqoop
     opts['fs.s3n.awsSecretAccessKey'] = ENV['AWS_SECRET_KEY']
     opts['fs.s3.awsAccessKeyId'] = ENV['AWS_ACCESS_KEY']
     opts['fs.s3.awsSecretAccessKey'] = ENV['AWS_SECRET_KEY']
+    opts['fs.s3.impl'] = 'org.apache.hadoop.fs.s3native.NativeS3FileSystem'
+    opts['fs.s3n.impl'] = 'org.apache.hadoop.fs.s3native.NativeS3FileSystem'
     return opts
   end
 
