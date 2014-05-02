@@ -53,7 +53,7 @@ class Mortar::Command::Version < Mortar::Command::Base
         shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
         dir = "/opt/mortar/installer"
         begin
-          cmd = "echo 'Upgrading will prompt for your sudo password.\n' && sudo mkdir -p #{dir} && sudo curl -sS -L -o #{dir}/install.sh #{shell_url} && sudo bash #{dir}/install.sh#{version_number}"
+          cmd = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{shell_url}\" MORTAR_VERSION=#{version_number} bash -c \"$(curl -sSL #{shell_url})\""
           Kernel.system cmd
         ensure
         end
