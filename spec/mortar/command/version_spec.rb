@@ -25,9 +25,9 @@ module Mortar::Command
     end
     
     base_url  = "http://install.mortardata.com"
-    base_version = "0.15.1"
+    base_version = ""
     tmp_dir_dumm = "/opt/mortar/installer"
-    curl_command = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{shell_url}\" MORTAR_VERSION=#{version_number} bash -c \"$(curl -sSL #{shell_url})\""
+    curl_command = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{base_url}\" bash -c \"$(curl -sSL #{base_url})\""
 
     context("version in prod") do
       mortar_install_env = ENV['MORTAR_INSTALL']
@@ -48,7 +48,7 @@ module Mortar::Command
       
       it "makes curl request for different versions when requested" do
         mortar_version = "0.15.1"
-        curl_command_with_version = curl_command +  " -v " + mortar_version
+        curl_command_with_version = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{base_url}\" MORTAR_VERSION=#{mortar_version} bash -c \"$(curl -sSL #{base_url})\""
         mock(Kernel).system( curl_command_with_version)
         mock(Kernel).system( curl_command_with_version)
         any_instance_of(Mortar::Command::Version) do |base|
@@ -62,8 +62,9 @@ module Mortar::Command
     end
 
     context("version dev") do
-      dev_url = "dev_url.com"
-      dev_curl = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{dev_url}\" MORTAR_VERSION=#{version_number} bash -c \"$(curl -sSL #{dev_url})\""
+      dev_url = "install.m0rtardata.com"
+      base_version = "0.15.1"
+      dev_curl = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{dev_url}\" bash -c \"$(curl -sSL #{dev_url})\""
       before(:each) do
         ENV['MORTAR_INSTALL'] = dev_url
       end

@@ -45,15 +45,15 @@ class Mortar::Command::Version < Mortar::Command::Base
   # -v, --version   VERSION_NUMBER    # specify which version to upgrade to
   def upgrade
     validate_arguments!
+      version_argument = ""
       if installed_with_omnibus?
-        version_number = ''
         if options[:version] 
-          version_number = " -v " + options[:version]
+          version_argument = "MORTAR_VERSION=" + options[:version] +" "
         end
         shell_url = ENV.fetch("MORTAR_INSTALL", "http://install.mortardata.com")
         dir = "/opt/mortar/installer"
         begin
-          cmd = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{shell_url}\" MORTAR_VERSION=#{version_number} bash -c \"$(curl -sSL #{shell_url})\""
+          cmd = "echo 'Upgrading will prompt for your sudo password.\n' && MORTAR_URL=\"#{shell_url}\" #{version_argument}bash -c \"$(curl -sSL #{shell_url})\""
           Kernel.system cmd
         ensure
         end
