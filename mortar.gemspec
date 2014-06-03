@@ -32,6 +32,7 @@ Gem::Specification.new do |gem|
   # rake is pinned as version 10.2 requires >= ruby 1.9
   gem.add_development_dependency "rake",   '~> 10.1.1'
   gem.add_development_dependency "rr"
-  gem.add_development_dependency "rspec"
+  # Use latest 2.x for rspec.  3.x breaks test configuration and various assertions
+  gem.add_development_dependency "rspec", '~> 2.0'
 
 end
