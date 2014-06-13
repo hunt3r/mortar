@@ -93,10 +93,6 @@ module Mortar
         path
       end
 
-      def fixtures_path
-        path = File.join(@root_path, "fixtures")
-      end
-
       def embedded_project?()
         File.exists?(File.join(@root_path, ".mortar-project-remote"))
       end
