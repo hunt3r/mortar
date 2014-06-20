@@ -146,12 +146,35 @@ module Mortar::Local
         any_instance_of(Mortar::Local::Jython) do |j|
           mock(j).install_or_update
         end
+
+        mock(ctrl).ensure_local_install_dirs_in_gitignore
+        ctrl.install_and_configure
+      end
+
+      it "install sqoop with command" do
+        command = 'command'
+        ctrl = Mortar::Local::Controller.new
+
+        any_instance_of(Mortar::Local::Java) do |j|
+          mock(j).check_install.returns(true)
+        end
+        any_instance_of(Mortar::Local::Pig) do |p|
+          mock(p).install_or_update(is_a(Mortar::PigVersion::Pig012), command)
+        end
+        any_instance_of(Mortar::Local::Python) do |p|
+          mock(p).check_or_install.returns(true)
+          mock(p).check_virtualenv.returns(true)
+          mock(p).setup_project_python_environment.returns(true)
+        end
+        any_instance_of(Mortar::Local::Jython) do |j|
+          mock(j).install_or_update
+        end
         any_instance_of(Mortar::Local::Sqoop) do |s|
           mock(s).install_or_update
         end
 
         mock(ctrl).ensure_local_install_dirs_in_gitignore
-        ctrl.install_and_configure
+        ctrl.install_and_configure(Mortar::PigVersion::Pig012.new, command, true)
       end
     end
 

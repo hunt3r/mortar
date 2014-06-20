@@ -40,7 +40,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.install_and_configure(pig_version)
+    ctrl.install_and_configure(pig_version, nil, true)
   end
 
   # local:run SCRIPT
@@ -253,7 +253,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     ctrl = Mortar::Local::Controller.new
     luigi_params = pig_parameters.sort_by { |p| p['name'] }
     luigi_params = luigi_params.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
-    ctrl.run_luigi(script, luigi_params)
+    ctrl.run_luigi(pig_version, script, luigi_params)
   end
 
   # local:sqoop_table dbtype database-name table s3-destination
@@ -294,7 +294,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     connstr = jdbc_conn(dbtype, dbhost, physdb)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.sqoop_export_table(connstr, dbtable, s3dest, options)
+    ctrl.sqoop_export_table(pig_version, connstr, dbtable, s3dest, options)
   end
 
   # local:sqoop_query dbtype database-name query s3-destination
@@ -335,7 +335,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     connstr = jdbc_conn(dbtype, dbhost, physdb)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.sqoop_export_query(connstr, query, s3dest, options)
+    ctrl.sqoop_export_query(pig_version, connstr, query, s3dest, options)
   end
 
   # local:sqoop_incremental dbtype database-name table column value s3-destination
@@ -384,7 +384,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     connstr = jdbc_conn(dbtype, dbhost, physdb)
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.sqoop_export_incremental(connstr, table, column, max_value, s3dest, options)
+    ctrl.sqoop_export_incremental(pig_version, connstr, table, column, max_value, s3dest, options)
   end
 
 

@@ -114,11 +114,12 @@ EOF
   
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
-  def install_and_configure(pig_version=nil, command=nil)
+  def install_and_configure(pig_version=nil, command=nil, install_sqoop=false)
     #To support old watchtower plugins we'll accept nil pig_version
     if pig_version.nil?
       pig_version = Mortar::PigVersion::Pig09.new
     end
+
     java = Mortar::Local::Java.new()
     unless java.check_install
       error(NO_JAVA_ERROR_MESSAGE)
@@ -145,9 +146,10 @@ EOF
     jy = Mortar::Local::Jython.new()
     jy.install_or_update()
 
-
-    sqoop = Mortar::Local::Sqoop.new()
-    sqoop.install_or_update()
+    if install_sqoop
+      sqoop = Mortar::Local::Sqoop.new()
+      sqoop.install_or_update()
+    end
 
     ensure_local_install_dirs_in_gitignore
   end
@@ -205,31 +207,31 @@ EOF
     pig.launch_repl(pig_version, pig_parameters)
   end
 
-  def run_luigi(luigi_script, user_script_args)
-    install_and_configure(nil, 'luigi')
+  def run_luigi(pig_version, luigi_script, user_script_args)
+    install_and_configure(pig_version, 'luigi')
     py = Mortar::Local::Python.new()
     py.run_luigi_script(luigi_script, user_script_args)
   end
 
-  def sqoop_export_table(connstr, dbtable, s3dest, options)
+  def sqoop_export_table(pig_version, connstr, dbtable, s3dest, options)
     require_aws_keys
-    install_and_configure(nil, 'sqoop')
+    install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
     sqoop.export(connstr, s3dest, options)
   end
 
-  def sqoop_export_query(connstr, query, s3dest, options)
+  def sqoop_export_query(pig_version, connstr, query, s3dest, options)
     require_aws_keys
-    install_and_configure(nil, 'sqoop')
+    install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:sqlquery] = sqoop.prep_query(query)
     sqoop.export(connstr, s3dest, options)
   end
 
-  def sqoop_export_incremental(connstr, dbtable, column, max_value, s3dest, options)
+  def sqoop_export_incremental(pig_version, connstr, dbtable, column, max_value, s3dest, options)
     require_aws_keys
-    install_and_configure(nil, 'sqoop')
+    install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
     options[:inc_column] = column

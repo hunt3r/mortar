@@ -299,7 +299,7 @@ STDERR
             mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
           end
           any_instance_of(Mortar::Local::Controller) do |u|
-            mock(u).install_and_configure(nil,'luigi')
+            mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
           end
           stderr, stdout = execute("local:luigi some_luigi_script -p myoption=2 -p myotheroption=3", p)
           stderr.should == ""
@@ -347,7 +347,7 @@ STDERR
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_table(connstr, dbtable, s3dest, {})
+          mock(c).sqoop_export_table(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, s3dest, {:host => "foobar.com"})
         end
         stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest} --host foobar.com"
       end
@@ -357,7 +357,7 @@ STDERR
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_table(connstr, dbtable, s3dest, {})
+          mock(c).sqoop_export_table(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, s3dest, {})
         end
         stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest}"
       end
@@ -402,7 +402,7 @@ STDERR
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_query(connstr, query, s3dest, {})
+          mock(c).sqoop_export_query(is_a(Mortar::PigVersion::Pig09), connstr, query, s3dest, {:host => "foobar.com"})
         end
         stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest} --host foobar.com"
         stderr.should == ''
@@ -413,7 +413,7 @@ STDERR
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_query(connstr, query, s3dest, {})
+          mock(c).sqoop_export_query(is_a(Mortar::PigVersion::Pig09), connstr, query, s3dest, {})
         end
         stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest}"
         stderr.should == ''
@@ -477,7 +477,7 @@ STDERR
         column_value = "12345"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_incremental(connstr, dbtable, column, column_value, s3dest, {})
+          mock(c).sqoop_export_incremental(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, column, column_value, s3dest, {:host => "foobar.com"})
         end
         stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest} --host foobar.com"
       end
@@ -489,7 +489,7 @@ STDERR
         column_value = "12345"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
-          mock(c).sqoop_export_incremental(connstr, dbtable, column, column_value, s3dest, {})
+          mock(c).sqoop_export_incremental(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, column, column_value, s3dest, {})
         end
         stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest}"
       end
