@@ -127,6 +127,7 @@ STDOUT
 Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  
 \e[1;32m      create\e[0m  README.md
+\e[1;32m      create\e[0m  project.properties
 \e[1;32m      create\e[0m  .gitignore
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig

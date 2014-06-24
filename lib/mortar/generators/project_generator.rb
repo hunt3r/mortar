@@ -32,6 +32,7 @@ module Mortar
           @dest_path = File.join(@dest_path, project_name)
           
           copy_file "README.md", "README.md"
+          copy_file "project.properties", "project.properties"
           copy_file "gitignore", ".gitignore"
           
           mkdir "pigscripts"

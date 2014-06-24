@@ -213,7 +213,7 @@ no_browser=true
         end
       end
 
-      it "obeys proper overrides" do
+      it "obeys proper overrides - deprecated file" do
         stub_core
         git = Mortar::Git::Git.new
 
@@ -238,6 +238,31 @@ polling_interval=10
 
           stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
           d.options.should == {:polling_interval => "0.05", :no_browser => true, :clustersize => "10"}
+        end
+      end
+
+      it "obeys proper overrides" do
+        stub_core
+        git = Mortar::Git::Git.new
+
+        with_git_initialized_project do |p|
+          text = """
+[DEFAULTS]
+clustersize=5
+no_browser=true
+pigversion=0.12
+"""
+          write_file(File.join(p.root_path, "project.properties"), text)
+
+          describe_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          describe_url = "https://api.mortardata.com/describe/#{describe_id}"
+
+          mock(Mortar::Auth.api).post_describe("myproject", "my_script", "my_alias", is_a(String), :pig_version => "0.12", :project_script_path => be_a_kind_of(String), :parameters=>[]) {Excon::Response.new(:body => {"describe_id" => describe_id})}
+          mock(Mortar::Auth.api).get_describe(describe_id, :exclude_result => true).returns(Excon::Response.new(:body => {"status_code" => Mortar::API::Describe::STATUS_SUCCESS, "status_description" => "Success", "web_result_url" => describe_url})).ordered
+          write_file(File.join(p.pigscripts_path, "my_script.pig"))
+
+          stderr, stdout, d = execute_and_return_command("describe pigscripts/my_script.pig my_alias --polling_interval 0.05", p, git)
+          d.options.should == {:polling_interval => "0.05", :no_browser => true, :clustersize => "5", :pigversion => "0.12"}
         end
       end
 
