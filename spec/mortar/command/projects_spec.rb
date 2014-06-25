@@ -115,6 +115,9 @@ STDOUT
         File.exists?("macros").should be_true
         File.exists?("pigscripts").should be_true
         File.exists?("udfs").should be_true
+        File.exists?("project.properties").should be_true
+        File.exists?("project.manifest").should be_true
+        File.exists?("requirements.txt").should be_true
         File.exists?("README.md").should be_true
         File.exists?("Gemfile").should be_false
         File.exists?("macros/.gitkeep").should be_true
@@ -128,6 +131,8 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  
 \e[1;32m      create\e[0m  README.md
 \e[1;32m      create\e[0m  project.properties
+\e[1;32m      create\e[0m  project.manifest
+\e[1;32m      create\e[0m  requirements.txt
 \e[1;32m      create\e[0m  .gitignore
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig

@@ -33,6 +33,8 @@ module Mortar
           
           copy_file "README.md", "README.md"
           copy_file "project.properties", "project.properties"
+          copy_file "project.manifest", "project.manifest"
+          copy_file "requirements.txt", "requirements.txt"
           copy_file "gitignore", ".gitignore"
           
           mkdir "pigscripts"
