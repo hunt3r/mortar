@@ -210,6 +210,7 @@ PARAMS
           mock(j).install_or_update.returns(true)
         end
         any_instance_of(Mortar::Local::Controller) do |j|
+          mock(j).write_local_readme
           mock(j).ensure_local_install_dirs_in_gitignore.returns(true)
         end
         stderr, stdout = execute("local:configure")

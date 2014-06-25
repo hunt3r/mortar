@@ -151,7 +151,30 @@ EOF
       sqoop.install_or_update()
     end
 
+    write_local_readme
+
     ensure_local_install_dirs_in_gitignore
+  end
+
+  def write_local_readme()
+    readme_path = File.join(local_install_directory, "README")
+    unless File.exists? readme_path
+      file = File.new(readme_path, "w")
+      file.write(<<-README
+This directory is used by Mortar to install all of the necessary dependencies for
+running locally.  You should not modify these files/directories as they may 
+be removed at any time.  
+
+For additional Java dependencies you should place your jars in the root lib folder
+of your project.  This jars will automatically be registered for you and 
+available for use in your Pig script or in UDFs.
+
+You can specify additional Python dependencies in the requirements.txt file in 
+the root of your project.
+README
+)
+      file.close
+    end
   end
 
   def ensure_local_install_dirs_in_gitignore()
