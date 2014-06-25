@@ -37,6 +37,13 @@ class Mortar::Command::Projects < Mortar::Command::Base
       display("You have no projects.")
     end
   end
+
+  # projects:list
+  #
+  # Display the available set of Mortar projects.
+  def list
+    index
+  end
   
   # projects:delete PROJECTNAME
   #
