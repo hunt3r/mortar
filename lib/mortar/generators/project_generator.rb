@@ -36,7 +36,14 @@ module Mortar
           copy_file "project.manifest", "project.manifest"
           copy_file "requirements.txt", "requirements.txt"
           copy_file "gitignore", ".gitignore"
-          
+
+          mkdir "data"
+
+          inside "data" do
+            mkdir "in"
+            mkdir "out"
+          end
+
           mkdir "pigscripts"
           
           inside "pigscripts" do
@@ -68,9 +75,20 @@ module Mortar
             end
           end
 
+          mkdir "luigiscripts"
+
+          inside "luigiscripts" do
+            copy_file "README", "README"
+          end
+
           mkdir "lib"
           inside "lib" do
             copy_file "gitkeep", ".gitkeep"
+          end
+
+          mkdir "params"
+          inside "params" do
+            copy_file "README", "README"
           end
 
         rescue => e 

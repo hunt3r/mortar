@@ -123,6 +123,8 @@ STDOUT
         File.exists?("macros/.gitkeep").should be_true
         File.exists?("pigscripts/some_new_project.pig").should be_true
         File.exists?("udfs/python/some_new_project.py").should be_true
+        File.exists?("luigiscripts/README").should be_true
+        File.exists?("params/README").should be_true
 
         File.read("pigscripts/some_new_project.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
 
@@ -134,6 +136,9 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  project.manifest
 \e[1;32m      create\e[0m  requirements.txt
 \e[1;32m      create\e[0m  .gitignore
+\e[1;32m      create\e[0m  data
+\e[1;32m      create\e[0m  data/in
+\e[1;32m      create\e[0m  data/out
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig
 \e[1;32m      create\e[0m  macros
@@ -145,8 +150,12 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  udfs/jython/.gitkeep
 \e[1;32m      create\e[0m  udfs/java
 \e[1;32m      create\e[0m  udfs/java/.gitkeep
+\e[1;32m      create\e[0m  luigiscripts
+\e[1;32m      create\e[0m  luigiscripts/README
 \e[1;32m      create\e[0m  lib
 \e[1;32m      create\e[0m  lib/.gitkeep
+\e[1;32m      create\e[0m  params
+\e[1;32m      create\e[0m  params/README
 \n\r\e[0KStatus: ACTIVE  \n\nYour project is ready for use.  Type 'mortar help' to see the commands you can perform on the project.\n
 NOTE: You'll need to change to the new directory to use your project:
     cd some_new_project
