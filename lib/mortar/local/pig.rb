@@ -410,6 +410,14 @@ class Mortar::Local::Pig
       params['MORTAR_EMAIL_S3_ESCAPED'] = Mortar::Auth.user_s3_safe(true)
     end
 
+    if ENV['MORTAR_PROJECT_ROOT']
+      params['MORTAR_PROJECT_ROOT'] = ENV['MORTAR_PROJECT_ROOT']
+    else
+      params['MORTAR_PROJECT_ROOT'] = project_root
+      ENV['MORTAR_PROJECT_ROOT'] = params['MORTAR_PROJECT_ROOT']
+    end
+
+
     # Coerce into the same format as pig parameters that were
     # passed in via the command line or a parameter file
     param_list = []
