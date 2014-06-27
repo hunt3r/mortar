@@ -203,12 +203,6 @@ module Mortar
           if File.directory? "#{path}/lib"
             manifest.puts "lib"
           end
-          if File.directory? "#{path}/luigiscripts"
-            manifest.puts "luigiscripts"
-          end
-          if File.directory? "#{path}/params"
-            manifest.puts "params"
-          end
         end
       end
     
