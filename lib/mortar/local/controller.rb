@@ -162,8 +162,8 @@ EOF
       file = File.new(readme_path, "w")
       file.write(<<-README
 This directory is used by Mortar to install all of the necessary dependencies for
-running locally.  You should not modify these files/directories as they may 
-be removed at any time.  
+running mortar local commands.  You should not modify these files/directories as
+they may be removed or updated at any time.
 
 For additional Java dependencies you should place your jars in the root lib folder
 of your project.  This jars will automatically be registered for you and 
