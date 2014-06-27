@@ -139,7 +139,7 @@ module Mortar
         end
 
         #Strip out comments and empty lines
-        manifest_pathlist.select! do |path|
+        manifest_pathlist = manifest_pathlist.select do |path|
           s_path = path.strip
           !s_path.start_with?("#") && !s_path.empty?
         end
