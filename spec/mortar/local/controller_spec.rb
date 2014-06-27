@@ -147,6 +147,7 @@ module Mortar::Local
           mock(j).install_or_update
         end
 
+        mock(ctrl).write_local_readme
         mock(ctrl).ensure_local_install_dirs_in_gitignore
         ctrl.install_and_configure
       end
@@ -173,6 +174,7 @@ module Mortar::Local
           mock(s).install_or_update
         end
 
+        mock(ctrl).write_local_readme
         mock(ctrl).ensure_local_install_dirs_in_gitignore
         ctrl.install_and_configure(Mortar::PigVersion::Pig012.new, command, true)
       end
