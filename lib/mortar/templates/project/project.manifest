@@ -6,7 +6,6 @@
 # See http://help.mortardata.com/technologies/mortar/how_mortar_projects_work
 # for more information.
 
-data/in
 lib
 macros
 pigscripts

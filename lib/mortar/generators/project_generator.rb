@@ -37,13 +37,6 @@ module Mortar
           copy_file "requirements.txt", "requirements.txt"
           copy_file "gitignore", ".gitignore"
 
-          mkdir "data"
-
-          inside "data" do
-            mkdir "in"
-            mkdir "out"
-          end
-
           mkdir "pigscripts"
           
           inside "pigscripts" do

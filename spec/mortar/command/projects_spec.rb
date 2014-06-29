@@ -136,9 +136,6 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  project.manifest
 \e[1;32m      create\e[0m  requirements.txt
 \e[1;32m      create\e[0m  .gitignore
-\e[1;32m      create\e[0m  data
-\e[1;32m      create\e[0m  data/in
-\e[1;32m      create\e[0m  data/out
 \e[1;32m      create\e[0m  pigscripts
 \e[1;32m      create\e[0m  pigscripts/some_new_project.pig
 \e[1;32m      create\e[0m  macros

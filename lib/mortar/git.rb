@@ -197,9 +197,6 @@ module Mortar
           manifest.puts "pigscripts"
           manifest.puts "udfs"
 
-          if File.directory? "#{path}/data/in"
-            manifest.puts "data/in"
-          end
           if File.directory? "#{path}/lib"
             manifest.puts "lib"
           end
