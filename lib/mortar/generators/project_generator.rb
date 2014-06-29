@@ -76,7 +76,7 @@ module Mortar
 
           mkdir "lib"
           inside "lib" do
-            copy_file "gitkeep", ".gitkeep"
+            copy_file "README", "README"
           end
 
           mkdir "params"
