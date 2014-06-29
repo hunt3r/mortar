@@ -166,8 +166,8 @@ running mortar local commands.  You should not modify these files/directories as
 they may be removed or updated at any time.
 
 For additional Java dependencies you should place your jars in the root lib folder
-of your project.  This jars will automatically be registered for you and 
-available for use in your Pig script or in UDFs.
+of your project.  These jars will be automatically registered and 
+available for use in your Pig scripts and UDFs.
 
 You can specify additional Python dependencies in the requirements.txt file in 
 the root of your project.
