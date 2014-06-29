@@ -454,6 +454,46 @@ STASH
       end
     end 
 
+    context "safe_copy for_snapshot" do
+      it "safe copies properly" do 
+        tmp_dir_src = Dir.mktmpdir
+        Dir.chdir(tmp_dir_src)
+
+        root_file = File.join("root_file")
+        root_dir_file = File.join("root_dir", "root_dir_file")
+        non_root_dir_file = File.join("dir", "non_root_dir", "non_root_dir_file")
+        dir_file = File.join("dir", "dir_file")
+
+        ex_root_file = File.join("excluded_root_file")
+        ex_root_dir_file = File.join("excluded_dir", "excluded_dir_file")
+        ex_dir_file = File.join("dir", "excluded_dir_file")
+        ex_non_root_dir_file = File.join("dir", "excluded_non_root_dir", "excluded_non_root_dir_file")
+
+        write_file(root_file)
+        write_file(root_dir_file)
+        write_file(non_root_dir_file)
+        write_file(dir_file)
+        write_file(ex_root_file)
+        write_file(ex_root_dir_file)
+        write_file(ex_dir_file)
+        write_file(ex_non_root_dir_file)
+
+        pathlist = ["root_file", "root_dir", "dir/non_root_dir", "dir/dir_file"]
+        new_tmp_dir = @git.safe_copy(pathlist)
+
+        Dir.chdir(new_tmp_dir)
+        File.exists?(root_file).should be_true
+        File.exists?(root_dir_file).should be_true
+        File.exists?(non_root_dir_file).should be_true
+        File.exists?(dir_file).should be_true
+
+        File.exists?(ex_root_file).should be_false
+        File.exists?(ex_root_dir_file).should be_false
+        File.exists?(ex_dir_file).should be_false
+        File.exists?(ex_non_root_dir_file).should be_false
+      end
+    end
+
       
 =begin
     #TODO: Fix this.

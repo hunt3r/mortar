@@ -102,7 +102,19 @@ module Mortar
         # Copy code into a temp directory so we don't confuse editors while snapshotting
         curdir = Dir.pwd
         tmpdir = Dir.mktmpdir
-        FileUtils.cp_r(pathlist, tmpdir)
+
+        pathlist.each do |path|
+          dir, file = File.split(path)
+
+          #For non-root files/directories we need to create the parent
+          #directories before copying.
+          unless dir == "."
+            FileUtils.mkdir_p(File.join(tmpdir, dir))
+          end
+
+          FileUtils.cp_r(path, File.join(tmpdir, dir))
+        end
+
         Dir.chdir(tmpdir)
 
         if block
@@ -121,37 +133,56 @@ module Mortar
       def mortar_manifest_pathlist(include_dot_git = true)
         ensure_valid_mortar_project_manifest()
 
-        manifest_pathlist = File.read(".mortar-project-manifest").split("\n")
+        manifest_pathlist = File.read(project_manifest_name).split("\n")
         if include_dot_git
           manifest_pathlist << ".git"
         end
 
+        #Strip out comments and empty lines
+        manifest_pathlist = manifest_pathlist.select do |path|
+          s_path = path.strip
+          !s_path.start_with?("#") && !s_path.empty?
+        end
+
         manifest_pathlist.each do |path|
           unless File.exists? path
-            Helpers.error(".mortar-project-manifest includes file/dir \"#{path}\" that is not in the mortar project directory.")
+            Helpers.error("#{project_manifest_name} includes file/dir \"#{path}\" that is not in the mortar project directory.")
           end
         end
         
         manifest_pathlist
       end
 
+      def add_newline_to_file(path)
+        File.open(path, "r+") do |manifest|
+          contents = manifest.read()
+          manifest.seek(0, IO::SEEK_END)
+
+          # `contents` in ruby 1.8.7 is array with entries of the
+          # type Fixnum which isn't semantically comparable with
+          # the \n char, but the ascii code 10 is
+          unless (contents[-1] == "\n" or contents[-1] == 10)
+            manifest.puts "" # ensure file ends with a newline
+          end
+        end
+      end
+
+      def project_manifest_name()
+        if File.exists? "project.manifest"
+          "project.manifest"
+        elsif File.exists? ".mortar-project-manifest"
+          ".mortar-project-manifest"
+        else
+          "project.manifest"
+        end
+      end
+
       #
       # Create a snapshot whitelist file if it doesn't already exist
       #
       def ensure_valid_mortar_project_manifest()
-        if File.exists? ".mortar-project-manifest"
-          File.open(".mortar-project-manifest", "r+") do |manifest|
-            contents = manifest.read()
-            manifest.seek(0, IO::SEEK_END)
-
-            # `contents` in ruby 1.8.7 is array with entries of the
-            # type Fixnum which isn't semantically comparable with
-            # the \n char, but the ascii code 10 is
-            unless (contents[-1] == "\n" or contents[-1] == 10)
-              manifest.puts "" # ensure file ends with a newline
-            end
-
-          end
+        if File.exists? project_manifest_name
+          add_newline_to_file(project_manifest_name)
         else
           create_mortar_project_manifest('.')
         end
@@ -161,10 +192,11 @@ module Mortar
       # Create a project manifest file
       #
       def create_mortar_project_manifest(path)
-        File.open("#{path}/.mortar-project-manifest", 'w') do |manifest|
-          manifest.puts "pigscripts"
+        File.open("#{path}/#{project_manifest_name}", 'w') do |manifest|
           manifest.puts "macros"
+          manifest.puts "pigscripts"
           manifest.puts "udfs"
+
           if File.directory? "#{path}/lib"
             manifest.puts "lib"
           end
@@ -260,7 +292,8 @@ module Mortar
           end
 
           # clone mortar-code repo
-          remote_path = File.open(".mortar-project-remote").read.strip
+          ensure_valid_mortar_project_manifest()
+          remote_path = File.open(project_manifest_name).read.strip
           clone(remote_path, mirror_dir)
 
           Dir.chdir(mirror_dir)

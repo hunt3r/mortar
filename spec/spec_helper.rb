@@ -229,7 +229,7 @@ def with_git_initialized_project_with_remote_prefix(remote_prefix, name="myproje
     git.create_mortar_project_manifest(project.root_path)
 
     remote = "mortar"
-    `git add .mortar-project-manifest`
+    `git add project.manifest`
     `git commit -a -m "First commit"`
     `git remote add #{remote} git@github.com:mortarcode-dev/#{remote_prefix}#{project.name}.git`
     project.remote = remote
@@ -365,6 +365,7 @@ def create_and_validate_git_snapshot(git)
   Dir.chdir(curdir)
   FileUtils.remove_entry_secure(snapshot_dir)
 end
+
 
 require "mortar/helpers"
 module Mortar::Helpers

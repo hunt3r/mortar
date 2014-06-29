@@ -32,8 +32,11 @@ module Mortar
           @dest_path = File.join(@dest_path, project_name)
           
           copy_file "README.md", "README.md"
+          copy_file "project.properties", "project.properties"
+          copy_file "project.manifest", "project.manifest"
+          copy_file "requirements.txt", "requirements.txt"
           copy_file "gitignore", ".gitignore"
-          
+
           mkdir "pigscripts"
           
           inside "pigscripts" do
@@ -65,9 +68,20 @@ module Mortar
             end
           end
 
+          mkdir "luigiscripts"
+
+          inside "luigiscripts" do
+            copy_file "README", "README"
+          end
+
           mkdir "lib"
           inside "lib" do
-            copy_file "gitkeep", ".gitkeep"
+            copy_file "README", "README"
+          end
+
+          mkdir "params"
+          inside "params" do
+            copy_file "README", "README"
           end
 
         rescue => e 
