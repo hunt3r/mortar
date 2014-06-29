@@ -249,6 +249,12 @@ class Mortar::Command::Local < Mortar::Command::Base
       error("No such directory #{project_root}")
     end
     Dir.chdir(project_root)
+    
+    #Set git ref as environment variable for mortar-luigi to use when
+    #running a MortarTask
+    git_ref = sync_code_with_cloud()
+    ENV['MORTAR_LUIGI_GIT_REF'] = git_ref
+
     script = validate_luigiscript!(script_name)
     ctrl = Mortar::Local::Controller.new
     luigi_params = pig_parameters.sort_by { |p| p['name'] }
