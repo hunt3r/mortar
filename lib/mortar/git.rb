@@ -103,18 +103,7 @@ module Mortar
         curdir = Dir.pwd
         tmpdir = Dir.mktmpdir
 
-        pathlist.each do |path|
-          dir, file = File.split(path)
-
-          #For non-root files/directories we need to create the parent
-          #directories before copying.
-          unless dir == "."
-            FileUtils.mkdir_p(File.join(tmpdir, dir))
-          end
-
-          FileUtils.cp_r(path, File.join(tmpdir, dir))
-        end
-
+        copy_files_to_dir(pathlist, tmpdir)        
         Dir.chdir(tmpdir)
 
         if block
@@ -124,6 +113,23 @@ module Mortar
         else
           return tmpdir
         end
+      end
+
+      def copy_files_to_dir(pathlist, dest_dir)
+        #Used to copy the pathlist from the manifest to a separate directory
+        #before syncing.
+        pathlist.each do |path|
+          dir, file = File.split(path)
+
+          #For non-root files/directories we need to create the parent
+          #directories before copying.
+          unless dir == "."
+            FileUtils.mkdir_p(File.join(dest_dir, dir))
+          end
+
+          FileUtils.cp_r(path, File.join(dest_dir, dir))
+        end
+
       end
 
       #
@@ -272,7 +278,6 @@ module Mortar
         # the project is not a git repo, so we manage a mirror directory that is a git repo
         # branch is which branch to sync to. this will be master if the cloud repo
         # is being initialized, or a branch based on the user's name in any other circumstance
-
         project_dir = project.root_path
         mirror_dir = "#{mortar_mirrors_dir}/#{project.name}"
 
@@ -355,7 +360,7 @@ module Mortar
         # mortar_manifest_pathlist(false) means don't copy .git
         FileUtils.rm_rf(Dir.glob("#{mirror_dir}/*"))
         Dir.chdir(project_dir)
-        FileUtils.cp_r(mortar_manifest_pathlist(false), mirror_dir)
+        copy_files_to_dir(mortar_manifest_pathlist(false), mirror_dir)
 
         # update remote branch
         Dir.chdir(mirror_dir)
