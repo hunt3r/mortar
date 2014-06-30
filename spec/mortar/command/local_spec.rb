@@ -302,8 +302,13 @@ STDERR
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
           end
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).sync_code_with_cloud().returns("some-git-ref")
+          end
+          ENV['MORTAR_LUIGI_GIT_REF'].should be_nil
           stderr, stdout = execute("local:luigi some_luigi_script -p myoption=2 -p myotheroption=3", p)
           stderr.should == ""
+          ENV['MORTAR_LUIGI_GIT_REF'].should == 'some-git-ref'
         end
       end
 
