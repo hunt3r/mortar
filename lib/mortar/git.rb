@@ -298,7 +298,7 @@ module Mortar
 
           # clone mortar-code repo
           ensure_valid_mortar_project_manifest()
-          remote_path = File.open(project_manifest_name).read.strip
+          remote_path = File.open(".mortar-project-remote").read.strip
           clone(remote_path, mirror_dir)
 
           Dir.chdir(mirror_dir)
