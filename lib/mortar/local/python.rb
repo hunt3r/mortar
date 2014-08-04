@@ -201,7 +201,7 @@ class Mortar::Local::Python
   end
 
   def pip_error_log_path
-    return ENV.fetch('PIP_ERROR_LOG', "dependency_install.log")
+    return ENV.fetch('PIP_ERROR_LOG', "#{local_install_directory}/pip_dependency_install.log")
   end
 
   def virtualenv_error_log_path
@@ -291,11 +291,8 @@ class Mortar::Local::Python
     # this limit.  This unfortunately leads to very vague errors about pip not existing when
     # in fact it is the truncated path to the interpreter that does not exist.  I would now
     # like the last day of my life back.
-    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} #{subcmd}`
+    pip_output = `. #{local_activate_path} && #{local_python_bin} #{local_pip_bin} --log #{pip_error_log_path} #{subcmd}`
     if 0 != $?.to_i
-      File.open(pip_error_log_path, 'w') { |f|
-        f.write(pip_output)
-      }
       return false
     else
       return true
