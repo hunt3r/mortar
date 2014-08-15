@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+require "fileutils"
 require "vendor/mortar/uuid"
 require "mortar/helpers"
 require "set"
@@ -290,8 +291,17 @@ module Mortar
       end
 
       def ensure_embedded_project_mirror_exists(mirror_dir, git_organization)
-        # create and initialize mirror git repo if it doesn't already exist
-        unless File.directory? mirror_dir
+        mirror_dir_git_dir = File.join(mirror_dir, '.git')
+
+        # create and initialize mirror git repo 
+        # if it doesn't already exist with data
+        unless (File.directory? mirror_dir_git_dir) && 
+          (! Dir.glob(File.join(mirror_dir_git_dir, "*")).empty?)
+
+          # remove any existing data from mirror dir
+          FileUtils.rm_rf(mirror_dir)
+
+          # create parent dir if it doesn't already exist
           unless File.directory? mortar_mirrors_dir
             FileUtils.mkdir_p mortar_mirrors_dir
           end
