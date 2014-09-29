@@ -451,6 +451,34 @@ protected
     pigscript
   end
 
+  def validate_github_username()
+    user_result = api.get_user().body
+    task_id = api.update_user(user_result['user_id'], {'github_team_state' => nil}).body['task_id']
+
+    task_result = nil
+    user_result = nil
+    ticking(polling_interval) do |ticks|
+      task_result = api.get_task(task_id).body
+      is_finished =
+        Mortar::API::Task::STATUSES_COMPLETE.include?(task_result["status_code"])
+      if is_finished
+        user_result = api.get_user().body
+      end
+
+      redisplay("Verifying github username: %s" % 
+        [is_finished ? " Done!" : spinner(ticks)],
+        is_finished) # only display newline on last message
+      if is_finished
+        display
+        break
+      end
+    end
+
+    if user_result['github_team_state'] == 'pending'
+      error(pending_github_team_state_message(user_result['github_accept_invite_url']))
+    end
+  end
+
   def extract_project_in_dir_no_git()
     current_dirs = Dir.glob("*/")
     missing_dir = Mortar::Project::Project.required_directories.find do |required_dir|
@@ -534,7 +562,7 @@ protected
   def default_git_organization
     "mortarcode"
   end
-  
+
   def polling_interval
     (options[:polling_interval] || 2.0).to_f
   end
