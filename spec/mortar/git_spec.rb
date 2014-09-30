@@ -138,6 +138,64 @@ module Mortar
       end
     end
     
+    context "project manifest" do
+      it "adds luigiscripts if the directory exists and manifest does not have it" do
+        with_git_initialized_project do |p|
+          # ensure luigiscripts path exists
+          luigiscripts_path = File.join(p.root_path, "luigiscripts")
+          unless File.directory? luigiscripts_path
+            FileUtils.mkdir_p(luigiscripts_path)
+          end
+
+          # remove it from manifest
+          manifest_without_luigiscripts = <<-MANIFEST
+lib
+macros
+pigscripts
+udfs
+MANIFEST
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_luigiscripts)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?("luigiscripts").should be_false
+
+          @git.ensure_luigiscripts_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.include?("luigiscripts").should be_true
+        end
+      end
+
+      it "does not add luigiscripts if the directory does not exist" do
+        with_git_initialized_project do |p|
+          # ensure luigiscripts path does not exist
+          luigiscripts_path = File.join(p.root_path, "luigiscripts")
+          if File.directory? luigiscripts_path
+            FileUtils.rm_rf(luigiscripts_path)
+          end
+
+          # remove it from manifest
+          manifest_without_luigiscripts = <<-MANIFEST
+lib
+macros
+pigscripts
+udfs
+MANIFEST
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_luigiscripts)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?("luigiscripts").should be_false
+
+          @git.ensure_luigiscripts_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.include?("luigiscripts").should be_false
+        end
+      end
+    end
+
     context "stash" do
       context "did_stash_changes" do
         it "finds that no changes were stashed" do
