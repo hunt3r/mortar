@@ -266,8 +266,8 @@ class Mortar::Command::Local < Mortar::Command::Base
     end
 
     luigi_parameters.concat(pig_style_parameters)
-    luigi_parameters.sort_by { |p| p['name'] }
-    luigi_cli_parameters = luigi_parameters.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+    luigi_cli_parameters = \
+      luigi_parameters.sort_by { |p| p['name'] }.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
 
     ctrl = Mortar::Local::Controller.new
     ctrl.run_luigi(pig_version, script, luigi_cli_parameters)
