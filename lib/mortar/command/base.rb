@@ -104,6 +104,26 @@ class Mortar::Command::Base
     param_list
   end
   
+  def luigi_parameters
+    parameters = []
+    invalid_arguments.each_slice(2) do |arg_pair|
+      name_with_dashes = arg_pair[0]
+      unless (name_with_dashes.start_with? "--") && (name_with_dashes.length > 2)
+        error("Luigi parameter #{name_with_dashes} must begin with --")
+      end
+
+      unless arg_pair.length == 2
+        error("No value provided for luigi parameter #{name_with_dashes}")
+      end
+
+      name = name_with_dashes[2..name_with_dashes.length-1]
+      value = arg_pair[1]
+      parameters << {"name" => name, "value" => value}
+    end
+
+    parameters
+  end
+
   def pig_parameters
     paramfile_params = {}
     if options[:param_file]

@@ -160,6 +160,16 @@ module Mortar
         manifest_pathlist
       end
 
+      def add_entry_to_mortar_project_manifest(path, entry)
+        File.open(path, "r+") do |manifest|
+          contents = manifest.read()
+          manifest.seek(0, IO::SEEK_END)
+          if contents && (! contents.include? entry)
+            manifest.puts entry
+          end
+        end
+      end
+
       def add_newline_to_file(path)
         File.open(path, "r+") do |manifest|
           contents = manifest.read()
@@ -189,9 +199,22 @@ module Mortar
       #
       def ensure_valid_mortar_project_manifest()
         if File.exists? project_manifest_name
+          ensure_luigiscripts_in_project_manifest()
           add_newline_to_file(project_manifest_name)
         else
           create_mortar_project_manifest('.')
+        end
+      end
+
+      #
+      # Ensure that the luigiscripts directory,
+      # which was added after some project manifests were
+      # created, is in the manifest (if luigiscripts exists).
+      #
+      def ensure_luigiscripts_in_project_manifest
+        luigiscripts_path = "luigiscripts"
+        if File.directory? luigiscripts_path
+          add_entry_to_mortar_project_manifest(project_manifest_name, luigiscripts_path)
         end
       end
 
@@ -206,6 +229,10 @@ module Mortar
 
           if File.directory? "#{path}/lib"
             manifest.puts "lib"
+          end
+
+          if File.directory? "#{path}/luigiscripts"
+            manifest.puts "luigiscripts"
           end
         end
       end
