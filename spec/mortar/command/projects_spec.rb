@@ -477,8 +477,8 @@ STDERR
       end
       
       it "shows appropriate error message when user tries to clone into existing directory" do
-          with_no_git_directory do
-            any_instance_of(Mortar::Command::Base) do |b|
+        with_no_git_directory do
+          any_instance_of(Mortar::Command::Base) do |b|
             mock(b).validate_github_username.returns(true)
           end
           mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
@@ -546,7 +546,7 @@ STDERR
         any_instance_of(Mortar::Command::Base) do |b|
           mock(b).validate_github_username.returns(true)
         end
-        
+
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
