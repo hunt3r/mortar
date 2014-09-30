@@ -228,8 +228,8 @@ class Mortar::Command::Local < Mortar::Command::Base
   # Run a luigi workflow on your local machine in local scheduler mode.
   # Any additional command line arguments will be passed directly to the luigi script.
   #
-  # -p, --parameter NAME=VALUE  # Set a pig parameter value in your script.
-  # -f, --param-file PARAMFILE  # Load pig parameter values from a file.
+  # -p, --parameter NAME=VALUE  # Set a luigi parameter value in your script.
+  # -f, --param-file PARAMFILE  # Load luigi parameter values from a file.
   # --project-root PROJECTDIR   # The root directory of the project if not the CWD
   #
   #Examples:
