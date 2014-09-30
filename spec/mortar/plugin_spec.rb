@@ -111,7 +111,7 @@ MESSAGE
         LoadedInit.should be_true
       end
 
-      describe "installing plugins with dependencies" do
+      describe "installing plugins with dependencies", :broken => true do
         it "should install plugin dependencies" do
           ## Setup Fake Gem
           mortar_fake_gem_folder = create_fake_gem("/tmp")
