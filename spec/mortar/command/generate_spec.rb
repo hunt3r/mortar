@@ -39,6 +39,7 @@ describe Mortar::Command::Generate do
       File.exists?("Test/macros/.gitkeep").should be_true
       File.exists?("Test/pigscripts/Test.pig").should be_true
       File.exists?("Test/udfs/python/Test.py").should be_true
+      File.exists?("Test/luigiscripts/README").should be_true
 
       File.read("Test/pigscripts/Test.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
     end
