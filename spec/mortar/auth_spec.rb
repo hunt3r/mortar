@@ -182,5 +182,13 @@ module Mortar
       end
     end
 
+    it "does not prompt for username in local mode if user not logged in" do
+      @cli.user(true).should == 'notloggedin@user.org'
+      @cli.user_s3_safe(true).should == 'notloggedin-user-org'
+    end
+
+    it "does not prompt for password in local mode if user not logged in" do
+      @cli.password(true).should == 'notloggedin'
+    end
   end
 end

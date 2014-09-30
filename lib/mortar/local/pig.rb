@@ -18,9 +18,11 @@ require "erb"
 require 'tempfile'
 require "mortar/helpers"
 require "mortar/local/installutil"
+require "mortar/local/params"
 
 class Mortar::Local::Pig
   include Mortar::Local::InstallUtil
+  include Mortar::Local::Params
 
   PIG_LOG_FORMAT = "humanreadable"
   LIB_TGZ_NAME = "lib-common.tar.gz"
@@ -399,39 +401,11 @@ class Mortar::Local::Pig
     return opts
   end
 
-  # Pig Paramenters that are supplied directly from Mortar when
-  # running on the server side.  We duplicate these here.
-  def automatic_pig_parameters
-    params = {}
-
-    if ENV['MORTAR_EMAIL_S3_ESCAPED']
-      params['MORTAR_EMAIL_S3_ESCAPED'] = ENV['MORTAR_EMAIL_S3_ESCAPED']
-    else
-      params['MORTAR_EMAIL_S3_ESCAPED'] = Mortar::Auth.user_s3_safe(true)
-    end
-
-    if ENV['MORTAR_PROJECT_ROOT']
-      params['MORTAR_PROJECT_ROOT'] = ENV['MORTAR_PROJECT_ROOT']
-    else
-      params['MORTAR_PROJECT_ROOT'] = project_root
-      ENV['MORTAR_PROJECT_ROOT'] = params['MORTAR_PROJECT_ROOT']
-    end
-
-
-    # Coerce into the same format as pig parameters that were
-    # passed in via the command line or a parameter file
-    param_list = []
-    params.each{ |k,v|
-      param_list.push({"name" => k, "value" => v})
-    }
-    return param_list
-  end
-
   # Given a set of user specified pig parameters, combine with the
   # automatic mortar parameters and write out to a tempfile, returning
   # it's path so it may be referenced later in the process
   def make_pig_param_file(pig_parameters)
-    mortar_pig_params = automatic_pig_parameters
+    mortar_pig_params = automatic_parameters()
     all_parameters = mortar_pig_params.concat(pig_parameters)
     param_file = Tempfile.new("mortar-pig-parameters")
     all_parameters.each { |p|

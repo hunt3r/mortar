@@ -296,12 +296,18 @@ STDERR
           script_path = File.join(p.luigiscripts_path, "#{script_name}.py")
           write_file(script_path)
           luigi_script = Mortar::Project::LuigiScript.new(script_name, script_path)
+          config_parameters = []
           mock(Mortar::Project::LuigiScript).new(script_name, script_path).returns(luigi_script)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns(config_parameters)
+          end
           any_instance_of(Mortar::Local::Python) do |u|
             mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
+            mock(u).run_stillson_luigi_client_cfg_expansion(luigi_script, config_parameters).returns(true)
           end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
+            mock(u).require_aws_keys()
           end
           any_instance_of(Mortar::Command::Local) do |u|
             mock(u).sync_code_with_cloud().returns("some-git-ref")
@@ -322,12 +328,18 @@ STDERR
           script_path = File.join(p.luigiscripts_path, "#{script_name}.py")
           write_file(script_path)
           luigi_script = Mortar::Project::LuigiScript.new(script_name, script_path)
+          config_parameters = []
           mock(Mortar::Project::LuigiScript).new(script_name, script_path).returns(luigi_script)
+          any_instance_of(Mortar::Command::Local) do |u|
+            mock(u).config_parameters.returns(config_parameters)
+          end
           any_instance_of(Mortar::Local::Python) do |u|
+            mock(u).run_stillson_luigi_client_cfg_expansion(luigi_script, config_parameters).returns(true)
             mock(u).run_luigi_script(luigi_script, %W{--myoption 2 --myotheroption 3})
           end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
+            mock(u).require_aws_keys()
           end
           any_instance_of(Mortar::Command::Local) do |u|
             mock(u).sync_code_with_cloud().returns("some-git-ref")

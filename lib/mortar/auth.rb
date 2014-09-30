@@ -72,16 +72,24 @@ class Mortar::Auth
       @credentials = ask_for_and_save_credentials
     end
 
-    def user    # :nodoc:
-      get_credentials[0]
+    def user(local=false)    # :nodoc:
+      if (local && !has_credentials)
+        "notloggedin@user.org"
+      else
+        get_credentials[0]
+      end
     end
 
-    def password    # :nodoc:
-      get_credentials[1]
+    def password(local=false)    # :nodoc:
+      if (local && !has_credentials)
+        "notloggedin"
+      else
+        get_credentials[1]
+      end
     end
 
     def user_s3_safe(local = false)
-      user_email = (local && !has_credentials) ? "notloggedin@user.org" : user
+      user_email = user(local)
       return user_email.gsub(/[^0-9a-zA-Z]/i, '-')
     end
 
