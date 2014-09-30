@@ -102,6 +102,8 @@ class Mortar::Command::Projects < Mortar::Command::Base
       ask_public(is_public)
     end 
     validate_project_name(name)
+    validate_github_username
+
     project_id = register_api_call(name,is_public) 
     Mortar::Command::run("generate:project", [name])
     FileUtils.cd(name)
@@ -195,6 +197,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
       error("Usage: mortar projects:clone PROJECT\nMust specify PROJECT.")
     end
     validate_arguments!
+    validate_github_username
     projects = api.get_projects().body["projects"]
     project = projects.find{|p| p['name'] == name}
     unless project
@@ -226,6 +229,7 @@ class Mortar::Command::Projects < Mortar::Command::Base
     end
     validate_arguments!
     validate_project_name(name)
+    validate_github_username
 
     if git.has_dot_git?
       begin

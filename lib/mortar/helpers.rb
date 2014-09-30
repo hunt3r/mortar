@@ -526,6 +526,17 @@ module Mortar
       end
     end
 
+    def pending_github_team_state_message(invite_url)
+      """
+\nYour GitHub username has been set, but you must accept GitHub's invitation to 
+join the Mortar GitHub organization.  If you have not received an email you
+can visit #{invite_url} to view and accept your invitation.
+
+You will need to accept this invitation to start using Mortar projects.
+"""
+    end
+
+
     private
 
       def create_display_method(name, colour_code, new_line=true)

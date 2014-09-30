@@ -106,7 +106,7 @@ module Mortar
 
       mock(@cli).ask_for_credentials.returns("username", "apikey")
       stub(@cli).write_credentials
-      mock(@cli.api).get_user() {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com"})}
+      mock(@cli.api).get_user().times(2) {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com"})}
       mock(@cli).ask_for_github_username.returns(new_github_username)
 
       mock(@cli.api).update_user(user_id,{"user_github_username" => new_github_username}) {Excon::Response.new(:body => {"task_id" => task_id})}
@@ -128,7 +128,7 @@ module Mortar
 
       mock(@cli).ask_for_credentials.returns("username", "apikey")
       stub(@cli).write_credentials
-      mock(@cli.api).get_user() {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com"})}
+      mock(@cli.api).get_user().times(2) {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com", "github_team_state" => "active"})}
       mock(@cli).ask_for_github_username.returns(new_github_username)
 
       mock(@cli.api).update_user(user_id,{"user_github_username" => new_github_username}) {Excon::Response.new(:body => {"task_id" => task_id})}

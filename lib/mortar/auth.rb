@@ -180,9 +180,9 @@ class Mortar::Auth
 
     def ask_for_github_username
       puts
-      puts "Please enter your github username (not email address)."
+      puts "Please enter your GitHub username (not email address)."
 
-      print "Github Username: "
+      print "GitHub Username: "
       github_username = ask
       github_username
     end
@@ -250,11 +250,15 @@ class Mortar::Auth
       task_id = api.update_user(@mortar_user['user_id'], {'user_github_username' => @github_username}).body['task_id']
 
       task_result = nil
+      user_result = nil
       ticking(polling_interval) do |ticks|
         task_result = api.get_task(task_id).body
         is_finished =
           Mortar::API::Task::STATUSES_COMPLETE.include?(task_result["status_code"])
-        
+        if is_finished
+          user_result = api.get_user().body
+        end
+
         redisplay("Setting github username: %s" % 
           [is_finished ? " Done!" : spinner(ticks)],
           is_finished) # only display newline on last message
@@ -272,6 +276,10 @@ class Mortar::Auth
         raise Mortar::CLI::Errors::InvalidGithubUsername.new
       when Mortar::API::Task::STATUS_SUCCESS
         display "Successfully set github username." 
+
+        if user_result['github_team_state'] == 'pending'
+          display pending_github_team_state_message(user_result['github_accept_invite_url'])
+        end
       else
         #Raise error so .netrc file is wiped out.
         raise RuntimeError, "Unknown task status: #{task_result['status_code']}"

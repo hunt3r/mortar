@@ -18,7 +18,7 @@ require 'spec_helper'
 require 'fakefs/spec_helpers'
 require 'mortar/command/projects'
 require 'launchy'
-require "mortar/api"
+require 'mortar/api'
 
 
 module Mortar::Command
@@ -92,8 +92,36 @@ STDOUT
     end
     
     context("create") do
+      it "tries to create a project with pending github_team_state" do
+        task_id = "1a2b3c4d5e"
+        user_id = "abcdef"
+        project_name = "some_new_project"
+
+        mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+
+        mock(Mortar::Auth.api).get_user().times(2) {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com", "github_team_state" => "pending"})}
+
+        mock(Mortar::Auth.api).update_user(user_id,{"github_team_state" => true}) {Excon::Response.new(:body => {"task_id" => task_id})}
+        mock(Mortar::Auth.api).get_task(task_id).returns(Excon::Response.new(:body => {"task_id" => task_id, "status_code" => "SUCCESS"})).ordered
+        
+        stderr, stdout = execute("projects:create #{project_name}", nil, @git)
+        stdout.should == <<-STDOUT
+\r\e[0KVerifying GitHub username:  Done!
+
+STDOUT
+      end
 
       it "registers and generates a project" do
+        task_id = "1a2b3c4d5e"
+        user_id = "abcdef"
+        mock(Mortar::Auth.api).get_user().times(2) {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com", "github_team_state" => "active"})}
+
+        mock(Mortar::Auth.api).update_user(user_id,{"github_team_state" => true}) {Excon::Response.new(:body => {"task_id" => task_id})}
+
+        mock(Mortar::Auth.api).get_task(task_id).returns(Excon::Response.new(:body => {"task_id" => task_id, "status_code" => "QUEUED"})).ordered
+        mock(Mortar::Auth.api).get_task(task_id).returns(Excon::Response.new(:body => {"task_id" => task_id, "status_code" => "PROGRESS"})).ordered
+        mock(Mortar::Auth.api).get_task(task_id).returns(Excon::Response.new(:body => {"task_id" => task_id, "status_code" => "SUCCESS"})).ordered
+
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
@@ -130,6 +158,8 @@ STDOUT
         File.read("pigscripts/some_new_project.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
 
         stdout.should == <<-STDOUT
+\r\e[0KVerifying GitHub username: /\r\e[0KVerifying GitHub username: -\r\e[0KVerifying GitHub username:  Done!
+
 Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  
 \e[1;32m      create\e[0m  README.md
@@ -164,6 +194,13 @@ STDOUT
       it "generates and registers an embedded project" do
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
+
+        task_id = "1a2b3c4d5e"
+        user_id = "abcdef"
+        mock(Mortar::Auth.api).get_user().times(2) {Excon::Response.new(:body => {"user_id" => user_id, "user_email" => "foo@foo.com", "github_team_state" => "active"})}
+        mock(Mortar::Auth.api).update_user(user_id,{"github_team_state" => true}) {Excon::Response.new(:body => {"task_id" => task_id})}
+        mock(Mortar::Auth.api).get_task(task_id).returns(Excon::Response.new(:body => {"task_id" => task_id, "status_code" => "SUCCESS"})).ordered
+
 
         project_id = "1234abcd1234abcd1234"
         project_name = "some_new_project"
@@ -426,6 +463,9 @@ STDERR
       end
       
       it "shows appropriate error message when user tries to clone non-existent project" do
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).validate_github_username.returns(true)
+        end
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         
         stderr, stdout = execute('projects:clone sillyProjectName')
@@ -438,6 +478,9 @@ STDERR
       
       it "shows appropriate error message when user tries to clone into existing directory" do
         with_no_git_directory do
+          any_instance_of(Mortar::Command::Base) do |b|
+            mock(b).validate_github_username.returns(true)
+          end
           mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
           starting_dir = Dir.pwd
           project_dir = File.join(Dir.pwd, project1['name'])
@@ -452,6 +495,9 @@ STDERR
       end
       
       it "calls git clone when existing project is cloned" do
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).validate_github_username.returns(true)
+        end
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(@git).clone(project1['git_url'], project1['name'])
         
@@ -483,6 +529,9 @@ STDERR
       end
 
       it "shows error when in git repo already" do
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).validate_github_username.returns(true)
+        end
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
 
         with_git_initialized_project do |p|           
@@ -494,6 +543,10 @@ STDERR
       end
 
       it "calls correct git commands on success" do
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).validate_github_username.returns(true)
+        end
+
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         mock(Mortar::Auth.api).get_projects().returns(Excon::Response.new(:body => {"projects" => [project1, project2]}))
         project_id = "1234abcd1234abcd1234"
