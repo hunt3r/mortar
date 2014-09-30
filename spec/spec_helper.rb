@@ -393,6 +393,7 @@ end
 RSpec.configure do |config|
   config.mock_with :rr
   config.color_enabled = true
+  config.filter_run_excluding :broken => true
   config.include DisplayMessageMatcher
   config.before { Mortar::Helpers.error_with_failure = false }
   config.after { RR.verify; RR.reset }
