@@ -225,12 +225,12 @@ class Mortar::Command::Local < Mortar::Command::Base
 
   # local:luigi SCRIPT
   #
-  # Run a luigi workflow on your local machine in local scheduler mode.
+  # Run a luigi pipeline script on your local machine in local scheduler mode.
   # Any additional command line arguments will be passed directly to the luigi script.
   #
-  # -p, --parameter NAME=VALUE  # Set a luigi parameter value in your script.
-  # -f, --param-file PARAMFILE  # Load luigi parameter values from a file.
   # --project-root PROJECTDIR   # The root directory of the project if not the CWD
+  # -p, --parameter NAME=VALUE  # [deprecated] Instead, pass luigi parameters directly as options (see below)
+  # -f, --param-file PARAMFILE  # [deprecated] Instead, pass luigi parameters directly as options (see below)
   #
   #Examples:
   #
@@ -241,8 +241,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     unless script_name
       error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
     end
-    validate_arguments!
-
+    
     # cd into the project root
     project_root = options[:project_root] ||= Dir.getwd
     unless File.directory?(project_root)
@@ -257,10 +256,21 @@ class Mortar::Command::Local < Mortar::Command::Base
     git_ref = sync_code_with_cloud()
     ENV['MORTAR_LUIGI_GIT_REF'] = git_ref
 
+    # pick up standard luigi-style params
+    luigi_parameters = luigi_parameters()
+
+    # pick up old pig-style parameters (included for backwards compatibility)
+    pig_style_parameters = pig_parameters()
+    if pig_style_parameters.length > 0
+      warn "[DEPRECATION] Passing luigi parameters with -p is deprecated. Please pass them directly (e.g. --myparam myvalue)"
+    end
+
+    luigi_parameters.concat(pig_style_parameters)
+    luigi_parameters.sort_by { |p| p['name'] }
+    luigi_cli_parameters = luigi_parameters.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+
     ctrl = Mortar::Local::Controller.new
-    luigi_params = pig_parameters.sort_by { |p| p['name'] }
-    luigi_params = luigi_params.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
-    ctrl.run_luigi(pig_version, script, luigi_params)
+    ctrl.run_luigi(pig_version, script, luigi_cli_parameters)
   end
 
   # local:sqoop_table dbtype database-name table s3-destination
