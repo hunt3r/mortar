@@ -27,7 +27,7 @@ class Mortar::Command::Luigi < Mortar::Command::Base
   #
   # Run a luigi pipeline.
   #
-  # -P, --project PROJECTNAME   # Use a project that is not checked out in the current directory.  Runs code from project's master branch in github rather than snapshotting local code.
+  # -P, --project PROJECTNAME   # Use a project that is not checked out in the current directory.  Runs code from project's master branch in GitHub rather than snapshotting local code.
   # -B, --branch BRANCHNAME     # Used with --project to specify a non-master branch
   #
   # Examples:
