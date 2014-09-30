@@ -47,7 +47,7 @@ MESSAGE
       end
 
       it "installs pulling from the plugin url" do
-        plugin_folder = "/tmp/mortar_plugin"
+        plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
         FileUtils.rm_rf(plugin_folder)
         FileUtils.mkdir_p(plugin_folder)
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
@@ -57,7 +57,7 @@ MESSAGE
       end
 
       it "reinstalls over old copies" do
-        plugin_folder = "/tmp/mortar_plugin"
+        plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
         FileUtils.rm_rf(plugin_folder)
         FileUtils.mkdir_p(plugin_folder)
         `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
@@ -70,7 +70,7 @@ MESSAGE
       context "update" do
 
         before(:each) do
-          plugin_folder = "/tmp/mortar_plugin"
+          plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
           Plugin.new(plugin_folder).install
@@ -114,8 +114,8 @@ MESSAGE
       describe "installing plugins with dependencies" do
         it "should install plugin dependencies" do
           ## Setup Fake Gem
-          mortar_fake_gem_folder = create_fake_gem("/tmp")
-          plugin_folder = "/tmp/mortar_plugin"
+          mortar_fake_gem_folder = create_fake_gem("/tmp/#{UUID.create()}")
+          plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           File.open(plugin_folder + '/Gemfile', 'w') { |f|
             f.write "gem 'mortar_fake_gem', :path => '#{mortar_fake_gem_folder}'" 
@@ -141,7 +141,7 @@ EOS
 
         it "should fail to install plugin with bad dependencies" do
           mock(Plugin).install_bundle { system("exit 1") } 
-          plugin_folder = "/tmp/mortar_plugin"
+          plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           File.open(plugin_folder + '/Gemfile', 'w') { |f| f.write "# dummy content" }
           `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
@@ -149,7 +149,7 @@ EOS
         end
 
         it "should have logs when bundle install fails" do
-          plugin_folder = "/tmp/mortar_plugin"
+          plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           File.open(plugin_folder + '/Gemfile', 'w') { |f| f.write "non_existent_command" }
           `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
@@ -160,7 +160,7 @@ EOS
         it "should clean plugin if bundler isn't installed" do
           class BundlerNotInstalledError < StandardError; end
           mock(Plugin).ensure_bundler_installed { raise BundlerNotInstalledError }
-          plugin_folder = "/tmp/mortar_plugin"
+          plugin_folder = "/tmp/#{UUID.create()}/mortar_plugin"
           FileUtils.mkdir_p(plugin_folder)
           File.open(plugin_folder + '/Gemfile', 'w') { |f| f.write "# dummy content" }
           `cd #{plugin_folder} && git init && echo 'test' > README && git add . && git commit -m 'my plugin'`
