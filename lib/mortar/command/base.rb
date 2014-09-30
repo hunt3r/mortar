@@ -453,7 +453,7 @@ protected
 
   def validate_github_username()
     user_result = api.get_user().body
-    task_id = api.update_user(user_result['user_id'], {'github_team_state' => nil}).body['task_id']
+    task_id = api.update_user(user_result['user_id'], {'github_team_state' => true}).body['task_id']
 
     task_result = nil
     user_result = nil
@@ -465,7 +465,7 @@ protected
         user_result = api.get_user().body
       end
 
-      redisplay("Verifying github username: %s" % 
+      redisplay("Verifying GitHub username: %s" % 
         [is_finished ? " Done!" : spinner(ticks)],
         is_finished) # only display newline on last message
       if is_finished

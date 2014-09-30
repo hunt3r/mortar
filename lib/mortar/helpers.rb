@@ -528,11 +528,11 @@ module Mortar
 
     def pending_github_team_state_message(invite_url)
       """
-\nYour Github username has been set, but you must accept Github's invitation to 
-join the Mortar Github organization.  If you have not received an email you
+\nYour GitHub username has been set, but you must accept GitHub's invitation to 
+join the Mortar GitHub organization.  If you have not received an email you
 can visit #{invite_url} to view and accept your invitation.
 
-You will be unable to use Mortar projects until you have accepted this invitation.
+You will need to accept this invitation to start using Mortar projects.
 """
     end
 

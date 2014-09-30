@@ -180,9 +180,9 @@ class Mortar::Auth
 
     def ask_for_github_username
       puts
-      puts "Please enter your github username (not email address)."
+      puts "Please enter your GitHub username (not email address)."
 
-      print "Github Username: "
+      print "GitHub Username: "
       github_username = ask
       github_username
     end
