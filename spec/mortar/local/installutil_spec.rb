@@ -113,6 +113,12 @@ module Mortar::Local
         expect(@installutil.is_newer_version('foo', 'http://bar')).to be_true
       end
 
+      it "is if remote file last-modfied is unavailable" do
+        stub(@installutil).install_date.returns(1)
+        stub(@installutil).url_date.returns(nil)
+        expect(@installutil.is_newer_version('foo', 'http://bar')).to be_false
+      end
+
       it "is not if remote file is older" do
         stub(@installutil).install_date.returns(2)
         stub(@installutil).url_date.returns(1)

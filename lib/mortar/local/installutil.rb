@@ -198,7 +198,12 @@ module Mortar
 
       def url_date(url, command=nil)
         result = head_resource(url, command)
-        http_date_to_epoch(result.get_header('Last-Modified'))
+        last_modified = result.get_header('Last-Modified')
+        if last_modified
+          http_date_to_epoch(last_modified)
+        else
+          nil
+        end
       end
 
       # Given a subdirectory where we have installed some software
@@ -211,6 +216,9 @@ module Mortar
           return true
         end
         remote_archive_date = url_date(url, command)
+        if not remote_archive_date
+          return false
+        end
         return existing_install_date < remote_archive_date
       end
 
