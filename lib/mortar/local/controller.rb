@@ -230,10 +230,14 @@ README
     pig.launch_repl(pig_version, pig_parameters)
   end
 
-  def run_luigi(pig_version, luigi_script, user_script_args)
+  def run_luigi(pig_version, luigi_script, luigi_script_parameters, project_config_parameters)
+    require_aws_keys
     install_and_configure(pig_version, 'luigi')
     py = Mortar::Local::Python.new()
-    py.run_luigi_script(luigi_script, user_script_args)
+    unless py.run_stillson_luigi_client_cfg_expansion(luigi_script, project_config_parameters)
+      error("Unable to expand your configuration template [luigiscripts/client.cfg.template] to [luigiscripts/client.cfg]")
+    end
+    py.run_luigi_script(luigi_script, luigi_script_parameters)
   end
 
   def sqoop_export_table(pig_version, connstr, dbtable, s3dest, options)

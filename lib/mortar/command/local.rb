@@ -256,8 +256,8 @@ class Mortar::Command::Local < Mortar::Command::Base
     git_ref = sync_code_with_cloud()
     ENV['MORTAR_LUIGI_GIT_REF'] = git_ref
 
-    # pick up standard luigi-style params
-    luigi_parameters = luigi_parameters()
+    # pick up standard luigi-style params provided by the user
+    luigi_cli_parameters = luigi_parameters()
 
     # pick up old pig-style parameters (included for backwards compatibility)
     pig_style_parameters = pig_parameters()
@@ -265,12 +265,15 @@ class Mortar::Command::Local < Mortar::Command::Base
       warn "[DEPRECATION] Passing luigi parameters with -p is deprecated. Please pass them directly (e.g. --myparam myvalue)"
     end
 
-    luigi_parameters.concat(pig_style_parameters)
-    luigi_cli_parameters = \
-      luigi_parameters.sort_by { |p| p['name'] }.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+    luigi_cli_parameters.concat(pig_style_parameters)
+    cli_parameters = \
+      luigi_cli_parameters.sort_by { |p| p['name'] }.map { |arg| ["--#{arg['name']}", "#{arg['value']}"] }.flatten
+
+    # get project configuration parameters
+    project_config_params = config_parameters()
 
     ctrl = Mortar::Local::Controller.new
-    ctrl.run_luigi(pig_version, script, luigi_cli_parameters)
+    ctrl.run_luigi(pig_version, script, cli_parameters, project_config_params)
   end
 
   # local:sqoop_table dbtype database-name table s3-destination
