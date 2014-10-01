@@ -421,4 +421,9 @@ class Mortar::Local::Pig
     param_file.path
   end
 
+  def automatic_pig_parameters
+    warn "[DEPRECATION] Please call automatic_parameters instead"
+    automatic_parameters
+  end
+  
 end
