@@ -148,12 +148,12 @@ module Mortar
           end
 
           # remove it from manifest
-          manifest_without_luigiscripts = <<-MANIFEST
+          manifest_without_luigiscripts = <<-MANIFEST0
 lib
 macros
 pigscripts
 udfs
-MANIFEST
+MANIFEST0
           manifest_path = File.join(p.root_path, "project.manifest")
           write_file(manifest_path, manifest_without_luigiscripts)
 
@@ -163,7 +163,13 @@ MANIFEST
           @git.ensure_luigiscripts_in_project_manifest()
 
           project_manifest_after = File.open(manifest_path, "r").read
-          project_manifest_after.include?("luigiscripts").should be_true
+          project_manifest_after.should == <<-MANIFEST0AFTER
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+MANIFEST0AFTER
         end
       end
 
@@ -176,12 +182,12 @@ MANIFEST
           end
 
           # remove it from manifest
-          manifest_without_luigiscripts = <<-MANIFEST
+          manifest_without_luigiscripts = <<-MANIFEST1
 lib
 macros
 pigscripts
 udfs
-MANIFEST
+MANIFEST1
           manifest_path = File.join(p.root_path, "project.manifest")
           write_file(manifest_path, manifest_without_luigiscripts)
 
@@ -191,7 +197,48 @@ MANIFEST
           @git.ensure_luigiscripts_in_project_manifest()
 
           project_manifest_after = File.open(manifest_path, "r").read
-          project_manifest_after.include?("luigiscripts").should be_false
+          project_manifest_after.should == <<-MANIFEST1AFTER
+lib
+macros
+pigscripts
+udfs
+MANIFEST1AFTER
+        end
+      end
+
+      it "handles manifest with no trailing newline" do
+        with_git_initialized_project do |p|
+          # ensure luigiscripts path exists
+          luigiscripts_path = File.join(p.root_path, "luigiscripts")
+          unless File.directory? luigiscripts_path
+            FileUtils.mkdir_p(luigiscripts_path)
+          end
+
+          # remove it from manifest
+          manifest_without_luigiscripts = <<-MANIFEST2
+lib
+macros
+pigscripts
+udfs
+MANIFEST2
+          # strip the trailing newline
+          manifest_without_luigiscripts.strip!
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_luigiscripts)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?("luigiscripts").should be_false
+
+          @git.ensure_luigiscripts_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.should == <<-MANIFEST2AFTER
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+MANIFEST2AFTER
         end
       end
     end
