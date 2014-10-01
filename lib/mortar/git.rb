@@ -161,11 +161,14 @@ module Mortar
       end
 
       def add_entry_to_mortar_project_manifest(path, entry)
-        File.open(path, "r+") do |manifest|
-          contents = manifest.read()
-          manifest.seek(0, IO::SEEK_END)
-          if contents && (! contents.include? entry)
-            manifest.puts entry
+        contents = File.open(path, "r") do |manifest|
+          manifest.read.strip
+        end
+
+        if contents && (! contents.include? entry)
+          new_contents = "#{contents}\n#{entry}\n"
+          File.open(path, "w") do |manifest|
+            manifest.write new_contents
           end
         end
       end
