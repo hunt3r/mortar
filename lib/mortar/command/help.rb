@@ -23,7 +23,7 @@ require "mortar/command/base"
 #
 class Mortar::Command::Help < Mortar::Command::Base
 
-  PRIMARY_NAMESPACES = %w( auth clusters generate illustrate jobs pigscripts projects )
+  PRIMARY_NAMESPACES = %w( auth config clusters generate jobs local luigi projects )
 
   # help [COMMAND]
   #

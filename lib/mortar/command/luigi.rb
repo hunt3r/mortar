@@ -17,7 +17,7 @@
 require "mortar/command/base"
 require "time"
 
-# run and view status of luigi pipeline jobs (run, status, jobs)
+# run luigi pipeline jobs
 #
 class Mortar::Command::Luigi < Mortar::Command::Base
 
