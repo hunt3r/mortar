@@ -152,6 +152,7 @@ STDOUT
         File.exists?("pigscripts/some_new_project.pig").should be_true
         File.exists?("udfs/python/some_new_project.py").should be_true
         File.exists?("luigiscripts/README").should be_true
+       ## File.exists?("luigiscripts/some_new_project_luigi.py").should be_true
         File.exists?("lib/README").should be_true
         File.exists?("params/README").should be_true
 
@@ -180,6 +181,7 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  udfs/java/.gitkeep
 \e[1;32m      create\e[0m  luigiscripts
 \e[1;32m      create\e[0m  luigiscripts/README
+\e[1;32m      create\e[0m  luigiscripts/some_new_project_luigi.py
 \e[1;32m      create\e[0m  lib
 \e[1;32m      create\e[0m  lib/README
 \e[1;32m      create\e[0m  params

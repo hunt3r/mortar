@@ -72,6 +72,7 @@ module Mortar
 
           inside "luigiscripts" do
             copy_file "README", "README"
+            generate_file "luigiscript.py", "#{project_name}_luigi.py"
           end
 
           mkdir "lib"
