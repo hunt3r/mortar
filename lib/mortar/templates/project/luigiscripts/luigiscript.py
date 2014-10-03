@@ -23,7 +23,7 @@ from mortar.luigi import mortartask
 
 
   To Run:
-    mortar local:luigi luigiscripts/<%= project_name_alias %>.py
+    mortar local:luigi luigiscripts/<%= project_name_alias %>_luigi.py
         -p output-base-path=s3://your/output_base_path
 """
 
