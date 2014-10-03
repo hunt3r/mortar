@@ -27,7 +27,7 @@ from mortar.luigi import mortartask
         --p output-base-path=s3://your/output_base_path
 """
 
-MORTAR_PROJECT = <%= project_name_alias %>
+MORTAR_PROJECT = '<%= project_name_alias %>'
 
 # helper function
 def create_full_path(base_path, sub_path):
@@ -49,7 +49,7 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
   will run in Mortar's local mode.  This is a fast (and free!) way to run jobs
   on small data samples.  Cluster sizes >= 2 will run on a Hadoop cluster.
   """
-  cluster_size = luigi.IntParmater(default=0)
+  cluster_size = luigi.IntParameter(default=0)
 
   """
   Path to input data being analyzed using the Pig script.
@@ -67,13 +67,19 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     exists on S3 before we run the script. S3PathTask validates that the
     specified file or directory exists on S3.
     """
-    return [S3PathTask(self.input_path()]
+    return [S3PathTask(self.input_path)]
 
   def project(self):
     """
     Name of Mortar Project to run.
     """
     return MORTAR_PROJECT
+
+  def script_output(self):
+    """
+    This method is needed to clear out any data in the output path.
+    """
+    return[S3Target(self.output_base_path)]
   
   def token_path(self):
     """
@@ -88,13 +94,13 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     """
     Parameters for this pig job.
     """
-   return {'INPUT_PATH': self.input_path}
+    return {'INPUT_PATH': self.input_path}
   
   def script(self):
     """
     Name of Pig script to run.
     """
-    return <%= project_name_alias %>
+    return '<%= project_name_alias %>'
 
 
 class ShutdownClusters (mortartask.MortarClusterShutdownTask):
@@ -118,7 +124,7 @@ class ShutdownClusters (mortartask.MortarClusterShutdownTask):
     output. We write a token with the class name to S3 to know that this task
     has completed and it does not need to be run again.
     """
-    return [S3Target((create_full_path(self.output_base_path, 'ShutdownClusters'))]
+    return [S3Target((create_full_path(self.output_base_path, 'ShutdownClusters')))]
 
 if __name__ == "__main__":
   """
