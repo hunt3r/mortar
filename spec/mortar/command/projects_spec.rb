@@ -157,6 +157,7 @@ STDOUT
         File.exists?("params/README").should be_true
 
         File.read("pigscripts/some_new_project.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
+        File.read("luigiscripts/some_new_project_luigi.py").each_line { |line| line.match(/<%.*%>/).should be_nil }
 
         stdout.should == <<-STDOUT
 \r\e[0KVerifying GitHub username: /\r\e[0KVerifying GitHub username: -\r\e[0KVerifying GitHub username:  Done!
