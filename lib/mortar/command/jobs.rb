@@ -208,9 +208,8 @@ class Mortar::Command::Jobs < Mortar::Command::Base
       error("Usage: mortar jobs:status JOB_ID\nMust specify JOB_ID.")
     end
     validate_arguments!
-    
-    # Inner function to display the hash table when the job is complte
-    def display_job_status(job_status)
+
+    def pig_job_display_entries(job_status)
       job_display_entries = {
         "status" => job_status["status_description"],
         "cluster_id" => job_status["cluster_id"],
@@ -220,7 +219,54 @@ class Mortar::Command::Jobs < Mortar::Command::Base
         "job running for" => job_status["duration"],
         "job run with parameters" => job_status["parameters"],
       }
+    end
 
+    def luigi_job_display_entries(job_status)
+      status = job_status['status_description']
+      if !job_status['status_detail_description'].nil?
+        status += " - #{job_status['status_detail_description']}"
+      end
+
+      job_display_entries = {
+        "status" => status,
+        "job submitted at" => job_status["start_timestamp"],
+        "job began running at" => job_status["running_timestamp"],
+        "job finished at" => job_status["stop_timestamp"],
+        "job running for" => job_status["duration"],
+        "job run with parameters" => job_status["parameters"],
+      }
+    end
+
+    def add_pig_job_fields(job_status, job_display_entries)
+     if job_status["outputs"] && job_status["outputs"].length > 0
+        job_display_entries["outputs"] = Hash.new { |h,k| h[k] = [] }
+        job_status["outputs"].select{|o| o["alias"]}.collect{ |output|
+          output_hash = {}
+          output_hash["location"] = output["location"] if output["location"]
+          output_hash["records"] = output["records"] if output["records"]
+          [output['alias'], output_hash]
+        }.each{ |k,v| job_display_entries["outputs"][k] << v }
+      end
+
+      if job_status["num_hadoop_jobs"] && job_status["num_hadoop_jobs_succeeded"]
+        job_display_entries["progress"] = "#{job_status["progress"]}%"
+        job_display_entries["hadoop jobs complete"] = 
+          '%0.2f / %0.2f' % [job_status["num_hadoop_jobs_succeeded"], job_status["num_hadoop_jobs"]]
+      elsif job_status["num_hadoop_jobs_succeeded"]
+        job_display_entries["progress"] = '%0.2f MapReduce Jobs complete.' % job_status["num_hadoop_jobs_succeeded"]
+      else
+        job_display_entries["progress"] = "#{job_status["progress"]}%"
+      end
+    end
+    
+    # Inner function to display the hash table when the job is complte
+    def display_job_status(job_status)
+      if (job_status['job_type'] == Mortar::API::Jobs::JOB_TYPE_LUIGI)
+        job_display_entries = luigi_job_display_entries(job_status)
+      else
+        job_display_entries = pig_job_display_entries(job_status)
+        add_pig_job_fields(job_status, job_display_entries)
+      end
       
       unless job_status["error"].nil? || job_status["error"]["message"].nil?
         error_context = get_error_message_context(job_status["error"]["message"])
@@ -231,34 +277,8 @@ class Mortar::Command::Jobs < Mortar::Command::Base
           job_display_entries["error - #{key}"] = value
         end
       end
-      
-      if job_status["num_hadoop_jobs"] && job_status["num_hadoop_jobs_succeeded"]
-        job_display_entries["progress"] = "#{job_status["progress"]}%"
-        job_display_entries["hadoop jobs complete"] = 
-          '%0.2f / %0.2f' % [job_status["num_hadoop_jobs_succeeded"], job_status["num_hadoop_jobs"]]
-      elsif job_status["num_hadoop_jobs_succeeded"]
-        job_display_entries["progress"] = '%0.2f MapReduce Jobs complete.' % job_status["num_hadoop_jobs_succeeded"]
-      else
-        job_display_entries["progress"] = "#{job_status["progress"]}%"
-      end
-      
-      if job_status["outputs"] && job_status["outputs"].length > 0
-        job_display_entries["outputs"] = Hash.new { |h,k| h[k] = [] }
-        job_status["outputs"].select{|o| o["alias"]}.collect{ |output|
-          output_hash = {}
-          output_hash["location"] = output["location"] if output["location"]
-          output_hash["records"] = output["records"] if output["records"]
-          [output['alias'], output_hash]
-        }.each{ |k,v| job_display_entries["outputs"][k] << v }
-      end
-      
-      if job_status["controlscript_name"]
-        script_name = job_status["controlscript_name"]
-      else 
-        script_name = job_status["pigscript_name"]
-      end
 
-      styled_header("#{job_status["project_name"]}: #{script_name} (job_id: #{job_status["job_id"]})")
+      styled_header("#{job_status["display_name"]} (job_id: #{job_status["job_id"]})")
       styled_hash(job_display_entries)
     end
     
@@ -274,8 +294,8 @@ class Mortar::Command::Jobs < Mortar::Command::Base
           break
         end
 
-        # If the job is running show the progress bar
-        if job_status["status_code"] == Mortar::API::Jobs::STATUS_RUNNING && job_status["num_hadoop_jobs"]
+        # If not a Luigi job and job is running show the progress bar
+        if job_status['job_type'] != Mortar::API::Jobs::JOB_TYPE_LUIGI and job_status["status_code"] == Mortar::API::Jobs::STATUS_RUNNING && job_status["num_hadoop_jobs"]
           progressbar = "=" + ("=" * (job_status["progress"].to_i / 5)) + ">"
 
           if job_status["num_hadoop_jobs"] && job_status["num_hadoop_jobs_succeeded"]
@@ -285,7 +305,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
 
           printf("\r[#{spinner(ticks)}] Status: [%-22s] %s%% Complete (%s MapReduce jobs finished)", progressbar, job_status["progress"], hadoop_jobs_ratio_complete)
 
-        elsif job_status["status_code"] == Mortar::API::Jobs::STATUS_RUNNING
+        elsif job_status['job_type'] != Mortar::API::Jobs::JOB_TYPE_LUIGI and job_status["status_code"] == Mortar::API::Jobs::STATUS_RUNNING
           jobs_complete = '%0.2f' % job_status["num_hadoop_jobs_succeeded"]
           printf("\r[#{spinner(ticks)}] #{jobs_complete} MapReduce Jobs complete.")
 
@@ -294,6 +314,9 @@ class Mortar::Command::Jobs < Mortar::Command::Base
           job_display_status = job_status['status_description']
           if !job_status['status_details'].nil?
             job_display_status += " - #{job_status['status_details']}"
+          end
+          if !job_status['status_detail_description'].nil?
+            job_display_status += " - #{job_status['status_detail_description']}"
           end
           redisplay("[#{spinner(ticks)}] Status: #{job_display_status}")
         end
