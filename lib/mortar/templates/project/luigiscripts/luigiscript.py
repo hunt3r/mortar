@@ -19,16 +19,12 @@ from mortar.luigi import mortartask
   For full tutorials and in-depth Luigi documentation, visit:
   https://help.mortardata.com/technologies/luigi
 
-  To Do:
-  Replace MORTAR_PROJECT constant with your project name.
-
   To Run:
     mortar luigi luigiscripts/<%= project_name_alias %>_luigi.py
     --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name_alias %>"
 """
 
-# REPLACE WITH YOUR PROJECT NAME
-MORTAR_PROJECT = '<your-project-name>'
+MORTAR_PROJECT = '<%= project_name_alias %>'
 
 # helper function
 def create_full_path(base_path, sub_path):
