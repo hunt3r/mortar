@@ -20,7 +20,7 @@ from mortar.luigi import mortartask
   https://help.mortardata.com/technologies/luigi
 
   To Run:
-    mortar luigi luigiscripts/<%= project_name %>_luigi.py
+    mortar luigi luigiscripts/<%= project_name %>_luigi.py \
     --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name %>"
 """
 
@@ -75,7 +75,7 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     will be stored. Luigi will check this output location before starting any
     tasks that depend on this task.
     """
-    return[S3Target(self.output_base_path)]
+    return[S3Target(self.output_base_path + '/pigoutput')]
   
   def token_path(self):
     """
@@ -90,7 +90,8 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     """
     Parameters for this pig job.
     """
-    return {'INPUT_PATH': self.input_path}
+    return {'INPUT_PATH': self.input_path,
+            'OUTPUT_PATH': self.output_base_path + '/pigoutput'}
   
   def script(self):
     """
