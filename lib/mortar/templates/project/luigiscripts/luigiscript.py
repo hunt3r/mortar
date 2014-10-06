@@ -75,7 +75,7 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     will be stored. Luigi will check this output location before starting any
     tasks that depend on this task.
     """
-    return[S3Target(self.output_base_path)]
+    return[S3Target(self.output_base_path + '/pigoutput')]
   
   def token_path(self):
     """
@@ -90,7 +90,8 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     """
     Parameters for this pig job.
     """
-    return {'INPUT_PATH': self.input_path}
+    return {'INPUT_PATH': self.input_path,
+            'OUTPUT_PATH': self.output_base_path + '/pigoutput'}
   
   def script(self):
     """
