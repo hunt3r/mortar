@@ -72,6 +72,8 @@ module Mortar
 
           inside "luigiscripts" do
             copy_file "README", "README"
+            generate_file "luigiscript.py", "#{project_name}_luigi.py"
+            generate_file "client.cfg.template", "client.cfg.template"
           end
 
           mkdir "lib"

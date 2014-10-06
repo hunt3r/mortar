@@ -2,6 +2,7 @@ Gemfile.lock
 *.pyc
 *.class
 *.log
+luigiscripts/client.cfg
 tmp
 .mortar-fork
 .mortar-local
