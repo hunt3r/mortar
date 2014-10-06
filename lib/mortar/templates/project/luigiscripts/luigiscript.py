@@ -5,33 +5,34 @@ from luigi.s3 import S3Target, S3PathTask
 from mortar.luigi import mortartask
 
 """
-  Luigi is a Python package that helps you build complex pipelines of batch
-  jobs. The purpose of Luigi is to address all the plumbing typically
-  associated with long-running batch processes. In this example we will be 
-  running the ShutdownClusters task which is dependent on RunMyExamplePigScript
-  task. This means the cluster will only shutdown after RunMyExamplePigScript
-  (where the data transformation is actually happening) task is completed.
+  Luigi is a powerful, easy-to-use framework for building data pipelines.
 
-  This script is a 'fill in the blank' interaction. Feel free to alter it to
-  run something you need.
+  This is an example Luigi script to get you started. This script has a 
+  'fill in the blank' interaction. Feel free to alter it to build your pipeline.
+
+  In this example we will run a Pig script, and then shutdown any clusters associated
+  with that script.  We will do that by running the ShutdownClusters Task,
+  which is dependent on RunMyExamplePigScript Task. This means the cluster will only 
+  shutdown after RunMyExamplePigScript (where the data transformation happens) 
+  Task is completed.
 
   For full tutorials and in-depth Luigi documentation, visit:
   https://help.mortardata.com/technologies/luigi
 
-  TO DO:
-  Fill in input_path.
-
+  To Do:
+  Replace MORTAR_PROJECT constant with your project name.
 
   To Run:
-    mortar local:luigi luigiscripts/<%= project_name_alias %>_luigi.py
-        --p output-base-path=s3://your/output_base_path
+    mortar luigi luigiscripts/<%= project_name_alias %>_luigi.py
+    --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name_alias %>"
 """
 
-MORTAR_PROJECT = '<%= project_name_alias %>'
+# REPLACE WITH YOUR PROJECT NAME
+MORTAR_PROJECT = '<your-project-name>'
 
 # helper function
 def create_full_path(base_path, sub_path):
-    return '%s/%s' % (base_path, sub_path)
+  return '%s/%s' % (base_path, sub_path)
 
 class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
   """
@@ -53,11 +54,8 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
 
   """
   Path to input data being analyzed using the Pig script.
-  You may choose not to pass this in through Luigi and just have this parameter
-  in Pig.
   """
-  #TODO
-  input_path = luigi.Parameter(default ='s3://your/input/path')
+  input_path = luigi.Parameter(default ='s3://mortar-example-data/tutorial/excite.log.bz2')
 
 
   def requires(self):
@@ -77,7 +75,9 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
 
   def script_output(self):
     """
-    This method is needed to clear out any data in the output path.
+    The script_output method is how you define where the output from this task
+    will be stored. Luigi will check this output location before starting any
+    tasks that depend on this task.
     """
     return[S3Target(self.output_base_path)]
   
@@ -103,10 +103,12 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     return '<%= project_name_alias %>'
 
 
-class ShutdownClusters (mortartask.MortarClusterShutdownTask):
+class ShutdownClusters(mortartask.MortarClusterShutdownTask):
   """
-  When the pipeline is completed, shut down all active clusters not currently
-  running jobs.
+  When the pipeline is completed, this task shuts down all active clusters not
+  currently running jobs. As this task is only shutting down clusters and not
+  generating any output data, this S3 location is used to store a 'token' file
+  indicating when the task has been completed.
   """
   output_base_path = luigi.Parameter() 
 
@@ -116,7 +118,7 @@ class ShutdownClusters (mortartask.MortarClusterShutdownTask):
     cluster should not shut down until all the tasks are completed. You can
     think of this as saying 'shut down my cluster after running my task'.
     """
-    return RunMyExamplePigScript (output_base_path = self.output_base_path)
+    return RunMyExamplePigScript(output_base_path = self.output_base_path)
 
   def output(self):
     """
@@ -129,7 +131,7 @@ class ShutdownClusters (mortartask.MortarClusterShutdownTask):
 if __name__ == "__main__":
   """
   The final task in your pipeline, which will in turn pull in any dependencies
-  need to be run should be called in the main method.In this case 
-  ShutdownClusters is being called.
+  need to be run should be called in the main method. In this case ShutdownClusters
+  is being called.
   """
   luigi.run(main_task_cls= ShutdownClusters)
