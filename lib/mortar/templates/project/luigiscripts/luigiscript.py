@@ -20,11 +20,11 @@ from mortar.luigi import mortartask
   https://help.mortardata.com/technologies/luigi
 
   To Run:
-    mortar luigi luigiscripts/<%= project_name_alias %>_luigi.py
-    --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name_alias %>"
+    mortar luigi luigiscripts/<%= project_name %>_luigi.py
+    --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name %>"
 """
 
-MORTAR_PROJECT = '<%= project_name_alias %>'
+MORTAR_PROJECT = '<%= project_name %>'
 
 # helper function
 def create_full_path(base_path, sub_path):
@@ -96,7 +96,7 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
     """
     Name of Pig script to run.
     """
-    return '<%= project_name_alias %>'
+    return '<%= project_name %>'
 
 
 class ShutdownClusters(mortartask.MortarClusterShutdownTask):
