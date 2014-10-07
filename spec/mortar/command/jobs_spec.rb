@@ -568,6 +568,7 @@ STDERR
           mock(Mortar::Auth.api).get_job(job_id) {Excon::Response.new(:body => {"job_id" => job_id,
             "pigscript_name" => pigscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{pigscript_name}",
             "status_code" => status_code,
             "status_description" => "Success",
             "progress" => progress,
@@ -621,6 +622,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id) {Excon::Response.new(:body => {"job_id" => job_id,
             "pigscript_name" => pigscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{pigscript_name}",
             "status_code" => status_code,
             "status_description" => "Running",
             "progress" => progress,
@@ -668,6 +670,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id) {Excon::Response.new(:body => {"job_id" => job_id,
             "pigscript_name" => pigscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{pigscript_name}",
             "status_code" => status_code,
             "status_description" => "Execution error",
             "progress" => progress,
@@ -719,6 +722,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
             "controlscript_name" => controlscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{controlscript_name}",
             "status_code" => status_code,
             "status_description" => "Execution error",
             "progress" => progress,
@@ -744,6 +748,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
             "controlscript_name" => controlscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{controlscript_name}",
             "status_code" => status_code,
             "status_description" => "Success",
             "progress" => progress,
@@ -798,6 +803,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
             "pigscript_name" => pigscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{pigscript_name}",
             "status_code" => status_code,
             "status_description" => "Execution error",
             "progress" => progress,
@@ -824,6 +830,7 @@ STDOUT
           mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
             "pigscript_name" => pigscript_name,
             "project_name" => project_name,
+            "display_name" => "#{project_name}: #{pigscript_name}",
             "status_code" => status_code,
             "status_description" => "Success",
             "progress" => progress,
@@ -862,28 +869,97 @@ STDOUT
         end
       end
 
-      context("stop") do
-        it "Stops a running job with default message" do
-          job_id = "1234abcd"
-          mock(Mortar::Auth.api).stop_job(job_id) {Excon::Response.new(:body => {"success" => true})}
+      it "gets status for a running pipeline job using polling" do
+        #{"project_name"=>"jkarn-mortar-recsys", "status_code"=>"finished", "status_detail_description"=>"Success", "status_detail"=>"success", "duration"=>"< 1 min", "status_description"=>"Finished", "script_variables"=>[], "start_timestamp"=>"2014-10-03T12:34:40.994000+00:00", "display_name"=>"jkarn-mortar-recsys: simple-retail-generate-signals", "job_id"=>"542e97cea40a865ab7000dfe", "request_timestamp"=>"2014-10-03T12:34:22.439000+00:00", "luigiscript_name"=>"simple-retail-generate-signals", "job_type"=>"luigi", "error"=>nil, "git_ref"=>"015690ad2c951c67366e36847be59646d441c5b1", "stop_timestamp"=>"2014-10-03T12:35:20.241000+00:00"}
+        with_git_initialized_project do |p|
+          job_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
+          luigiscript_name = "my_luigi_script"
+          project_name = "myproject"
+          display_name = "#{project_name}: #{luigiscript_name}"
+          status_code = Mortar::API::Jobs::LUIGI_JOB_STATUS__STARTING
+          status_description = "#{status_code} description"
+          status_detail = nil
+          status_detail_description = "#{status_detail} description"
+          start_timestamp = "2012-02-28T03:35:42.831000+00:00"
+          stop_timestamp = "2012-02-28T03:44:52.613000+00:00"
+          running_timestamp = "2012-02-28T03:41:52.613000+00:00"
+          duration = "< 1 min"
 
-          stderr, stdout = execute("jobs:stop #{job_id}")
-          stdout.should == <<-STDOUT
-Stopping job #{job_id}.
+          mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
+            "project_name"=>project_name,
+            "status_code"=>status_code,
+            "status_detail_description"=>status_detail_description,
+            "status_detail"=>status_detail,
+            "duration"=>duration,
+            "status_description"=>status_description,
+            "script_variables"=>[],
+            "start_timestamp"=>start_timestamp,
+            "display_name"=>display_name,
+            "job_id"=>job_id,
+            "request_timestamp"=>running_timestamp,
+            "luigiscript_name"=>luigiscript_name, 
+            "job_type"=>Mortar::API::Jobs::JOB_TYPE_LUIGI, 
+            "error"=>nil, 
+            "git_ref"=>"015690ad2c951c67366e36847be59646d441c5b1", 
+            "stop_timestamp"=>stop_timestamp
+          }))
+
+          status_code = Mortar::API::Jobs::LUIGI_JOB_STATUS__FINISHED
+          status_detail = "success"
+
+          status_description = "#{status_code} description"
+          status_detail_description = "#{status_detail} description"
+
+        mock(Mortar::Auth.api).get_job(job_id).returns(Excon::Response.new(:body => {"job_id" => job_id,
+            "project_name"=>project_name,
+            "status_code"=>status_code,
+            "status_detail_description"=>"#{status_detail} description",
+            "status_detail"=>status_detail,
+            "duration"=>duration,
+            "status_description"=>"#{status_code} description",
+            "script_variables"=>[],
+            "start_timestamp"=>start_timestamp,
+            "display_name"=>display_name,
+            "job_id"=>job_id,
+            "request_timestamp"=>running_timestamp,
+            "luigiscript_name"=>luigiscript_name, 
+            "job_type"=>Mortar::API::Jobs::JOB_TYPE_LUIGI, 
+            "error"=>nil, 
+            "git_ref"=>"015690ad2c951c67366e36847be59646d441c5b1", 
+            "stop_timestamp"=>stop_timestamp
+          }))
+        stderr, stdout = execute("jobs:status c571a8c7f76a4fd4a67c103d753e2dd5 -p --polling_interval 0.05", p, @git)
+        stdout.should == <<-STDOUT
+\r\e[0K[/] Status: starting description -  description\r\e[0K=== #{display_name} (job_id: #{job_id})
+job finished at:         #{stop_timestamp}
+job running for:         #{duration}
+job submitted at:        #{start_timestamp}
+status:                  #{status_description} - #{status_detail_description}
 STDOUT
         end
-
-        it "Stops a running job with server message" do
-          job_id = "1234abcd"
-          message = "some awesome message"
-          mock(Mortar::Auth.api).stop_job(job_id) {Excon::Response.new(:body => {"success" => true, "message" => message})}
-
-          stderr, stdout = execute("jobs:stop #{job_id}")
-          stdout.should == "#{message}\n"
-        end
-
-
       end
+    end
+
+    context("stop") do
+      it "Stops a running job with default message" do
+        job_id = "1234abcd"
+        mock(Mortar::Auth.api).stop_job(job_id) {Excon::Response.new(:body => {"success" => true})}
+
+        stderr, stdout = execute("jobs:stop #{job_id}")
+        stdout.should == <<-STDOUT
+Stopping job #{job_id}.
+STDOUT
+      end
+
+      it "Stops a running job with server message" do
+        job_id = "1234abcd"
+        message = "some awesome message"
+        mock(Mortar::Auth.api).stop_job(job_id) {Excon::Response.new(:body => {"success" => true, "message" => message})}
+
+        stderr, stdout = execute("jobs:stop #{job_id}")
+        stdout.should == "#{message}\n"
+      end
+
     end
   end
 end
