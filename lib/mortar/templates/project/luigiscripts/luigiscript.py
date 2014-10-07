@@ -21,7 +21,7 @@ from mortar.luigi import mortartask
 
   To Run:
     mortar luigi luigiscripts/<%= project_name %>_luigi.py \
-    --output-base-path "s3://mortar-example-output-data/$MORTAR_EMAIL_S3_ESCAPED/<%= project_name %>"
+    --output-base-path "s3://mortar-example-output-data/<your_username_here>/<%= project_name %>"
 """
 
 MORTAR_PROJECT = '<%= project_name %>'
