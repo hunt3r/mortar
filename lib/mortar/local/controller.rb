@@ -103,7 +103,8 @@ EOF
   # Fetches AWS Keys based on auth
   def fetch_aws_keys(auth, base)    
     project = base.project    
-    project_name = base.options[:project] || project.name    
+    project_name = base.options[:project] || project.name
+    set_project_name(project_name)  
     return auth.api.get_config_vars(project_name).body['config']
   end
 
@@ -111,7 +112,10 @@ EOF
     ENV['AWS_ACCESS_KEY'] = aws_access_key
     ENV['AWS_SECRET_KEY'] = aws_secret_key    
   end
-  
+
+  def set_project_name(project_name)
+    ENV['MORTAR_PROJECT_NAME'] = project_name
+  end
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
   def install_and_configure(pig_version=nil, command=nil, install_sqoop=false)

@@ -42,6 +42,7 @@ module Mortar::Local
       it "returns params for a logged-in user" do
         ENV['AWS_ACCESS_KEY'] = "abc"
         ENV['AWS_SECRET_KEY'] = "012"
+        ENV['MORTAR_PROJECT_NAME'] = "projectName"
 
         # setup fake auth
         stub_core
@@ -56,11 +57,13 @@ module Mortar::Local
         get_param_value(params, "AWS_SECRET_KEY").should == "012"
         get_param_value(params, "AWS_SECRET_ACCESS_KEY").should == "012"
         get_param_value(params, "aws_secret_access_key").should == "012"
+        get_param_value(params, "MORTAR_PROJECT_NAME").should =="projectName"
       end
 
       it "returns params for a non-logged-in user" do
         ENV['AWS_ACCESS_KEY'] = "abc"
         ENV['AWS_SECRET_KEY'] = "012"
+        ENV['MORTAR_PROJECT_NAME'] = "projectName"
 
         params = @params.automatic_parameters()
         get_param_value(params, "MORTAR_EMAIL").should == "notloggedin@user.org"
@@ -73,6 +76,7 @@ module Mortar::Local
         get_param_value(params, "AWS_SECRET_KEY").should == "012"
         get_param_value(params, "AWS_SECRET_ACCESS_KEY").should == "012"
         get_param_value(params, "aws_secret_access_key").should == "012"
+        get_param_value(params, "MORTAR_PROJECT_NAME").should =="projectName"
       end
     end
 

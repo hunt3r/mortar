@@ -88,13 +88,20 @@ module Mortar::Local
           $stderr.string.should eq("")
           ENV['AWS_ACCESS_KEY'].should eq("key_id")
           ENV['AWS_SECRET_KEY'].should eq("secret")
+          ENV['MORTAR_PROJECT_NAME'].should eq("projectName")
         ensure
           $stderr = previous_stderr
         end
       end
 
+      it "set MORTAR_PROJECT_NAME" do
+        ctrl = Mortar::Local::Controller.new
+        begin
+          ctrl.set_project_name('project_name')
+          ENV['MORTAR_PROJECT_NAME'].should eq("project_name")
+        end
+      end
 
-    
       it "fetches aws keys" do
         ctrl = Mortar::Local::Controller.new
         auth = Mortar::Auth        

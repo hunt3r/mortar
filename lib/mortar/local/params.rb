@@ -49,6 +49,8 @@ module Mortar
         params['AWS_SECRET_KEY'] = ENV['AWS_SECRET_KEY']
         params['AWS_SECRET_ACCESS_KEY'] = ENV['AWS_SECRET_KEY']
         params['aws_secret_access_key'] = ENV['AWS_SECRET_KEY']
+
+        params['MORTAR_PROJECT_NAME'] = ENV['MORTAR_PROJECT_NAME']
         
         param_list = params.map do |k,v|
           {"name" => k, "value" => v}
