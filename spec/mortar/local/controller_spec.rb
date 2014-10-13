@@ -29,6 +29,7 @@ module Mortar::Local
       stub_core
       ENV['AWS_ACCESS_KEY'] = "foo"
       ENV['AWS_SECRET_KEY'] = "BAR"
+      ENV['MORTAR_PROJECT_NAME'] ='projectName'
     end
 
     context("aws keys") do        
@@ -50,8 +51,7 @@ module Mortar::Local
         ctrl = Mortar::Local::Controller.new
         previous_stderr, $stderr = $stderr, StringIO.new
         mock(Mortar::Auth).has_credentials{true}
-        stub(Mortar::Command::Base).new {'base'}
-        mock(ctrl).fetch_aws_keys(Mortar::Auth, 'base'){{}}
+        mock(ctrl).fetch_aws_keys(Mortar::Auth){{}}
         begin
           expect { ctrl.require_aws_keys }.to raise_error(SystemExit)
           $stderr.string.should eq(Mortar::Local::Controller::API_CONFIG_ERROR_MESSAGE.gsub(/^/, " !    "))
@@ -74,10 +74,9 @@ module Mortar::Local
       it "sets fetches and sets aws keys if missing and logged in" do
         ENV.delete('AWS_ACCESS_KEY')
         ctrl = Mortar::Local::Controller.new
-        stub(Mortar::Command::Base).new {'base'}
         stub(Mortar::Auth).has_credentials{true}
         previous_stderr, $stderr = $stderr, StringIO.new
-        mock(ctrl).fetch_aws_keys(Mortar::Auth, 'base'){ 
+        mock(ctrl).fetch_aws_keys(Mortar::Auth){ 
           {
             "aws_access_key_id"=>"key_id", 
             "aws_secret_access_key"=>"secret"
@@ -88,37 +87,25 @@ module Mortar::Local
           $stderr.string.should eq("")
           ENV['AWS_ACCESS_KEY'].should eq("key_id")
           ENV['AWS_SECRET_KEY'].should eq("secret")
-          ENV['MORTAR_PROJECT_NAME'].should eq("projectName")
         ensure
           $stderr = previous_stderr
         end
       end
 
-      it "set MORTAR_PROJECT_NAME" do
-        ctrl = Mortar::Local::Controller.new
-        begin
-          ctrl.set_project_name('project_name')
-          ENV['MORTAR_PROJECT_NAME'].should eq("project_name")
-        end
-      end
-
       it "fetches aws keys" do
         ctrl = Mortar::Local::Controller.new
-        auth = Mortar::Auth        
-        
+        auth = Mortar::Auth
 
         with_blank_project do
-          base = Mortar::Command::Base.new             
           with_git_initialized_project do |p|
             # stub api request
             configs = {}
-            mock(Mortar::Auth.api).get_config_vars("myproject").returns(Excon::Response.new(:body => {"config" => configs}))
+            mock(Mortar::Auth.api).get_config_vars(is_a(String)).returns(Excon::Response.new(:body => {"config" => configs}))
             
-            ctrl.fetch_aws_keys(auth,base).should eq(configs)
+            ctrl.fetch_aws_keys(auth).should eq(configs)
           end          
         end        
       end
-
 
       it "returns if they are not present but override is in place" do
         ENV.delete('AWS_ACCESS_KEY')
@@ -138,7 +125,10 @@ module Mortar::Local
     context("install_and_configure") do
       it "supplied default pig version" do
         ctrl = Mortar::Local::Controller.new
-
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).project.returns(Mortar::Project::Project)
+          mock(b).options.returns({:project =>'myproject'})
+        end
         any_instance_of(Mortar::Local::Java) do |j|
           mock(j).check_install.returns(true)
         end
@@ -160,9 +150,14 @@ module Mortar::Local
       end
 
       it "install sqoop with command" do
+        ENV.delete('MORTAR_PROJECT_NAME')
         command = 'command'
         ctrl = Mortar::Local::Controller.new
 
+        any_instance_of(Mortar::Command::Base) do |b|
+          mock(b).project.returns(Mortar::Project::Project)
+          mock(b).options.returns({:project =>'myproject'})
+        end
         any_instance_of(Mortar::Local::Java) do |j|
           mock(j).check_install.returns(true)
         end
@@ -184,6 +179,9 @@ module Mortar::Local
         mock(ctrl).write_local_readme
         mock(ctrl).ensure_local_install_dirs_in_gitignore
         ctrl.install_and_configure(Mortar::PigVersion::Pig012.new, command, true)
+        begin
+          ENV['MORTAR_PROJECT_NAME'].should eq('myproject')
+        end
       end
     end
 
@@ -191,7 +189,6 @@ module Mortar::Local
 
       it "checks for aws keys, checks depenendency installation, runs script" do
         c = Mortar::Local::Controller.new
-        mock(c).require_aws_keys
         mock(c).install_and_configure("0.9", "run")
         test_script = "foobar-script"
         the_parameters = []
@@ -206,7 +203,6 @@ module Mortar::Local
     context("illustrate") do
       it "checks for aws keys, checks depenendency installation, runs the illustrate process" do
         c = Mortar::Local::Controller.new
-        mock(c).require_aws_keys
         mock(c).install_and_configure("0.9", "illustrate")
         test_script = "foobar-script"
         script_alias = "some_alias"
