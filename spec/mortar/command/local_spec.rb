@@ -161,60 +161,72 @@ PARAMS
     end
 
     context("configure") do
-
       it "errors if the project root doesn't exist or we can't cd there" do
         stderr, stdout = execute("local:configure --project-root /foo/baz")
         stderr.should == " !    No such directory /foo/baz\n"
       end
 
       it "errors if java can't be found" do
-        any_instance_of(Mortar::Local::Java) do |j|
-          stub(j).check_install.returns(false)
+        ENV['AWS_ACCESS_KEY'] = "foo"
+        ENV['AWS_SECRET_KEY'] = "BAR"
+        with_git_initialized_project do |p|
+          any_instance_of(Mortar::Local::Java) do |j|
+            stub(j).check_install.returns(false)
+          end
+
+          stderr, stdout = execute("local:configure")
+          stderr.should == Mortar::Local::Controller::NO_JAVA_ERROR_MESSAGE.gsub(/^/, " !    ")
         end
-        stderr, stdout = execute("local:configure")
-        stderr.should == Mortar::Local::Controller::NO_JAVA_ERROR_MESSAGE.gsub(/^/, " !    ")
       end
 
       it "errors if python can't be found" do
-        any_instance_of(Mortar::Local::Java) do |j|
-          stub(j).check_install.returns(true)
+        ENV['AWS_ACCESS_KEY'] = "foo"
+        ENV['AWS_SECRET_KEY'] = "BAR"
+        with_git_initialized_project do |p|
+          any_instance_of(Mortar::Local::Java) do |j|
+            stub(j).check_install.returns(true)
+          end
+          any_instance_of(Mortar::Local::Pig) do |j|
+            stub(j).install_pig.returns(true)
+            stub(j).install_lib.returns(true)
+          end
+          any_instance_of(Mortar::Local::Python) do |j|
+            stub(j).check_or_install.returns(false)
+          end
+          stderr, stdout = execute("local:configure")
+          stderr.should == Mortar::Local::Controller::NO_PYTHON_ERROR_MESSAGE.gsub(/^/, " !    ")
         end
-        any_instance_of(Mortar::Local::Pig) do |j|
-          stub(j).install_pig.returns(true)
-          stub(j).install_lib.returns(true)
-        end
-        any_instance_of(Mortar::Local::Python) do |j|
-          stub(j).check_or_install.returns(false)
-        end
-        stderr, stdout = execute("local:configure")
-        stderr.should == Mortar::Local::Controller::NO_PYTHON_ERROR_MESSAGE.gsub(/^/, " !    ")
       end
 
       it "checks for java, installs pig/python, and configures a virtualenv" do
-        any_instance_of(Mortar::Local::Java) do |j|
-          mock(j).check_install.returns(true)
+        ENV['AWS_ACCESS_KEY'] = "foo"
+        ENV['AWS_SECRET_KEY'] = "BAR"
+        with_git_initialized_project do |p|
+          any_instance_of(Mortar::Local::Java) do |j|
+            mock(j).check_install.returns(true)
+          end
+          any_instance_of(Mortar::Local::Pig) do |j|
+            mock(j).install_pig.with_any_args.returns(true)
+            stub(j).install_lib.returns(true)
+          end
+          any_instance_of(Mortar::Local::Python) do |j|
+            mock(j).check_or_install.returns(true)
+            mock(j).check_virtualenv.returns(true)
+            mock(j).setup_project_python_environment.returns(true)
+          end
+          any_instance_of(Mortar::Local::Jython) do |j|
+            mock(j).install_or_update.returns(true)
+          end
+          any_instance_of(Mortar::Local::Sqoop) do |j|
+            mock(j).install_or_update.returns(true)
+          end
+          any_instance_of(Mortar::Local::Controller) do |j|
+            mock(j).write_local_readme
+            mock(j).ensure_local_install_dirs_in_gitignore.returns(true)
+          end
+          stderr, stdout = execute("local:configure")
+          stderr.should == ""
         end
-        any_instance_of(Mortar::Local::Pig) do |j|
-          mock(j).install_pig.with_any_args.returns(true)
-          stub(j).install_lib.returns(true)
-        end
-        any_instance_of(Mortar::Local::Python) do |j|
-          mock(j).check_or_install.returns(true)
-          mock(j).check_virtualenv.returns(true)
-          mock(j).setup_project_python_environment.returns(true)
-        end
-        any_instance_of(Mortar::Local::Jython) do |j|
-          mock(j).install_or_update.returns(true)
-        end
-        any_instance_of(Mortar::Local::Sqoop) do |j|
-          mock(j).install_or_update.returns(true)
-        end
-        any_instance_of(Mortar::Local::Controller) do |j|
-          mock(j).write_local_readme
-          mock(j).ensure_local_install_dirs_in_gitignore.returns(true)
-        end
-        stderr, stdout = execute("local:configure")
-        stderr.should == ""
       end
 
     # configure
@@ -307,7 +319,6 @@ STDERR
           end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
-            mock(u).require_aws_keys()
           end
           any_instance_of(Mortar::Command::Local) do |u|
             mock(u).sync_code_with_cloud().returns("some-git-ref")
@@ -339,7 +350,6 @@ STDERR
           end
           any_instance_of(Mortar::Local::Controller) do |u|
             mock(u).install_and_configure(is_a(Mortar::PigVersion::Pig09),'luigi')
-            mock(u).require_aws_keys()
           end
           any_instance_of(Mortar::Command::Local) do |u|
             mock(u).sync_code_with_cloud().returns("some-git-ref")
