@@ -34,7 +34,9 @@ module Mortar
 
       FakeFS.activate!
       
-      stub(my_mode_output = Object.new).mode {"0600".to_i(8)}
+      my_mode_output = Object.new
+      stub(my_mode_output).mode {"0600".to_i(8)}
+      stub(my_mode_output).readable? {true}
       stub(FakeFS::File).stat {my_mode_output}
       stub(FakeFS::FileUtils).chmod
       stub(FakeFS::File).readlines do |path|
@@ -95,7 +97,9 @@ module Mortar
       stub(@cli).check
       #@cli.should_receive(:check_for_associated_ssh_key)
       @cli.reauthorize
-      Netrc.read(@cli.netrc_path)["api.#{@cli.host}"].should == (['one', 'two'])
+      netrc_response = Netrc.read(@cli.netrc_path)["api.#{@cli.host}"]
+      netrc_response[0].should == 'one'
+      netrc_response[1].should == 'two'
     end
 
     it "prompts for github_username when user doesn't have one." do
