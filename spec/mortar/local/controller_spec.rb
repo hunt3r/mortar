@@ -100,7 +100,7 @@ module Mortar::Local
           with_git_initialized_project do |p|
             # stub api request
             configs = {}
-            mock(Mortar::Auth.api).get_config_vars(is_a(String)).returns(Excon::Response.new(:body => {"config" => configs}))
+            mock(Mortar::Auth.api).get_config_vars("projectName").returns(Excon::Response.new(:body => {"config" => configs}))
             
             ctrl.fetch_aws_keys(auth).should eq(configs)
           end          
@@ -124,7 +124,9 @@ module Mortar::Local
 
     context("install_and_configure") do
       it "supplied default pig version" do
+        ENV.delete('MORTAR_PROJECT_NAME')
         ctrl = Mortar::Local::Controller.new
+
         any_instance_of(Mortar::Command::Base) do |b|
           mock(b).project.returns(Mortar::Project::Project)
           mock(b).options.returns({:project =>'myproject'})
@@ -147,6 +149,7 @@ module Mortar::Local
         mock(ctrl).write_local_readme
         mock(ctrl).ensure_local_install_dirs_in_gitignore
         ctrl.install_and_configure
+        ENV['MORTAR_PROJECT_NAME'].should eq('myproject')
       end
 
       it "install sqoop with command" do
