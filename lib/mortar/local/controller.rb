@@ -90,7 +90,7 @@ EOF
       if !auth.has_credentials                      
         error(NO_AWS_KEYS_ERROR_MESSAGE)
       else
-        vars = fetch_aws_keys(auth, Mortar::Command::Base.new)
+        vars = fetch_aws_keys(auth)
         if vars['aws_access_key_id'] && vars['aws_secret_access_key']
           set_aws_keys(vars['aws_access_key_id'], vars['aws_secret_access_key'])
         else
@@ -101,9 +101,8 @@ EOF
   end
 
   # Fetches AWS Keys based on auth
-  def fetch_aws_keys(auth, base)    
-    project = base.project    
-    project_name = base.options[:project] || project.name    
+  def fetch_aws_keys(auth)
+    project_name = ENV['MORTAR_PROJECT_NAME']
     return auth.api.get_config_vars(project_name).body['config']
   end
 
@@ -111,11 +110,20 @@ EOF
     ENV['AWS_ACCESS_KEY'] = aws_access_key
     ENV['AWS_SECRET_KEY'] = aws_secret_key    
   end
-  
+
+  def set_project_name(base)
+    project = base.project    
+    project_name = base.options[:project] || project.name
+    ENV['MORTAR_PROJECT_NAME'] = project_name
+  end
   # Main entry point to perform installation and configuration necessary
   # to run pig on the users local machine
   def install_and_configure(pig_version=nil, command=nil, install_sqoop=false)
     #To support old watchtower plugins we'll accept nil pig_version
+    base = Mortar::Command::Base.new
+    set_project_name(base)
+    require_aws_keys()
+
     if pig_version.nil?
       pig_version = Mortar::PigVersion::Pig09.new
     end
@@ -204,7 +212,6 @@ README
 
   # Main entry point for user running a pig script
   def run(pig_script, pig_version, pig_parameters)
-    require_aws_keys
     install_and_configure(pig_version, 'run')
     pig = Mortar::Local::Pig.new()
     pig.run_script(pig_script, pig_version, pig_parameters)
@@ -212,7 +219,6 @@ README
 
   # Main entry point for illustrating a pig alias
   def illustrate(pig_script, pig_alias, pig_version, pig_parameters, skip_pruning, no_browser)
-    require_aws_keys
     install_and_configure(pig_version, 'illustrate')
     pig = Mortar::Local::Pig.new()
     pig.illustrate_alias(pig_script, pig_alias, skip_pruning, no_browser, pig_version, pig_parameters)
@@ -231,7 +237,6 @@ README
   end
 
   def run_luigi(pig_version, luigi_script, luigi_script_parameters, project_config_parameters)
-    require_aws_keys
     install_and_configure(pig_version, 'luigi')
     py = Mortar::Local::Python.new()
     unless py.run_stillson_luigi_client_cfg_expansion(luigi_script, project_config_parameters)
@@ -241,7 +246,6 @@ README
   end
 
   def sqoop_export_table(pig_version, connstr, dbtable, s3dest, options)
-    require_aws_keys
     install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
@@ -249,7 +253,6 @@ README
   end
 
   def sqoop_export_query(pig_version, connstr, query, s3dest, options)
-    require_aws_keys
     install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:sqlquery] = sqoop.prep_query(query)
@@ -257,7 +260,6 @@ README
   end
 
   def sqoop_export_incremental(pig_version, connstr, dbtable, column, max_value, s3dest, options)
-    require_aws_keys
     install_and_configure(pig_version, 'sqoop', true)
     sqoop = Mortar::Local::Sqoop.new()
     options[:dbtable] = dbtable
