@@ -4,27 +4,35 @@ from luigi.s3 import S3Target, S3PathTask
 
 from mortar.luigi import mortartask
 
+import logging
+
 """
-  Luigi is a powerful, easy-to-use framework for building data pipelines.
+Luigi is a powerful, easy-to-use framework for building data pipelines.
 
-  This is an example Luigi script to get you started. This script has a 
-  'fill in the blank' interaction. Feel free to alter it to build your pipeline.
+This is an example Luigi script to get you started. This script has a 
+'fill in the blank' interaction. Feel free to alter it to build your pipeline.
 
-  In this example we will run a Pig script, and then shutdown any clusters associated
-  with that script.  We will do that by running the ShutdownClusters Task,
-  which is dependent on RunMyExamplePigScript Task. This means the cluster will only 
-  shutdown after RunMyExamplePigScript (where the data transformation happens) 
-  Task is completed.
+In this example we will run a Pig script, and then shutdown any clusters associated
+with that script.  We will do that by running the ShutdownClusters Task,
+which is dependent on RunMyExamplePigScript Task. This means the cluster will only 
+shutdown after RunMyExamplePigScript (where the data transformation happens) 
+Task is completed.
 
-  For full tutorials and in-depth Luigi documentation, visit:
-  https://help.mortardata.com/technologies/luigi
+For full tutorials and in-depth Luigi documentation, visit:
+https://help.mortardata.com/technologies/luigi
 
-  To Run:
-    mortar luigi luigiscripts/<%= project_name %>_luigi.py \
+To Run:
+mortar luigi luigiscripts/<%= project_name %>_luigi.py \
     --output-base-path "s3://mortar-example-output-data/<your_username_here>/<%= project_name %>"
 """
 
 MORTAR_PROJECT = '<%= project_name %>'
+
+"""
+This logger outputs logs to Mortar Logs. An example of it's usage can be seen
+in the ShutdownClusters function.
+"""
+LOGGER = logging.getLogger('luigi-interface')
 
 # helper function
 def create_full_path(base_path, sub_path):
@@ -108,6 +116,11 @@ class ShutdownClusters(mortartask.MortarClusterShutdownTask):
     indicating when the task has been completed.
     """
     output_base_path = luigi.Parameter() 
+
+    """
+    This is an example of using the Mortar logger.
+    """
+    LOGGER.info('My Log Message!')
 
     def requires(self):
         """
