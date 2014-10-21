@@ -32,7 +32,7 @@ MORTAR_PROJECT = '<%= project_name %>'
 This logger outputs logs to Mortar Logs. An example of it's usage can be seen
 in the ShutdownClusters function.
 """
-LOGGER = logging.getLogger('luigi-interface')
+Logger = logging.getLogger('luigi-interface')
 
 # helper function
 def create_full_path(base_path, sub_path):
@@ -117,17 +117,18 @@ class ShutdownClusters(mortartask.MortarClusterShutdownTask):
     """
     output_base_path = luigi.Parameter() 
 
-    """
-    This is an example of using the Mortar logger.
-    """
-    LOGGER.info('My Log Message!')
-
     def requires(self):
         """
         The ShutdownClusters task is dependent on RunMyExamplePigScript because a
         cluster should not shut down until all the tasks are completed. You can
         think of this as saying 'shut down my cluster after running my task'.
         """
+
+        """
+        This is an example of using the Mortar logger.
+        """
+        Logger.info('My Log Message!')
+
         return RunMyExamplePigScript(output_base_path = self.output_base_path)
 
     def output(self):
