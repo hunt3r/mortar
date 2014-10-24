@@ -139,6 +139,77 @@ module Mortar
     end
     
     context "project manifest" do
+      it "adds .gitignore if the file exists and manifest does not have it" do
+        with_git_initialized_project do |p|
+          # ensure gitignore exists
+          gitignore_path = File.join(p.root_path, ".gitignore")
+          unless File.exists? gitignore_path
+            write_file(gitignore_path, "luigiscripts/client.cfg\n")
+          end
+
+          # remove it from manifest
+          manifest_without_gitignore = <<-MANIFEST0
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+MANIFEST0
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_gitignore)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?(".gitignore").should be_false
+
+          @git.ensure_gitignore_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.should == <<-MANIFEST0AFTER
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+.gitignore
+MANIFEST0AFTER
+        end
+      end
+
+      it "does not add .gitignore if the file does not exist" do
+        with_git_initialized_project do |p|
+          # ensure gitignore path does not exist
+          gitignore_path = File.join(p.root_path, ".gitignore")
+          if File.exists? gitignore_path
+            FileUtils.rm_rf(gitignore_path)
+          end
+
+          # remove it from manifest
+          manifest_without_gitignore = <<-MANIFEST1
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+MANIFEST1
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_gitignore)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?(".gitignore").should be_false
+
+          @git.ensure_gitignore_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.should == <<-MANIFEST1AFTER
+lib
+macros
+pigscripts
+udfs
+luigiscripts
+MANIFEST1AFTER
+        end
+      end
+
       it "adds luigiscripts if the directory exists and manifest does not have it" do
         with_git_initialized_project do |p|
           # ensure luigiscripts path exists
