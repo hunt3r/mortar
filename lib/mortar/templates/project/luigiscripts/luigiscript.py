@@ -26,8 +26,6 @@ mortar luigi luigiscripts/<%= project_name %>_luigi.py \
     --output-base-path "s3://mortar-example-output-data/<your_username_here>/<%= project_name %>"
 """
 
-MORTAR_PROJECT = '<%= project_name %>'
-
 """
 This logger outputs logs to Mortar Logs. An example of it's usage can be seen
 in the ShutdownClusters function.
@@ -70,12 +68,6 @@ class RunMyExamplePigScript(mortartask.MortarProjectPigscriptTask):
         specified file or directory exists on S3.
         """
         return [S3PathTask(self.input_path)]
-
-    def project(self):
-        """
-        Name of Mortar Project to run.
-        """
-        return MORTAR_PROJECT
 
     def script_output(self):
         """
