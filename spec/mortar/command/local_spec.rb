@@ -417,6 +417,16 @@ STDERR
         stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest}"
       end
 
+      it "overrides the JDBC connection string if one is specified" do
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull")
+        dbtable = "customers"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_table(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_table mysql mydb #{dbtable} #{s3dest} -c jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull"
+      end
+
     end
 
     context "local:sqoop_query" do
@@ -471,6 +481,17 @@ STDERR
           mock(c).sqoop_export_query(is_a(Mortar::PigVersion::Pig09), connstr, query, s3dest, {})
         end
         stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest}"
+        stderr.should == ''
+      end
+
+      it "overrides the JDBC connection string if one is specified" do
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull")
+        query = "select_*_from_customers"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_query(is_a(Mortar::PigVersion::Pig09), connstr, query, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_query mysql mydb #{query} #{s3dest} -c jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull"
         stderr.should == ''
       end
 
@@ -547,6 +568,18 @@ STDERR
           mock(c).sqoop_export_incremental(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, column, column_value, s3dest, {})
         end
         stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest}"
+      end
+
+      it "overrides the JDBC connection string if one is specified" do
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull")
+        dbtable = "customers"
+        column = "customer_id"
+        column_value = "12345"
+        s3dest = "s3n://a-bucket/a-directory"
+        any_instance_of(Mortar::Local::Controller) do |c|
+          mock(c).sqoop_export_incremental(is_a(Mortar::PigVersion::Pig09), connstr, dbtable, column, column_value, s3dest, {})
+        end
+        stderr, stdout = execute "local:sqoop_incremental mysql mydb #{dbtable} #{column} #{column_value} #{s3dest} -c jdbc:mysql://localhost/mydbother?zeroDateTimeBehavior=convertToNull"
       end
 
     end
