@@ -104,10 +104,10 @@ STDERR
           stderr, stdout = execute("local:run pigscripts/my_script.pig", p)
           stderr.should == <<-STDERR
  !    Unable to find a pigscript or controlscript for pigscripts/my_script.pig
- !
+ !    
  !    Available pigscripts:
  !    pigscripts/my_other_script.pig
- !
+ !    
  !    Available controlscripts:
  !    controlscripts/my_control_script.pig
 STDERR
