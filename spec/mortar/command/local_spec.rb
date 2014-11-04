@@ -19,6 +19,7 @@ require 'fakefs/spec_helpers'
 require 'mortar/command/local'
 require 'launchy'
 require 'fileutils'
+require 'shellwords'
 
 module Mortar::Command
   describe Local do
@@ -103,10 +104,10 @@ STDERR
           stderr, stdout = execute("local:run pigscripts/my_script.pig", p)
           stderr.should == <<-STDERR
  !    Unable to find a pigscript or controlscript for pigscripts/my_script.pig
- !    
+ !
  !    Available pigscripts:
  !    pigscripts/my_other_script.pig
- !    
+ !
  !    Available controlscripts:
  !    controlscripts/my_control_script.pig
 STDERR
@@ -155,7 +156,7 @@ PARAMS
         File.exists?("Test/macros/characterize_macro.pig").should be_false
         File.exists?("Test/udfs/jython/top_5_tuple.py").should be_false
         File.exists?("Test/controlscripts/lib/characterize_control.py").should be_false
-        File.delete("test.params")           
+        File.delete("test.params")
       end
 
     end
@@ -397,7 +398,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull")
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -407,7 +408,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull")
         dbtable = "customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -452,7 +453,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull")
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -463,7 +464,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull")
         query = "select_*_from_customers"
         s3dest = "s3n://a-bucket/a-directory"
         any_instance_of(Mortar::Local::Controller) do |c|
@@ -525,7 +526,7 @@ STDERR
       end
 
       it "sends everything to the controller" do
-        connstr = "jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://foobar.com/mydb?zeroDateTimeBehavior=convertToNull")
         dbtable = "customers"
         column = "customer_id"
         column_value = "12345"
@@ -537,7 +538,7 @@ STDERR
       end
 
       it "defaults to 'localhost' if no host specified" do
-        connstr = "jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull"
+        connstr = Shellwords.escape("jdbc:mysql://localhost/mydb?zeroDateTimeBehavior=convertToNull")
         dbtable = "customers"
         column = "customer_id"
         column_value = "12345"
@@ -554,4 +555,3 @@ STDERR
 
   end
 end
-
