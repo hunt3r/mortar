@@ -17,6 +17,7 @@
 require "mortar/local/controller"
 require "mortar/command/base"
 require "mortar/generators/characterize_generator"
+require "shellwords"
 
 # run select pig commands on your local machine
 #
@@ -78,10 +79,10 @@ class Mortar::Command::Local < Mortar::Command::Base
 
   # local:characterize -f PARAMFILE
   #
-  # Characterize will inspect your input data, inferring a schema and 
+  # Characterize will inspect your input data, inferring a schema and
   #    generating keys, if needed. It will output CSV containing various
   #    statistics about your data (most common values, percent null, etc.)
-  # 
+  #
   # -f, --param-file PARAMFILE # Load pig parameter values from a file
   # -g, --pigversion PIG_VERSION  # Set pig version.  Options are <PIG_VERSION_OPTIONS>.
   #
@@ -217,7 +218,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     validate_arguments!
 
     params = config_parameters.concat(pig_parameters)
-    
+
     ctrl = Mortar::Local::Controller.new
     ctrl.repl(pig_version, params)
   end
@@ -241,7 +242,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     unless script_name
       error("Usage: mortar local:luigi SCRIPT\nMust specify SCRIPT.")
     end
-    
+
     # cd into the project root
     project_root = options[:project_root] ||= Dir.getwd
     unless File.directory?(project_root)
@@ -250,7 +251,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     Dir.chdir(project_root)
 
     script = validate_luigiscript!(script_name)
-    
+
     #Set git ref as environment variable for mortar-luigi to use when
     #running a MortarTask
     git_ref = sync_code_with_cloud()
@@ -286,6 +287,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
   # -d, --direct # Use a direct import path
   # -r, --driverjar JARFILE # Path to the jar containing the jdbc driver
+  # -c, --jdbcconnectionstring CONNECTION_STRING # The JDBC connection string override
   #
   #Examples:
   #
@@ -311,7 +313,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     validate_arguments!
 
     dbhost = options[:host] || "localhost"
-    connstr = jdbc_conn(dbtype, dbhost, physdb)
+    connstr = Shellwords.escape(options[:jdbcconnectionstring] || jdbc_conn(dbtype, dbhost, physdb))
 
     ctrl = Mortar::Local::Controller.new
     ctrl.sqoop_export_table(pig_version, connstr, dbtable, s3dest, options)
@@ -327,6 +329,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
   # -d, --direct # Use a direct import path
   # -r, --driverjar JARFILE # Path to the jar containing the jdbc driver
+  # -c, --jdbcconnectionstring CONNECTION_STRING # The JDBC connection string override
   #
   #Examples:
   #
@@ -352,7 +355,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     validate_arguments!
 
     dbhost = options[:host] || "localhost"
-    connstr = jdbc_conn(dbtype, dbhost, physdb)
+    connstr = Shellwords.escape(options[:jdbcconnectionstring] || jdbc_conn(dbtype, dbhost, physdb))
 
     ctrl = Mortar::Local::Controller.new
     ctrl.sqoop_export_query(pig_version, connstr, query, s3dest, options)
@@ -368,6 +371,7 @@ class Mortar::Command::Local < Mortar::Command::Base
   # -j, --jdbcdriver COM.DRIVER.BAR # Name of the JDBC driver class
   # -d, --direct # Use a direct import path
   # -r, --driverjar JARFILE # Path to the jar containing the jdbc driver
+  # -c, --jdbcconnectionstring CONNECTION_STRING # The JDBC connection string override
   #
   #Examples:
   #
@@ -401,7 +405,7 @@ class Mortar::Command::Local < Mortar::Command::Base
     validate_arguments!
 
     dbhost = options[:host] || "localhost"
-    connstr = jdbc_conn(dbtype, dbhost, physdb)
+    connstr = Shellwords.escape(options[:jdbcconnectionstring] || jdbc_conn(dbtype, dbhost, physdb))
 
     ctrl = Mortar::Local::Controller.new
     ctrl.sqoop_export_incremental(pig_version, connstr, table, column, max_value, s3dest, options)
