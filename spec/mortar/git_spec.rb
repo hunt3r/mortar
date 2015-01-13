@@ -154,6 +154,7 @@ macros
 pigscripts
 udfs
 luigiscripts
+sparkscripts
 MANIFEST0
           manifest_path = File.join(p.root_path, "project.manifest")
           write_file(manifest_path, manifest_without_gitignore)
@@ -170,6 +171,7 @@ macros
 pigscripts
 udfs
 luigiscripts
+sparkscripts
 .gitignore
 MANIFEST0AFTER
         end
@@ -190,6 +192,7 @@ macros
 pigscripts
 udfs
 luigiscripts
+sparkscripts
 MANIFEST1
           manifest_path = File.join(p.root_path, "project.manifest")
           write_file(manifest_path, manifest_without_gitignore)
@@ -206,6 +209,7 @@ macros
 pigscripts
 udfs
 luigiscripts
+sparkscripts
 MANIFEST1AFTER
         end
       end
@@ -266,6 +270,73 @@ MANIFEST1
           project_manifest_before.include?("luigiscripts").should be_false
 
           @git.ensure_luigiscripts_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.should == <<-MANIFEST1AFTER
+lib
+macros
+pigscripts
+udfs
+MANIFEST1AFTER
+        end
+      end
+
+      it "adds sparkscripts if the directory exists and manifest does not have it" do
+        with_git_initialized_project do |p|
+          # ensure luigiscripts path exists
+          sparkscripts_path = File.join(p.root_path, "sparkscripts")
+          unless File.directory? sparkscripts_path
+            FileUtils.mkdir_p(sparkscripts_path)
+          end
+
+          # remove it from manifest
+          manifest_without_sparkscripts = <<-MANIFEST0
+lib
+macros
+pigscripts
+udfs
+MANIFEST0
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_sparkscripts)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?("sparkscripts").should be_false
+
+          @git.ensure_sparkscripts_in_project_manifest()
+
+          project_manifest_after = File.open(manifest_path, "r").read
+          project_manifest_after.should == <<-MANIFEST0AFTER
+lib
+macros
+pigscripts
+udfs
+sparkscripts
+MANIFEST0AFTER
+        end
+      end
+
+      it "does not add sparkscripts if the directory does not exist" do
+        with_git_initialized_project do |p|
+          # ensure sparkscripts path does not exist
+          sparkscripts_path = File.join(p.root_path, "sparkscripts")
+          if File.directory? sparkscripts_path
+            FileUtils.rm_rf(sparkscripts_path)
+          end
+
+          # remove it from manifest
+          manifest_without_sparkscripts = <<-MANIFEST1
+lib
+macros
+pigscripts
+udfs
+MANIFEST1
+          manifest_path = File.join(p.root_path, "project.manifest")
+          write_file(manifest_path, manifest_without_sparkscripts)
+
+          project_manifest_before = File.open(manifest_path, "r").read
+          project_manifest_before.include?("sparkscripts").should be_false
+
+          @git.ensure_sparkscripts_in_project_manifest()
 
           project_manifest_after = File.open(manifest_path, "r").read
           project_manifest_after.should == <<-MANIFEST1AFTER

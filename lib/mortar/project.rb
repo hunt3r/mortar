@@ -85,6 +85,19 @@ module Mortar
         @luigiscripts
       end
 
+      def sparkscripts_path
+        File.join(@root_path, "sparkscripts")
+      end
+
+      def sparkscripts
+        @sparkscripts ||= SparkScripts.new(
+          sparkscripts_path,
+          "sparkscripts",
+          "",
+          :optional => true)
+        @sparkscripts
+      end
+
       def tmp_path
         path = File.join(@root_path, "tmp")
         unless File.directory? path
@@ -138,7 +151,6 @@ module Mortar
         if File.directory? @path
           # get {script_name => full_path}
           file_paths = Dir[File.join(@path, "**", "*#{@filename_extension}")]
-
           scripts = file_paths.collect{|element_path| [element_name(element_path), element(element_name(element_path), element_path)]}
 
           #Check for duplicates.
@@ -179,6 +191,12 @@ module Mortar
       end
     end
 
+    class SparkScripts < ProjectEntity
+      def element(name, path)
+        SparkScript.new(name, path)
+      end
+    end
+
     class PythonUDFs < ProjectEntity
       def element(name, path)
         Script.new(name, path)
@@ -216,6 +234,14 @@ module Mortar
       
       def executable_path
         "luigiscripts/#{self.name}.py"
+      end
+      
+    end
+
+    class SparkScript < Script
+      
+      def executable_path
+        "sparkscripts/#{self.name}"
       end
       
     end

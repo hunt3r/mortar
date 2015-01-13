@@ -202,11 +202,24 @@ module Mortar
       #
       def ensure_valid_mortar_project_manifest()
         if File.exists? project_manifest_name
+          ensure_sparkscripts_in_project_manifest()
           ensure_luigiscripts_in_project_manifest()
           ensure_gitignore_in_project_manifest()
           add_newline_to_file(project_manifest_name)
         else
           create_mortar_project_manifest('.')
+        end
+      end
+
+      #
+      # Ensure that the sparkscripts directory,
+      # which was added after some project manifests were
+      # created, is in the manifest (if sparkscripts exists).
+      #
+      def ensure_sparkscripts_in_project_manifest
+        sparkscripts_path = "sparkscripts"
+        if File.directory? sparkscripts_path
+          add_entry_to_mortar_project_manifest(project_manifest_name, sparkscripts_path)
         end
       end
 
@@ -248,6 +261,10 @@ module Mortar
 
           if File.directory? "#{path}/luigiscripts"
             manifest.puts "luigiscripts"
+          end
+
+          if File.directory? "#{path}/sparkscripts"
+            manifest.puts "sparkscripts"
           end
 
           if File.exists? "#{path}/.gitignore"

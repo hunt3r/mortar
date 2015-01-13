@@ -281,7 +281,7 @@ STDOUT
           job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
           cluster_size = 2
 
-          mock(Mortar::Auth.api).get_clusters() {Excon::Response.new(:body => {'clusters' => []})}
+          mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_1) {Excon::Response.new(:body => {'clusters' => []})}
           mock(Mortar::Auth.api).post_pig_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
             :pig_version => "0.9", 
             :project_script_path => be_a_kind_of(String),
@@ -319,7 +319,7 @@ STDOUT
           job_url = "http://127.0.0.1:5000/jobs/job_detail?job_id=c571a8c7f76a4fd4a67c103d753e2dd5"
           cluster_size = 2
 
-          mock(Mortar::Auth.api).get_clusters() {Excon::Response.new(:body => {'clusters' => []})}
+          mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_1) {Excon::Response.new(:body => {'clusters' => []})}
           mock(Mortar::Auth.api).post_pig_job_new_cluster("myproject", "my_script", is_a(String), cluster_size, 
             :pig_version => "0.9", 
             :project_script_path => be_a_kind_of(String),
@@ -399,7 +399,7 @@ STDOUT
           huge_busy_cluster_status = Mortar::API::Clusters::STATUS_RUNNING
           
 
-          mock(Mortar::Auth.api).get_clusters() {
+          mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_1) {
             Excon::Response.new(:body => { 
               'clusters' => [
                   { 'cluster_id' => small_cluster_id, 'size' => small_cluster_size, 'running_jobs' => [], 'status_code' => small_cluster_status }, 
