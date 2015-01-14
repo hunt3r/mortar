@@ -27,11 +27,11 @@ class Mortar::Command::Clusters < Mortar::Command::Base
   def index
     validate_arguments!
     
-    clusters = api.get_clusters().body['clusters']
+    clusters = api.get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__ALL).body['clusters']
     if not clusters.empty?
       display_table(clusters,
-      %w( cluster_id size status_description cluster_type_description start_timestamp duration),
-      ['cluster_id', 'Size (# of Nodes)', 'Status', 'Type', 'Start Timestamp', 'Elapsed Time'])
+      %w( cluster_id size status_description cluster_type_description start_timestamp duration cluster_backend_description),
+      ['cluster_id', 'Size (# of Nodes)', 'Status', 'Type', 'Start Timestamp', 'Elapsed Time', 'Cluster Backend'])
     else
       display("There are no running or recent clusters")
     end

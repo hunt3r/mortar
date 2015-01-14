@@ -103,6 +103,10 @@ class Mortar::Command::Base
     end
     param_list
   end
+
+  def spark_script_arguments
+    invalid_arguments.join(" ")
+  end
   
   def luigi_parameters
     parameters = []
@@ -446,6 +450,18 @@ protected
 
     pigscript or controlscript
   end
+
+  def validate_sparkscript!(sparkscript_name)
+    shortened_script_name = File.basename(sparkscript_name)
+
+    unless sparkscript = project.sparkscripts[shortened_script_name]
+      available_scripts = project.sparkscripts.none? ? "No sparkscripts found" : "Available sparkscripts:\n#{project.sparkscripts.collect{|k,v| v.executable_path}.sort.join("\n")}"
+      error("Unable to find sparkscript #{sparkscript_name}\n#{available_scripts}")
+    end
+    #While validating we can load the defaults that are relevant to this script.
+    load_defaults(sparkscript_name)
+    sparkscript
+  end    
 
   def validate_luigiscript!(luigiscript_name)
     shortened_script_name = File.basename(luigiscript_name, ".*")

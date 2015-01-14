@@ -114,7 +114,7 @@ class Mortar::Command::Jobs < Mortar::Command::Base
     end
     
     unless options[:clusterid] || options[:clustersize]
-      clusters = api.get_clusters().body['clusters']
+      clusters = api.get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_1).body['clusters']
 
       largest_free_cluster = clusters.select{ |c| \
         c['running_jobs'].length == 0 && c['status_code'] == Mortar::API::Clusters::STATUS_RUNNING }.

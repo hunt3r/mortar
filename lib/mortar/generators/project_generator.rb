@@ -76,6 +76,13 @@ module Mortar
             generate_file "client.cfg.template", "client.cfg.template"
           end
 
+          mkdir "sparkscripts"
+
+          inside "sparkscripts" do
+            copy_file "README", "README"
+            generate_file "sparkscript.py", "#{project_name}_pi.py"
+          end
+
           mkdir "lib"
           inside "lib" do
             copy_file "README", "README"

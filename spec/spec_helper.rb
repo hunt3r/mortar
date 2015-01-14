@@ -180,6 +180,7 @@ def with_blank_project_with_name(name, &block)
   FileUtils.mkdir_p(project_path)
   
   # setup project subdirectories
+  FileUtils.mkdir_p(File.join(project_path, "sparkscripts"))
   FileUtils.mkdir_p(File.join(project_path, "luigiscripts"))
   FileUtils.mkdir_p(File.join(project_path, "pigscripts"))
   FileUtils.mkdir_p(File.join(project_path, "macros"))

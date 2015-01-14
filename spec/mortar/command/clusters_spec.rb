@@ -32,24 +32,26 @@ module Mortar::Command
                      "size" => 2,
                      "status_description" => "Running",
                      "start_timestamp" => "2012-08-27T21:27:15.669000+00:00",
-                     "duration" => "2 mins"},
+                     "duration" => "2 mins",
+                     "cluster_backend_description" => "Hadoop 1 (Pig)" },
                     {"cluster_id" => "50fbe5a23004292547fc2225", 
-                                 "size" => 10,
-                                 "status_description" => "Shut Down",
-                                 "start_timestamp" => "2011-08-27T21:27:15.669000+00:00",
-                                 "duration" => "20 mins"}]
-         mock(Mortar::Auth.api).get_clusters().returns(Excon::Response.new(:body => {"clusters" => clusters}))
+                     "size" => 10,
+                     "status_description" => "Shut Down",
+                     "start_timestamp" => "2011-08-27T21:27:15.669000+00:00",
+                     "duration" => "20 mins",
+                     "cluster_backend_description" => "Hadoop 2 (Spark)" }]
+         mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__ALL).returns(Excon::Response.new(:body => {"clusters" => clusters}))
          stderr, stdout = execute("clusters", nil, nil)
          stdout.should == <<-STDOUT
-cluster_id                Size (# of Nodes)  Status     Type  Start Timestamp                   Elapsed Time
-------------------------  -----------------  ---------  ----  --------------------------------  ------------
-50fbe5a23004292547fc2224                  2  Running          2012-08-27T21:27:15.669000+00:00  2 mins
-50fbe5a23004292547fc2225                 10  Shut Down        2011-08-27T21:27:15.669000+00:00  20 mins
+cluster_id                Size (# of Nodes)  Status     Type  Start Timestamp                   Elapsed Time  Cluster Backend
+------------------------  -----------------  ---------  ----  --------------------------------  ------------  ----------------
+50fbe5a23004292547fc2224                  2  Running          2012-08-27T21:27:15.669000+00:00  2 mins        Hadoop 1 (Pig)
+50fbe5a23004292547fc2225                 10  Shut Down        2011-08-27T21:27:15.669000+00:00  20 mins       Hadoop 2 (Spark)
 STDOUT
       end
 
       it "handles no clusters running" do
-        mock(Mortar::Auth.api).get_clusters().returns(Excon::Response.new(:body => {"clusters" => []}))
+        mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__ALL).returns(Excon::Response.new(:body => {"clusters" => []}))
          stderr, stdout = execute("clusters", nil, nil)
          stdout.should == <<-STDOUT
 There are no running or recent clusters

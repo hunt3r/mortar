@@ -154,11 +154,15 @@ STDOUT
         File.exists?("luigiscripts/README").should be_true
         File.exists?("luigiscripts/some_new_project_luigi.py").should be_true
         File.exists?("luigiscripts/client.cfg.template").should be_true
+        File.exists?("sparkscripts/README").should be_true
+        File.exists?("sparkscripts/some_new_project_pi.py").should be_true
         File.exists?("lib/README").should be_true
         File.exists?("params/README").should be_true
 
         File.read("pigscripts/some_new_project.pig").each_line { |line| line.match(/<%.*%>/).should be_nil }
         File.read("luigiscripts/some_new_project_luigi.py").each_line { |line| line.match(/<%.*%>/).should be_nil }
+        File.read("sparkscripts/some_new_project_pi.py").each_line { |line| line.match(/<%.*%>/).should be_nil }
+
 
         stdout.should == <<-STDOUT
 \r\e[0KVerifying GitHub username: /\r\e[0KVerifying GitHub username: -\r\e[0KVerifying GitHub username:  Done!
@@ -185,6 +189,9 @@ Sending request to register project: some_new_project... done
 \e[1;32m      create\e[0m  luigiscripts/README
 \e[1;32m      create\e[0m  luigiscripts/some_new_project_luigi.py
 \e[1;32m      create\e[0m  luigiscripts/client.cfg.template
+\e[1;32m      create\e[0m  sparkscripts
+\e[1;32m      create\e[0m  sparkscripts/README
+\e[1;32m      create\e[0m  sparkscripts/some_new_project_pi.py
 \e[1;32m      create\e[0m  lib
 \e[1;32m      create\e[0m  lib/README
 \e[1;32m      create\e[0m  params
