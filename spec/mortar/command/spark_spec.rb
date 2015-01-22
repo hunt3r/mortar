@@ -94,7 +94,7 @@ STDOUT
         end
       end
 
-      it "runs a spark job with on free cluster" do
+      it "runs a spark job on free cluster" do
         with_git_initialized_project do |p|
           # stub api requests
           job_id = "c571a8c7f76a4fd4a67c103d753e2dd5"
@@ -114,15 +114,14 @@ STDOUT
           huge_busy_cluster_size = 20
           huge_busy_cluster_status = Mortar::API::Clusters::STATUS_RUNNING
           
-
           mock(Mortar::Auth.api).get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_2) {
             Excon::Response.new(:body => { 
               'clusters' => [
-                  { 'cluster_id' => small_cluster_id, 'size' => small_cluster_size, 'running_jobs' => [], 'status_code' => small_cluster_status }, 
-                  { 'cluster_id' => large_cluster_id, 'size' => large_cluster_size, 'running_jobs' => [], 'status_code' => large_cluster_status },
-                  { 'cluster_id' => starting_cluster_id, 'size' => starting_cluster_size, 'running_jobs' => [], 'status_code' => starting_cluster_status },
+                  { 'cluster_id' => small_cluster_id, 'size' => small_cluster_size, 'running_spark_jobs' => [], 'status_code' => small_cluster_status }, 
+                  { 'cluster_id' => large_cluster_id, 'size' => large_cluster_size, 'running_spark_jobs' => [], 'status_code' => large_cluster_status },
+                  { 'cluster_id' => starting_cluster_id, 'size' => starting_cluster_size, 'running_spark_jobs' => [], 'status_code' => starting_cluster_status },
                   { 'cluster_id' => huge_busy_cluster_id, 'size' => huge_busy_cluster_size, 
-                    'running_jobs' => [ { 'job_id' => 'c571a8c7f76a4fd4a67c103d753e2dd5',
+                    'running_spark_jobs' => [ { 'job_id' => 'c571a8c7f76a4fd4a67c103d753e2dd5',
                        'job_name' => "", 'start_timestamp' => ""} ], 'status_code' => huge_busy_cluster_status  }
               ]})
           }
@@ -148,6 +147,8 @@ Job status can be viewed on the web at:
 STDOUT
         end
       end
+
+
 
     end
   end

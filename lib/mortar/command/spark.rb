@@ -79,9 +79,9 @@ class Mortar::Command::Spark < Mortar::Command::Base
 
     unless options[:clusterid] || options[:clustersize]
       clusters = api.get_clusters(Mortar::API::Jobs::CLUSTER_BACKEND__EMR_HADOOP_2).body['clusters']
-
+      
       largest_free_cluster = clusters.select{ |c| \
-        c['running_jobs'].length == 0 && c['status_code'] == Mortar::API::Clusters::STATUS_RUNNING }.
+        c['running_spark_jobs'].length == 0 && c['status_code'] == Mortar::API::Clusters::STATUS_RUNNING }.
         max_by{|c| c['size']}
 
       if largest_free_cluster.nil?
